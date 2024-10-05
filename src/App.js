@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -17,9 +17,12 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Collapse from '@mui/material/Collapse';
+import { algorithms } from './algorithms';
 
+// Define drawer width and styling components
 const drawerWidth = 240;
 
+// Styled components
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
@@ -62,155 +65,12 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-const algorithms = [
-  {
-    title: 'Divide and Conquer',
-    algorithms: [
-      'Bucket Sort',
-      'Counting Sort',
-      'Merge Sort',
-      'Pigeonhole Sort',
-      'Quicksort',
-      'Radix Sort',
-      'Binary Search',
-      'Strassen\'s Matrix Multiplication',
-      'Closest Pair of Points',
-      'Convex Hull',
-    ],
-  },
-  {
-    title: 'Dynamic Programming',
-    algorithms: [
-      'Bellman-Ford\'s Shortest Path',
-      'Catalan Number',
-      'Fibonacci Sequence',
-      'Floyd-Warshall\'s Shortest Path',
-      'Integer Partition',
-      'Knapsack Problem',
-      'Knuth-Morris-Pratt\'s String Search',
-      'Levenshtein\'s Edit Distance',
-      'Longest Common Subsequence',
-      'Longest Increasing Subsequence',
-      'Longest Palindromic Subsequence',
-      'Maximum Subarray',
-      'Maximum Sum Path',
-      'Nth Factorial',
-      'Pascal\'s Triangle',
-      'Shortest Common Supersequence',
-      'Sieve of Eratosthenes',
-      'Sliding Window',
-      'Ugly Numbers',
-      'Z String Search',
-      'Matrix Chain Multiplication',
-      'Edit Distance',
-      'Coin Change Problem',
-      'Subset Sum Problem',
-      'Game Theory (Nim Game, Grundy Numbers)',
-    ],
-  },
-  {
-    title: 'Greedy',
-    algorithms: [
-      'Boyer–Moore\'s Majority Vote',
-      'Dijkstra\'s Shortest Path',
-      'Job Scheduling Problem',
-      'Kruskal\'s Minimum Spanning Tree',
-      'Prim\'s Minimum Spanning Tree',
-      'Stable Matching',
-      'Huffman Coding',
-      'Activity Selection Problem',
-      'Fractional Knapsack Problem',
-      'Change-Making Problem',
-    ],
-  },
-  {
-    title: 'Simple Recursive',
-    algorithms: [
-      'Cellular Automata',
-      'Cycle Detection',
-      'Euclidean Greatest Common Divisor',
-      'Nth Factorial',
-      'Suffix Array',
-      'Recursive Backtracking (e.g., N-Queens Problem, Sudoku Solver)',
-    ],
-  },
-  {
-    title: 'Graph Algorithms',
-    algorithms: [
-      'Depth-First Search (DFS)',
-      'Breadth-First Search (BFS)',
-      'A* Search Algorithm',
-      'Topological Sorting',
-      'Tarjan\'s Algorithm (Strongly Connected Components)',
-      'Bellman-Ford Algorithm',
-      'Johnson\'s Algorithm',
-      'Minimum Spanning Tree (Kruskal and Prim)',
-      'Floyd-Warshall Algorithm',
-    ],
-  },
-  {
-    title: 'Searching Algorithms',
-    algorithms: [
-      'Linear Search',
-      'Binary Search',
-      'Interpolation Search',
-      'Exponential Search',
-      'Fibonacci Search',
-    ],
-  },
-  {
-    title: 'Sorting Algorithms',
-    algorithms: [
-      'Bubble Sort',
-      'Insertion Sort',
-      'Selection Sort',
-      'Shell Sort',
-      'Heap Sort',
-      'Comb Sort',
-      'Tim Sort',
-    ],
-  },
-  {
-    title: 'String Algorithms',
-    algorithms: [
-      'Rabin-Karp Algorithm',
-      'Z Algorithm',
-      'Aho-Corasick Algorithm',
-      'KMP Algorithm',
-      'Suffix Tree Construction',
-      'Longest Repeated Substring',
-    ],
-  },
-  {
-    title: 'Miscellaneous Algorithms',
-    algorithms: [
-      'Backtracking (e.g., Hamiltonian Cycle)',
-      'Randomized Algorithms (e.g., Randomized QuickSort)',
-      'Monte Carlo Algorithms',
-      'Simulated Annealing',
-      'Genetic Algorithms',
-    ],
-  },
-  {
-    title: 'Uncategorised',
-    algorithms: [
-      'Affine Cipher',
-      'Caesar Cipher',
-      'Freivalds\' Matrix-Multiplication Verification',
-      'K-Means Clustering',
-      'Magic Square',
-      'Maze Generation',
-      'Miller-Rabin\'s Primality Test',
-      'Shortest Unsorted Continuous Subarray',
-      'Conway\'s Game of Life',
-    ],
-  },
-];
-
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-  const [openAlgorithms, setOpenAlgorithms] = React.useState({});
+  const [open, setOpen] = useState(false);
+  const [openAlgorithms, setOpenAlgorithms] = useState({});
+  const [algorithmImplementation, setAlgorithmImplementation] = useState('');
+  const [visualizationState, setVisualizationState] = useState([]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -227,8 +87,15 @@ export default function PersistentDrawerLeft() {
     }));
   };
 
+  const handleAlgorithmClick = (algorithm) => {
+    // This is where you'd set the implementation and visualization state
+    setAlgorithmImplementation(`function ${algorithm}() { /* Implementation here */ }`);
+    // Example visualization state (you can modify this based on actual implementation)
+    setVisualizationState([1, 2, 3, 4, 5]);
+  };
+
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', height: '100vh' }}>
       <CssBaseline />
       <AppBarStyled position="fixed" open={open}>
         <Toolbar>
@@ -276,7 +143,9 @@ export default function PersistentDrawerLeft() {
                 <List component="div" disablePadding>
                   {category.algorithms.map((algorithm) => (
                     <ListItem key={algorithm} sx={{ pl: 4 }}>
-                      <ListItemText primary={algorithm} sx={{ color: 'black' }} />
+                      <ListItemButton onClick={() => handleAlgorithmClick(algorithm)}>
+                        <ListItemText primary={algorithm} sx={{ color: 'black' }} />
+                      </ListItemButton>
                     </ListItem>
                   ))}
                 </List>
@@ -291,6 +160,66 @@ export default function PersistentDrawerLeft() {
         <Typography sx={{ marginBottom: 2 }}>
           Here you can explore various algorithms categorized into different sections. Click on the categories to reveal the algorithms.
         </Typography>
+        
+        {/* Dynamic Visualization Section */}
+        <Box sx={{ display: 'flex', height: '100%', marginTop: 2 }}>
+          <Box
+            sx={{
+              flex: 1,
+              border: '1px solid lightgray',
+              borderRadius: '8px',
+              padding: 2,
+              overflow: 'auto',
+              backgroundColor: '#f9f9f9',
+            }}
+          >
+            <Typography variant="h6">Algorithm Implementation</Typography>
+            <pre>{algorithmImplementation}</pre>
+          </Box>
+          <Box
+            sx={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginLeft: 2,
+              border: '1px solid lightgray',
+              borderRadius: '8px',
+              padding: 2,
+              backgroundColor: '#f0f0f0',
+            }}
+          >
+            <Typography variant="h6">Visualizations</Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {visualizationState.map((value, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    width: 50,
+                    height: 50,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid black',
+                    borderRadius: '4px',
+                    backgroundColor: value % 2 === 0 ? '#90caf9' : '#ffab91', // Example colors for values
+                  }}
+                >
+                  {value}
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Box>
       </Main>
     </Box>
   );
