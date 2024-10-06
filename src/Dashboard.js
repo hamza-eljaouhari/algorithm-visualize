@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -68,13 +68,13 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 export default function Dashboard() {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-  const [selectedAlgorithm, setSelectedAlgorithm] = React.useState(null);
-  const [selectedCategory, setSelectedCategory] = React.useState(null);
-  const [algorithmSteps, setAlgorithmSteps] = React.useState([]);
-  const [currentStep, setCurrentStep] = React.useState(0);
-  const [exampleArray, setExampleArray] = React.useState([]); // New state for example array
-  const [expanded, setExpanded] = React.useState(false); // For accordion state
+  const [open, setOpen] = useState(false);
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [algorithmSteps, setAlgorithmSteps] = useState([]);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [generatedParams, setGeneratedParams] = useState([]); // Generated parameters
+  const [expanded, setExpanded] = useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -84,24 +84,34 @@ export default function Dashboard() {
     setOpen(false);
   };
 
-  // Function to generate random array
-  const generateRandomArray = (size, min = 1, max = 100) => {
-    return Array.from({ length: size }, () => Math.floor(Math.random() * (max - min + 1)) + min);
+  // Function to generate random arrays or matrices
+  const generateParameters = (parameters) => {
+    return parameters.map(param => {
+      if (param.type === 'array') {
+        return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min);
+      } else if (param.type === 'matrix') {
+        const [rows, cols] = param.size;
+        return Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min));
+      } else if (param.type === 'integer') {
+        return Math.floor(Math.random() * (param.max - param.min + 1)) + param.min;
+      }
+      return null;
+    });
   };
 
   const handleAlgorithmSelection = async (categoryName, algorithmName) => {
     setSelectedAlgorithm(algorithmName);
     setSelectedCategory(categoryName);
 
-    // Generate a new random example array each time an algorithm is selected
-    const newExampleArray = generateRandomArray(6, 1, 20);
-    setExampleArray(newExampleArray);
-
     const algorithmImplementation = implementations[categoryName]?.algorithms.find(alg => alg.name === algorithmName);
 
     if (algorithmImplementation) {
       setAlgorithmSteps([]); // Reset steps before execution
       setCurrentStep(0);
+
+      // Generate parameters based on algorithm's parameter definition
+      const params = generateParameters(algorithmImplementation.parameters);
+      setGeneratedParams(params); // Store the generated parameters
     }
   };
 
@@ -112,21 +122,21 @@ export default function Dashboard() {
 
   const executeAlgorithm = async () => {
     if (!selectedAlgorithm) {
-      console.error("No algorithm selected!");
+      console.error('No algorithm selected!');
       return;
     }
 
     const algorithmImplementation = implementations[selectedCategory]?.algorithms.find((algorithm) => algorithm.name === selectedAlgorithm);
 
     if (!algorithmImplementation || !algorithmImplementation.execute) {
-      console.error("No valid implementation found for the selected algorithm!");
+      console.error('No valid implementation found for the selected algorithm!');
       return;
     }
 
-    // Execute the algorithm and get the steps for visualization
-    await algorithmImplementation.execute(exampleArray, updateStep); // Use the generated exampleArray
+    // Execute the algorithm with generated parameters
+    await algorithmImplementation.execute(...generatedParams, updateStep);
 
-    console.log("Algorithms Steps :", algorithmSteps);
+    console.log('Algorithms Steps :', algorithmSteps);
   };
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
@@ -182,7 +192,6 @@ export default function Dashboard() {
           </IconButton>
         </DrawerHeader>
         <Divider />
-        {/* Accordion for categories and algorithms */}
         {algorithms.map((category, index) => (
           <Accordion key={index} expanded={expanded === category.title} onChange={handleAccordionChange(category.title)}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`${category.title}-content`} id={`${category.title}-header`}>
@@ -202,15 +211,12 @@ export default function Dashboard() {
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-        {/* Two 50% Width Boxes */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-          {/* Visualizer Box (Left 50%) */}
           <Box sx={{ width: '50%', paddingRight: 2 }}>
             <Typography variant="h6">Algorithm Visualization</Typography>
             <AlgorithmVisualizer steps={algorithmSteps} currentStep={currentStep} />
           </Box>
 
-          {/* Code Display Box (Right 50%) */}
           <Box sx={{ width: '50%', paddingLeft: 2, borderLeft: '1px solid #ccc' }}>
             <Typography variant="h6">Algorithm Code</Typography>
             <pre style={{ backgroundColor: '#f4f4f4', padding: '10px' }}>
