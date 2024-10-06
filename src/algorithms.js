@@ -141,5 +141,4 @@ export const algorithms = [
         'Conway\'s Game of Life',
       ],
     },
-  ];
-  
+];
