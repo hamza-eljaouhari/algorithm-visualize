@@ -73,9 +73,11 @@ export default function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [algorithmSteps, setAlgorithmSteps] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
-  const [generatedParams, setGeneratedParams] = useState([]); // Generated parameters
+  const [generatedParams, setGeneratedParams] = useState([]);
   const [expanded, setExpanded] = useState(false);
-
+  const [visualizationType, setVisualizationType] = useState(false);
+  const [finalResult, setFinalResult] = useState(null); // New state to store final results
+  
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -84,7 +86,6 @@ export default function Dashboard() {
     setOpen(false);
   };
 
-  // Function to generate random arrays or matrices
   const generateParameters = (parameters) => {
     return parameters.map(param => {
       if (param.type === 'array') {
@@ -92,8 +93,10 @@ export default function Dashboard() {
       } else if (param.type === 'matrix') {
         const [rows, cols] = param.size;
         return Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min));
-      } else if (param.type === 'integer') {
+      } else if (param.type === 'integer' || param.type === 'number') {
         return Math.floor(Math.random() * (param.max - param.min + 1)) + param.min;
+      } else if (param.type === 'points') {
+        return Array.from({ length: param.length }, () => [Math.floor(Math.random() * (param.max - param.min + 1)) + param.min, Math.floor(Math.random() * (param.max - param.min + 1)) + param.min]);
       }
       return null;
     });
@@ -106,17 +109,19 @@ export default function Dashboard() {
     const algorithmImplementation = implementations[categoryName]?.algorithms.find(alg => alg.name === algorithmName);
 
     if (algorithmImplementation) {
-      setAlgorithmSteps([]); // Reset steps before execution
+      setAlgorithmSteps([]);
       setCurrentStep(0);
-
-      // Generate parameters based on algorithm's parameter definition
+      setFinalResult(null); // Reset final result
       const params = generateParameters(algorithmImplementation.parameters);
-      setGeneratedParams(params); // Store the generated parameters
+      setGeneratedParams(params);
+      setVisualizationType(algorithmImplementation.outputType)
     }
   };
 
-  // Define the updateStep function to handle updates
   const updateStep = (stepData) => {
+    if (stepData.final) {
+      setFinalResult(stepData.arr); // Store the final result
+    }
     setAlgorithmSteps((prevSteps) => [...prevSteps, stepData]);
   };
 
@@ -126,31 +131,30 @@ export default function Dashboard() {
       return;
     }
 
-    const algorithmImplementation = implementations[selectedCategory]?.algorithms.find((algorithm) => algorithm.name === selectedAlgorithm);
+    const algorithmImplementation = implementations[selectedCategory]?.algorithms.find(
+      (algorithm) => algorithm.name === selectedAlgorithm
+    );
 
     if (!algorithmImplementation || !algorithmImplementation.execute) {
       console.error('No valid implementation found for the selected algorithm!');
       return;
     }
 
-    // Execute the algorithm with generated parameters
+    updateStep({ data: generatedParams, color: 'initial' });
     await algorithmImplementation.execute(...generatedParams, updateStep);
-
-    console.log('Algorithms Steps :', algorithmSteps);
   };
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
 
-  // Effect to display algorithm steps over time
   useEffect(() => {
     if (currentStep < algorithmSteps.length) {
       const timer = setTimeout(() => {
         setCurrentStep((prevStep) => prevStep + 1);
-      }, 700); // Set interval to 700ms
+      }, 500);
 
-      return () => clearTimeout(timer); // Cleanup timer
+      return () => clearTimeout(timer);
     }
   }, [currentStep, algorithmSteps]);
 
@@ -214,9 +218,14 @@ export default function Dashboard() {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           <Box sx={{ width: '50%', paddingRight: 2 }}>
             <Typography variant="h6">Algorithm Visualization</Typography>
-            <AlgorithmVisualizer steps={algorithmSteps} currentStep={currentStep} />
+            <AlgorithmVisualizer steps={algorithmSteps} currentStep={currentStep} outputType={visualizationType} />
+            {finalResult && (
+              <Box sx={{ mt: 2, p: 2, backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
+                <Typography variant="subtitle1">Final Result:</Typography>
+                <pre>{JSON.stringify(finalResult, null, 2)}</pre>
+              </Box>
+            )}
           </Box>
-
           <Box sx={{ width: '50%', paddingLeft: 2, borderLeft: '1px solid #ccc' }}>
             <Typography variant="h6">Algorithm Code</Typography>
             <pre style={{ backgroundColor: '#f4f4f4', padding: '10px' }}>

@@ -6,12 +6,15 @@ export const implementations = {
         parameters: [
           { name: 'arr', type: 'array', length: 10, min: 1, max: 100 },
         ],
+        outputType: 'array',
+        visualization: {
+          stepType: 'array', 
+          finalType: 'array',
+        },
         code: `function bucketSort(arr, bucketSize = 5) {
           if (arr.length === 0) return arr;
-          
           let min = Math.min(...arr);
           let max = Math.max(...arr);
-
           let bucketCount = Math.floor((max - min) / bucketSize) + 1;
           let buckets = Array.from({ length: bucketCount }, () => []);
 
@@ -30,19 +33,17 @@ export const implementations = {
         }`,
         execute: async function (arr, updateStep) {
           if (arr.length === 0) return arr;
-
           let min = Math.min(...arr);
           let max = Math.max(...arr);
           let bucketSize = 5;
-
           let bucketCount = Math.floor((max - min) / bucketSize) + 1;
           let buckets = Array.from({ length: bucketCount }, () => []);
-          updateStep({ buckets: [...buckets], color: 'yellow' });
+          updateStep({ arr: [...arr], current: [], operation: 'initialize', final: false });
 
           for (let i = 0; i < arr.length; i++) {
             let bucketIndex = Math.floor((arr[i] - min) / bucketSize);
             buckets[bucketIndex].push(arr[i]);
-            updateStep({ arr: [...arr], buckets: [...buckets], color: 'blue' });
+            updateStep({ arr: [...arr], current: [i], operation: 'assignment', final: false });
           }
 
           arr = [];
@@ -50,10 +51,11 @@ export const implementations = {
             if (buckets[i] != null) {
               buckets[i].sort((a, b) => a - b);
               arr = arr.concat(buckets[i]);
-              updateStep({ arr: [...arr], buckets: [...buckets], color: 'green' });
+              updateStep({ arr: [...arr], current: [], operation: 'sorting', final: false });
             }
           }
 
+          updateStep({ arr: [...arr], current: [], operation: 'final', final: true });
           return arr;
         },
       },
@@ -62,6 +64,11 @@ export const implementations = {
         parameters: [
           { name: 'arr', type: 'array', length: 10, min: 1, max: 50 },
         ],
+        outputType: 'array',
+        visualization: {
+          stepType: 'array',
+          finalType: 'array',
+        },
         code: `function countingSort(arr) {
           let min = Math.min(...arr);
           let max = Math.max(...arr);
@@ -84,10 +91,11 @@ export const implementations = {
           let min = Math.min(...arr);
           let max = Math.max(...arr);
           let count = Array(max - min + 1).fill(0);
+          updateStep({ arr: [...arr], current: [], operation: 'initialize', final: false });
 
           for (let num of arr) {
             count[num - min]++;
-            updateStep({ count: [...count], arr: [...arr], color: 'yellow' });
+            updateStep({ arr: [...arr], current: [arr.indexOf(num)], operation: 'increment', final: false });
           }
 
           let sortedArr = [];
@@ -95,10 +103,11 @@ export const implementations = {
             while (count[i] > 0) {
               sortedArr.push(i + min);
               count[i]--;
-              updateStep({ count: [...count], sortedArr: [...sortedArr], color: 'green' });
+              updateStep({ arr: [...sortedArr], current: [], operation: 'assignment', final: false });
             }
           }
 
+          updateStep({ arr: [...sortedArr], current: [], operation: 'final', final: true });
           return sortedArr;
         },
       },
@@ -107,6 +116,11 @@ export const implementations = {
         parameters: [
           { name: 'arr', type: 'array', length: 6, min: 1, max: 100 },
         ],
+        outputType: 'array',
+        visualization: {
+          stepType: 'array', 
+          finalType: 'array',
+        },
         code: `function mergeSort(arr) {
           if (arr.length <= 1) return arr;
           const mid = Math.floor(arr.length / 2);
@@ -133,7 +147,7 @@ export const implementations = {
         }`,
         execute: async function (arr, updateStep) {
           if (arr.length <= 1) {
-            updateStep({ arr: [...arr], color: 'green', final: true });
+            updateStep({ arr: [...arr], current: [], operation: 'final', final: true });
             return arr;
           }
 
@@ -142,7 +156,7 @@ export const implementations = {
           const right = await this.execute(arr.slice(mid), updateStep);
           const merged = merge(left, right);
 
-          updateStep({ arr: merged, color: 'green', final: true });
+          updateStep({ arr: merged, current: [], operation: 'merge', final: false });
           return merged;
 
           function merge(left, right) {
@@ -158,59 +172,22 @@ export const implementations = {
                 result.push(right[rightIndex]);
                 rightIndex++;
               }
-              updateStep({ arr: [...result, ...left.slice(leftIndex), ...right.slice(rightIndex)], color: 'blue' });
+              updateStep({ arr: [...result, ...left.slice(leftIndex), ...right.slice(rightIndex)], current: [], operation: 'merge', final: false });
             }
             return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
           }
         },
       },
       {
-        name: 'Binary Search',
-        parameters: [
-          { name: 'arr', type: 'sortedArray', length: 10, min: 1, max: 100 },
-          { name: 'target', type: 'number', min: 1, max: 100 },
-        ],
-        code: `function binarySearch(arr, target) {
-          let left = 0;
-          let right = arr.length - 1;
-        
-          while (left <= right) {
-            const mid = Math.floor((left + right) / 2);
-            if (arr[mid] === target) return mid;
-            if (arr[mid] < target) left = mid + 1;
-            else right = mid - 1;
-          }
-          return -1;
-        }`,
-        execute: async function (arr, target, updateStep) {
-          let left = 0;
-          let right = arr.length - 1;
-      
-          while (left <= right) {
-            const mid = Math.floor((left + right) / 2);
-            updateStep({ arr: [...arr], left, right, mid, current: mid, target, color: 'yellow' });
-      
-            if (arr[mid] === target) {
-              updateStep({ arr: [...arr], left, right, mid, current: mid, target, color: 'green', final: true });
-              return mid;
-            }
-      
-            if (arr[mid] < target) {
-              left = mid + 1;
-            } else {
-              right = mid - 1;
-            }
-          }
-      
-          updateStep({ arr: [...arr], left, right, target, color: 'red', final: true });
-          return -1;
-        },
-      },      
-      {
         name: 'Pigeonhole Sort',
         parameters: [
           { name: 'arr', type: 'array', length: 10, min: 1, max: 50 },
         ],
+        outputType: 'array',
+        visualization: {
+          stepType: 'array',
+          finalType: 'array',
+        },
         code: `function pigeonholeSort(arr) {
           let min = Math.min(...arr);
           let max = Math.max(...arr);
@@ -234,20 +211,22 @@ export const implementations = {
           let max = Math.max(...arr);
           let size = max - min + 1;
           let holes = Array(size).fill(0);
+          updateStep({ arr: [...arr], current: [], operation: 'initialize', final: false });
 
           for (let i = 0; i < arr.length; i++) {
             holes[arr[i] - min]++;
-            updateStep({ arr: [...arr], holes: [...holes], color: 'yellow' });
+            updateStep({ arr: [...arr], current: [i], operation: 'increment', final: false });
           }
 
           let sortedArr = [];
           for (let i = 0; i < size; i++) {
             while (holes[i]-- > 0) {
               sortedArr.push(i + min);
-              updateStep({ sortedArr: [...sortedArr], holes: [...holes], color: 'green' });
+              updateStep({ arr: [...sortedArr], current: [], operation: 'assignment', final: false });
             }
           }
 
+          updateStep({ arr: [...sortedArr], current: [], operation: 'final', final: true });
           return sortedArr;
         },
       },
@@ -256,9 +235,13 @@ export const implementations = {
         parameters: [
           { name: 'arr', type: 'array', length: 6, min: 1, max: 100 },
         ],
+        outputType: 'array',
+        visualization: {
+          stepType: 'array',
+          finalType: 'array',
+        },
         code: `function quicksort(arr) {
           if (arr.length <= 1) return arr;
-
           const pivot = arr[arr.length - 1];
           const left = [];
           const right = [];
@@ -270,28 +253,35 @@ export const implementations = {
               right.push(arr[i]);
             }
           }
-
           return [...quicksort(left), pivot, ...quicksort(right)];
         }`,
         execute: async function (arr, updateStep) {
-          if (arr.length <= 1) return arr;
+          if (arr.length <= 1) {
+            updateStep({ arr: [...arr], current: [], operation: 'final', final: true });
+            return arr;
+          }
 
           const pivot = arr[arr.length - 1];
           const left = [];
           const right = [];
+          updateStep({ arr: [...arr], current: [arr.length - 1], operation: 'initializePivot', final: false });
 
           for (let i = 0; i < arr.length - 1; i++) {
             if (arr[i] < pivot) {
               left.push(arr[i]);
+              updateStep({ arr: [...arr], current: [i], operation: 'pushLeft', final: false });
             } else {
               right.push(arr[i]);
+              updateStep({ arr: [...arr], current: [i], operation: 'pushRight', final: false });
             }
-            updateStep({ arr: [...arr], left: [...left], right: [...right], pivot, color: 'yellow' });
           }
 
-          const result = [...await this.execute(left, updateStep), pivot, ...await this.execute(right, updateStep)];
-          updateStep({ arr: [...result], color: 'green', final: true });
-          return result;
+          const sortedLeft = await this.execute(left, updateStep);
+          const sortedRight = await this.execute(right, updateStep);
+          const sortedArray = [...sortedLeft, pivot, ...sortedRight];
+
+          updateStep({ arr: sortedArray, current: [], operation: 'merge', final: true });
+          return sortedArray;
         },
       },
       {
@@ -299,6 +289,11 @@ export const implementations = {
         parameters: [
           { name: 'arr', type: 'array', length: 10, min: 1, max: 1000 },
         ],
+        outputType: 'array',
+        visualization: {
+          stepType: 'array',
+          finalType: 'array',
+        },
         code: `function radixSort(arr) {
           const maxNum = Math.max(...arr) * 10;
           let divisor = 10;
@@ -315,35 +310,88 @@ export const implementations = {
         execute: async function (arr, updateStep) {
           const maxNum = Math.max(...arr) * 10;
           let divisor = 10;
+          updateStep({ arr: [...arr], current: [], operation: 'initialize', final: false });
+
           while (divisor < maxNum) {
             let buckets = [...Array(10)].map(() => []);
-            for (let num of arr) {
-              let bucketIndex = Math.floor((num % divisor) / (divisor / 10));
-              buckets[bucketIndex].push(num);
-              updateStep({ arr: [...arr], buckets: [...buckets], divisor, color: 'blue' });
+            for (let i = 0; i < arr.length; i++) {
+              const bucketIndex = Math.floor((arr[i] % divisor) / (divisor / 10));
+              buckets[bucketIndex].push(arr[i]);
+              updateStep({ arr: [...arr], current: [i], operation: 'assignment', final: false });
             }
             arr = [].concat(...buckets);
             divisor *= 10;
+            updateStep({ arr: [...arr], current: [], operation: 'sort', final: false });
           }
 
-          updateStep({ arr: [...arr], color: 'green', final: true });
+          updateStep({ arr: [...arr], current: [], operation: 'final', final: true });
           return arr;
+        },
+      },
+      {
+        name: 'Binary Search',
+        parameters: [
+          { name: 'arr', type: 'sortedArray', length: 10, min: 1, max: 100 },
+          { name: 'target', type: 'number', min: 1, max: 100 },
+        ],
+        outputType: 'index',
+        visualization: {
+          stepType: 'array',
+          finalType: 'array',
+        },
+        code: `function binarySearch(arr, target) {
+          let left = 0;
+          let right = arr.length - 1;
+          while (left <= right) {
+            const mid = Math.floor((left + right) / 2);
+            if (arr[mid] === target) return mid;
+            if (arr[mid] < target) left = mid + 1;
+            else right = mid - 1;
+          }
+          return -1;
+        }`,
+        execute: async function (arr, target, updateStep) {
+          let left = 0;
+          let right = arr.length - 1;
+          while (left <= right) {
+            const mid = Math.floor((left + right) / 2);
+            updateStep({ arr: [...arr], current: [mid], operation: 'conditionCheck', final: false });
+
+            if (arr[mid] === target) {
+              updateStep({ arr: [...arr], current: [mid], operation: 'final', final: true });
+              return mid;
+            }
+
+            if (arr[mid] < target) {
+              left = mid + 1;
+              updateStep({ arr: [...arr], current: [mid], operation: 'increment', final: false });
+            } else {
+              right = mid - 1;
+              updateStep({ arr: [...arr], current: [mid], operation: 'decrement', final: false });
+            }
+          }
+
+          updateStep({ arr: [...arr], current: [], operation: 'notFound', final: true });
+          return -1;
         },
       },
       {
         name: "Strassen's Matrix Multiplication",
         parameters: [
-          { name: 'A', type: 'matrix', size: 2, min: 1, max: 100 }, // 2x2 matrix
-          { name: 'B', type: 'matrix', size: 2, min: 1, max: 100 }, // 2x2 matrix
+          { name: 'A', type: 'matrix', size: [2, 2], min: 1, max: 100 },
+          { name: 'B', type: 'matrix', size: [2, 2], min: 1, max: 100 },
         ],
+        outputType: 'matrix',
+        visualization: {
+          stepType: 'matrix', 
+          finalType: 'matrix',
+        },
         code: `function strassenMultiply(A, B) {
           const n = A.length;
           if (n === 1) return [[A[0][0] * B[0][0]]];
-      
           const half = Math.floor(n / 2);
           const [A11, A12, A21, A22] = splitMatrix(A);
           const [B11, B12, B21, B22] = splitMatrix(B);
-      
           const M1 = strassenMultiply(addMatrix(A11, A22), addMatrix(B11, B22));
           const M2 = strassenMultiply(addMatrix(A21, A22), B11);
           const M3 = strassenMultiply(A11, subMatrix(B12, B22));
@@ -351,70 +399,40 @@ export const implementations = {
           const M5 = strassenMultiply(addMatrix(A11, A12), B22);
           const M6 = strassenMultiply(subMatrix(A21, A11), addMatrix(B11, B12));
           const M7 = strassenMultiply(subMatrix(A12, A22), addMatrix(B21, B22));
-      
           const C11 = addMatrix(subMatrix(addMatrix(M1, M4), M5), M7);
           const C12 = addMatrix(M3, M5);
           const C21 = addMatrix(M2, M4);
           const C22 = addMatrix(subMatrix(addMatrix(M1, M3), M2), M6);
-      
           return joinMatrices(C11, C12, C21, C22);
         }`,
         execute: async function (A, B, updateStep) {
           function splitMatrix(M) {
-            const n = M.length;
-            const half = Math.floor(n / 2);
+            const half = Math.floor(M.length / 2);
             const A11 = M.slice(0, half).map(row => row.slice(0, half));
             const A12 = M.slice(0, half).map(row => row.slice(half));
             const A21 = M.slice(half).map(row => row.slice(0, half));
             const A22 = M.slice(half).map(row => row.slice(half));
             return [A11, A12, A21, A22];
           }
-      
+
           function addMatrix(M1, M2) {
-            const n = M1.length;
-            const result = Array(n).fill(null).map(() => Array(n).fill(0));
-            for (let i = 0; i < n; i++) {
-              for (let j = 0; j < n; j++) {
-                result[i][j] = M1[i][j] + M2[i][j];
-              }
-            }
-            return result;
+            return M1.map((row, i) => row.map((val, j) => val + M2[i][j]));
           }
-      
+
           function subMatrix(M1, M2) {
-            const n = M1.length;
-            const result = Array(n).fill(null).map(() => Array(n).fill(0));
-            for (let i = 0; i < n; i++) {
-              for (let j = 0; j < n; j++) {
-                result[i][j] = M1[i][j] - M2[i][j];
-              }
-            }
-            return result;
+            return M1.map((row, i) => row.map((val, j) => val - M2[i][j]));
           }
-      
+
           function joinMatrices(C11, C12, C21, C22) {
-            const n = C11.length * 2;
-            const result = Array(n).fill(null).map(() => Array(n).fill(0));
-            const half = Math.floor(n / 2);
-            for (let i = 0; i < half; i++) {
-              for (let j = 0; j < half; j++) {
-                result[i][j] = C11[i][j];
-                result[i][j + half] = C12[i][j];
-                result[i + half][j] = C21[i][j];
-                result[i + half][j + half] = C22[i][j];
-              }
-            }
-            return result;
+            const half = C11.length;
+            return [...C11.map((row, i) => [...row, ...C12[i]]), ...C21.map((row, i) => [...row, ...C22[i]])];
           }
-      
+
           function strassenMultiply(A, B) {
             const n = A.length;
             if (n === 1) return [[A[0][0] * B[0][0]]];
-      
-            const half = Math.floor(n / 2);
             const [A11, A12, A21, A22] = splitMatrix(A);
             const [B11, B12, B21, B22] = splitMatrix(B);
-      
             const M1 = strassenMultiply(addMatrix(A11, A22), addMatrix(B11, B22));
             const M2 = strassenMultiply(addMatrix(A21, A22), B11);
             const M3 = strassenMultiply(A11, subMatrix(B12, B22));
@@ -422,17 +440,15 @@ export const implementations = {
             const M5 = strassenMultiply(addMatrix(A11, A12), B22);
             const M6 = strassenMultiply(subMatrix(A21, A11), addMatrix(B11, B12));
             const M7 = strassenMultiply(subMatrix(A12, A22), addMatrix(B21, B22));
-      
             const C11 = addMatrix(subMatrix(addMatrix(M1, M4), M5), M7);
             const C12 = addMatrix(M3, M5);
             const C21 = addMatrix(M2, M4);
             const C22 = addMatrix(subMatrix(addMatrix(M1, M3), M2), M6);
-      
             return joinMatrices(C11, C12, C21, C22);
           }
-      
+
           const result = strassenMultiply(A, B);
-          updateStep({ result, color: 'green', final: true });
+          updateStep({ arr: result.flat(), current: [], operation: 'final', final: true });
           return result;
         },
       },
@@ -441,13 +457,16 @@ export const implementations = {
         parameters: [
           { name: 'points', type: 'points', length: 10, min: 1, max: 50 },
         ],
+        outputType: 'array',
+        visualization: {
+          stepType: 'points',
+          finalType: 'points',
+        },
         code: `function closestPair(points) {
           points.sort((a, b) => a[0] - b[0]);
-
           function distance(p1, p2) {
             return Math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2);
           }
-
           function closestPairRecursive(pts) {
             const n = pts.length;
             if (n <= 3) {
@@ -462,23 +481,19 @@ export const implementations = {
               }
               return minDist;
             }
-
             const mid = Math.floor(n / 2);
             const left = pts.slice(0, mid);
             const right = pts.slice(mid);
             const minLeft = closestPairRecursive(left);
             const minRight = closestPairRecursive(right);
-
             return Math.min(minLeft, minRight);
           }
-
           return closestPairRecursive(points);
         }`,
         execute: async function (points, updateStep) {
           function distance(p1, p2) {
             return Math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2);
           }
-
           function closestPairRecursive(pts) {
             const n = pts.length;
             if (n <= 3) {
@@ -486,7 +501,7 @@ export const implementations = {
               for (let i = 0; i < n; i++) {
                 for (let j = i + 1; j < n; j++) {
                   const dist = distance(pts[i], pts[j]);
-                  updateStep({ points: [...pts], current: [pts[i], pts[j]], dist, color: 'yellow' });
+                  updateStep({ arr: pts, current: [i, j], operation: 'distanceCheck', final: false });
                   if (dist < minDist) {
                     minDist = dist;
                   }
@@ -494,7 +509,6 @@ export const implementations = {
               }
               return minDist;
             }
-
             const mid = Math.floor(n / 2);
             const left = pts.slice(0, mid);
             const right = pts.slice(mid);
@@ -502,9 +516,8 @@ export const implementations = {
             const minRight = closestPairRecursive(right);
             return Math.min(minLeft, minRight);
           }
-
           const result = closestPairRecursive(points);
-          updateStep({ result, points, color: 'green', final: true });
+          updateStep({ arr: points, current: [], operation: 'final', final: true });
           return result;
         },
       },
@@ -513,13 +526,16 @@ export const implementations = {
         parameters: [
           { name: 'points', type: 'points', length: 10, min: 1, max: 50 },
         ],
+        outputType: 'array',
+        visualization: {
+          stepType: 'points',
+          finalType: 'points',
+        },
         code: `function convexHull(points) {
           points.sort((a, b) => a[0] - b[0]);
-
           function cross(o, a, b) {
             return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
           }
-
           const lower = [];
           for (let point of points) {
             while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], point) <= 0) {
@@ -527,7 +543,6 @@ export const implementations = {
             }
             lower.push(point);
           }
-
           const upper = [];
           for (let i = points.length - 1; i >= 0; i--) {
             const point = points[i];
@@ -536,7 +551,6 @@ export const implementations = {
             }
             upper.push(point);
           }
-
           upper.pop();
           lower.pop();
           return lower.concat(upper);
@@ -545,30 +559,30 @@ export const implementations = {
           function cross(o, a, b) {
             return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
           }
-
           const lower = [];
-          for (let point of points) {
+          for (let i = 0; i < points.length; i++) {
+            const point = points[i];
             while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], point) <= 0) {
               lower.pop();
-              updateStep({ hull: [...lower], color: 'yellow' });
+              updateStep({ arr: [...lower], current: [i], operation: 'remove', final: false });
             }
             lower.push(point);
+            updateStep({ arr: [...lower], current: [i], operation: 'add', final: false });
           }
-
           const upper = [];
           for (let i = points.length - 1; i >= 0; i--) {
             const point = points[i];
             while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], point) <= 0) {
               upper.pop();
-              updateStep({ hull: [...upper], color: 'yellow' });
+              updateStep({ arr: [...upper], current: [i], operation: 'remove', final: false });
             }
             upper.push(point);
+            updateStep({ arr: [...upper], current: [i], operation: 'add', final: false });
           }
-
           upper.pop();
           lower.pop();
           const hull = lower.concat(upper);
-          updateStep({ hull, color: 'green', final: true });
+          updateStep({ arr: hull, current: [], operation: 'final', final: true });
           return hull;
         },
       },

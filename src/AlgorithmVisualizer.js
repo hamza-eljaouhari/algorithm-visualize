@@ -12,17 +12,17 @@ const operationColors = {
   initialize: 'lightblue',
   nullify: 'lightcoral',
   undefine: 'lightyellow',
-  final: 'lightgreen', // Color for final result display
+  final: 'lightgreen',
 };
 
-export default function AlgorithmVisualizer({ steps, currentStep }) {
+export default function AlgorithmVisualizer({ steps, currentStep, outputType }) {
   if (steps.length === 0 || currentStep >= steps.length) {
     return <div>No visualization available.</div>;
   }
 
   const { arr, current, operation, final } = steps[currentStep];
 
-  return (
+  const renderArray = () => (
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       {arr && arr.map((value, index) => (
         <Box
@@ -32,12 +32,10 @@ export default function AlgorithmVisualizer({ steps, currentStep }) {
             height: '50px',
             lineHeight: '50px',
             textAlign: 'center',
-            backgroundColor: current?.includes(index) 
-              ? operationColors[operation] || 'lightgray' // Default color
-              : 'lightgray',
+            backgroundColor: current?.includes(index) ? operationColors[operation] || 'lightgray' : 'lightgray',
             margin: '0 5px',
             border: '1px solid black',
-            opacity: final ? 0.5 : 1, // Dim the boxes if it's a final result step
+            opacity: final ? 0.5 : 1,
           }}
         >
           {value}
@@ -45,4 +43,31 @@ export default function AlgorithmVisualizer({ steps, currentStep }) {
       ))}
     </Box>
   );
+
+  const renderPoints = () => (
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {arr && arr.map(([x, y], index) => (
+        <Box
+          key={index}
+          sx={{
+            width: '10px',
+            height: '10px',
+            backgroundColor: current?.includes(index) ? operationColors[operation] || 'lightgray' : 'lightgray',
+            position: 'absolute',
+            top: `${y}%`,
+            left: `${x}%`,
+          }}
+        />
+      ))}
+    </Box>
+  );
+
+  switch (outputType) {
+    case 'array':
+      return renderArray();
+    case 'points':
+      return renderPoints();
+    default:
+      return <div>Unsupported visualization type.</div>;
+  }
 }
