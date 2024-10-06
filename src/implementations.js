@@ -1,4 +1,3 @@
-// src/algorithmsImplementations.js
 export const implementations = {
   // Divide and Conquer Category
   'Divide and Conquer': {
@@ -30,13 +29,17 @@ export const implementations = {
           return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
         }`,
         execute: async function (arr, updateStep) {
-          if (arr.length <= 1) return arr;
+          if (arr.length <= 1) {
+            updateStep({ arr: [...arr], color: 'green', final: true }); // Color for merge completion
+            return arr;
+          }
+
           const mid = Math.floor(arr.length / 2);
           const left = await this.execute(arr.slice(0, mid), updateStep);
           const right = await this.execute(arr.slice(mid), updateStep);
           const merged = merge(left, right);
-
-          updateStep({ arr: merged, final: true }); // Update final state after merge
+          
+          updateStep({ arr: merged, color: 'green', final: true }); // Color for merge completion
           return merged;
 
           function merge(left, right) {
@@ -52,6 +55,7 @@ export const implementations = {
                 result.push(right[rightIndex]);
                 rightIndex++;
               }
+              updateStep({ arr: [...result, ...left.slice(leftIndex), ...right.slice(rightIndex)], color: 'blue' }); // Color for successful comparison
             }
             return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
           }
@@ -74,10 +78,11 @@ export const implementations = {
         }`,
         execute: async function (n, updateStep) {
           const dp = [0, 1];
-          updateStep({ step: 0, value: 0 }); // Initial value
+          updateStep({ step: 0, value: 0, color: 'purple' }); // Initial value color
+
           for (let i = 2; i <= n; i++) {
             dp[i] = dp[i - 1] + dp[i - 2];
-            updateStep({ step: i, value: dp[i] }); // Update step
+            updateStep({ step: i, value: dp[i], color: 'orange' }); // Color for update
           }
           return dp[n];
         },
@@ -104,11 +109,13 @@ export const implementations = {
         execute: async function (coins, amount, updateStep) {
           coins.sort((a, b) => b - a);
           const result = [];
+          updateStep({ coins: [...result], remainingAmount: amount, color: 'yellow' }); // Color for remaining amount
+
           for (const coin of coins) {
             while (amount >= coin) {
               amount -= coin;
               result.push(coin);
-              updateStep({ coins: result, remainingAmount: amount }); // Update after each coin is added
+              updateStep({ coins: [...result], remainingAmount: amount, color: 'yellow' }); // Color for coin added
             }
           }
           return result.length > 0 ? result : null;
@@ -128,10 +135,10 @@ export const implementations = {
         }`,
         execute: async function (n, updateStep) {
           if (n <= 1) {
-            updateStep({ step: n, value: 1 }); // Update for base case
+            updateStep({ step: n, value: 1, color: 'red' }); // Color for base case
             return 1;
           }
-          updateStep({ step: n, value: n }); // Update for current value
+          updateStep({ step: n, value: n, color: 'yellow' }); // Color for current value
           return n * await this.execute(n - 1, updateStep);
         },
       },
@@ -169,7 +176,7 @@ export const implementations = {
             if (!node) return;
             visited.add(node);
             result.push(node);
-            updateStep({ currentNode: node }); // Update for current node
+            updateStep({ currentNode: node, color: 'blue', visited: [...visited] }); // Color for current node
             for (const neighbor of graph[node]) {
               if (!visited.has(neighbor)) {
                 traverse(neighbor);
@@ -177,7 +184,7 @@ export const implementations = {
             }
           };
 
-          traverse(start);
+          await traverse(start);
           return result;
         },
       },
@@ -207,7 +214,7 @@ export const implementations = {
 
           while (left <= right) {
             const mid = Math.floor((left + right) / 2);
-            updateStep({ mid: mid, value: arr[mid] }); // Update for current mid
+            updateStep({ arr: [...arr], mid, value: arr[mid], color: 'blue' }); // Color for current mid
             if (arr[mid] === target) return mid;
             if (arr[mid] < target) left = mid + 1;
             else right = mid - 1;
@@ -231,74 +238,97 @@ export const implementations = {
               if (arr[j] > arr[j + 1]) {
                 [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
               }
-              steps.push({ arr: [...arr], current: [j, j + 1] });
+              steps.push({ arr: [...arr], current: [j, j + 1], color: 'yellow' });
             }
           }
           return steps;
         }`,
         execute: async function (arr, updateStep) {
-          const steps = [];
           let n = arr.length;
 
           for (let i = 0; i < n - 1; i++) {
             for (let j = 0; j < n - i - 1; j++) {
-              steps.push({ arr: [...arr], current: [j, j + 1], color: 'yellow' });
-              updateStep(steps[steps.length - 1]); // Update for each step
-
+              updateStep({ arr: [...arr], current: [j, j + 1], color: 'yellow' });
               if (arr[j] > arr[j + 1]) {
                 [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-                steps.push({ arr: [...arr], current: [j, j + 1], swapped: true, color: 'red' });
+                updateStep({ arr: [...arr], current: [j, j + 1], swapped: true, color: 'red' }); // Color for swap
               }
             }
           }
-          steps.push({ arr: [...arr], final: true });
-          return steps;
+          updateStep({ arr, final: true, color: 'green' }); // Color for final sorted array
+          return arr;
         },
       },
+    ],
+  },
+
+  // String Algorithms Category
+  'String Algorithms': {
+    algorithms: [
       {
-        name: 'Selection Sort',
-        code: `function selectionSort(arr) {
-          const steps = [];
-          let n = arr.length;
-          for (let i = 0; i < n - 1; i++) {
-            let minIndex = i;
-            for (let j = i + 1; j < n; j++) {
-              steps.push({ arr: [...arr], current: [j, minIndex], color: 'yellow' });
-              updateStep(steps[steps.length - 1]); // Update for each step
-
-              if (arr[j] < arr[minIndex]) {
-                minIndex = j;
-              }
-            }
-            if (minIndex !== i) {
-              [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
-              steps.push({ arr: [...arr], current: [i, minIndex], swapped: true, color: 'red' });
-            }
-          }
-          steps.push({ arr: [...arr], final: true });
-          return steps;
+        name: 'Anagram Check',
+        code: `function areAnagrams(str1, str2) {
+          const sortedStr1 = str1.split('').sort().join('');
+          const sortedStr2 = str2.split('').sort().join('');
+          return sortedStr1 === sortedStr2;
         }`,
-        execute: async function (arr, updateStep) {
-          const steps = [];
-          let n = arr.length;
+        execute: async function (str1, str2, updateStep) {
+          const sortedStr1 = str1.split('').sort().join('');
+          const sortedStr2 = str2.split('').sort().join('');
+          updateStep({ sortedStr1, sortedStr2, color: 'purple' }); // Color for check
+          return sortedStr1 === sortedStr2;
+        },
+      },
+    ],
+  },
 
-          for (let i = 0; i < n - 1; i++) {
-            let minIndex = i;
-            for (let j = i + 1; j < n; j++) {
-              steps.push({ arr: [...arr], current: [j, minIndex], color: 'yellow' });
-              updateStep(steps[steps.length - 1]); // Update for each step
-
-              if (arr[j] < arr[minIndex]) {
-                minIndex = j;
-              }
-            }
-            if (minIndex !== i) {
-              [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
-              steps.push({ arr: [...arr], current: [i, minIndex], swapped: true, color: 'red' });
+  // Miscellaneous Algorithms Category
+  'Miscellaneous Algorithms': {
+    algorithms: [
+      {
+        name: 'Prime Number Check',
+        code: `function isPrime(n) {
+          if (n <= 1) return false;
+          for (let i = 2; i < Math.sqrt(n) + 1; i++) {
+            if (n % i === 0) return false;
+          }
+          return true;
+        }`,
+        execute: async function (n, updateStep) {
+          if (n <= 1) {
+            updateStep({ step: n, result: false, color: 'red' }); // Color for non-prime
+            return false;
+          }
+          for (let i = 2; i < Math.sqrt(n) + 1; i++) {
+            updateStep({ step: i, current: n % i, color: 'yellow' }); // Color for division check
+            if (n % i === 0) {
+              updateStep({ step: n, result: false, color: 'red' }); // Color for non-prime
+              return false;
             }
           }
-          steps.push({ arr: [...arr], final: true });
-          return steps;
+          updateStep({ step: n, result: true, color: 'green' }); // Color for prime
+          return true;
+        },
+      },
+    ],
+  },
+
+  // Uncategorised Algorithms
+  'Uncategorised': {
+    algorithms: [
+      {
+        name: 'Greatest Common Divisor (GCD)',
+        code: `function gcd(a, b) {
+          if (b === 0) return a;
+          return gcd(b, a % b);
+        }`,
+        execute: async function (a, b, updateStep) {
+          if (b === 0) {
+            updateStep({ a, b, gcd: a, color: 'green' }); // Color for result
+            return a;
+          }
+          updateStep({ a, b, color: 'yellow' }); // Color for current step
+          return this.execute(b, a % b, updateStep);
         },
       },
     ],

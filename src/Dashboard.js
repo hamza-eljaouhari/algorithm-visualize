@@ -1,5 +1,4 @@
-// src/Dashboard.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -74,6 +73,7 @@ export default function Dashboard() {
   const [selectedCategory, setSelectedCategory] = React.useState(null);
   const [algorithmSteps, setAlgorithmSteps] = React.useState([]);
   const [currentStep, setCurrentStep] = React.useState(0);
+  const [exampleArray, setExampleArray] = React.useState([]); // New state for example array
   const [expanded, setExpanded] = React.useState(false); // For accordion state
 
   const handleDrawerOpen = () => {
@@ -84,26 +84,30 @@ export default function Dashboard() {
     setOpen(false);
   };
 
+  // Function to generate random array
   const generateRandomArray = (size, min = 1, max = 100) => {
     return Array.from({ length: size }, () => Math.floor(Math.random() * (max - min + 1)) + min);
   };
 
   const handleAlgorithmSelection = async (categoryName, algorithmName) => {
-    // Assume the selected algorithm has been passed correctly
     setSelectedAlgorithm(algorithmName);
     setSelectedCategory(categoryName);
-    
-    const algorithmImplementation = implementations[categoryName][algorithmName];
-    
-    console.log("categoryName ", categoryName)
-    console.log("algorithmName ", algorithmName)
+
+    // Generate a new random example array each time an algorithm is selected
+    const newExampleArray = generateRandomArray(6, 1, 20);
+    setExampleArray(newExampleArray);
+
+    const algorithmImplementation = implementations[categoryName]?.algorithms.find(alg => alg.name === algorithmName);
 
     if (algorithmImplementation) {
-      const exampleArray = generateRandomArray(6, 1, 20);
       setAlgorithmSteps([]); // Reset steps before execution
       setCurrentStep(0);
-      // Here you would call the algorithm's execution function as needed
     }
+  };
+
+  // Define the updateStep function to handle updates
+  const updateStep = (stepData) => {
+    setAlgorithmSteps((prevSteps) => [...prevSteps, stepData]);
   };
 
   const executeAlgorithm = async () => {
@@ -112,22 +116,33 @@ export default function Dashboard() {
       return;
     }
 
-    const algorithmImplementation = algorithms.find(category =>
-      category.algorithms.includes(selectedAlgorithm)
-    );
+    const algorithmImplementation = implementations[selectedCategory]?.algorithms.find((algorithm) => algorithm.name === selectedAlgorithm);
 
-    const exampleArray = generateRandomArray(6, 1, 20);
-    if (algorithmImplementation) {
-      // You would need to implement the execution logic based on your specific implementation
-      // For demonstration, just logging the selected algorithm and example array
-      console.log(`Executing ${selectedAlgorithm} on`, exampleArray);
-      // Update the algorithmSteps and currentStep accordingly
+    if (!algorithmImplementation || !algorithmImplementation.execute) {
+      console.error("No valid implementation found for the selected algorithm!");
+      return;
     }
+
+    // Execute the algorithm and get the steps for visualization
+    await algorithmImplementation.execute(exampleArray, updateStep); // Use the generated exampleArray
+
+    console.log("Algorithms Steps :", algorithmSteps);
   };
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
+
+  // Effect to display algorithm steps over time
+  useEffect(() => {
+    if (currentStep < algorithmSteps.length) {
+      const timer = setTimeout(() => {
+        setCurrentStep((prevStep) => prevStep + 1);
+      }, 700); // Set interval to 700ms
+
+      return () => clearTimeout(timer); // Cleanup timer
+    }
+  }, [currentStep, algorithmSteps]);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -187,7 +202,6 @@ export default function Dashboard() {
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-
         {/* Two 50% Width Boxes */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           {/* Visualizer Box (Left 50%) */}
@@ -200,11 +214,10 @@ export default function Dashboard() {
           <Box sx={{ width: '50%', paddingLeft: 2, borderLeft: '1px solid #ccc' }}>
             <Typography variant="h6">Algorithm Code</Typography>
             <pre style={{ backgroundColor: '#f4f4f4', padding: '10px' }}>
-              {selectedAlgorithm && implementations[selectedCategory].algorithms.find((algorithm) => { return algorithm.name === selectedAlgorithm }).code }
+              {selectedAlgorithm && implementations[selectedCategory]?.algorithms.find(algorithm => algorithm.name === selectedAlgorithm)?.code}
             </pre>
           </Box>
         </Box>
-
         <ToolbarControl executeAlgorithm={executeAlgorithm} algorithmSteps={algorithmSteps} />
       </Main>
     </Box>
