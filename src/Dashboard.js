@@ -1,3 +1,4 @@
+// src/Dashboard.js
 import React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -5,7 +6,6 @@ import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
@@ -16,7 +16,12 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ToolbarControl from './ToolbarControl';
 import AlgorithmVisualizer from './AlgorithmVisualizer';
-import { algorithms } from './algorithmsImplementations';
+import { algorithms } from './algorithms';
+import { implementations } from './implementations';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const drawerWidth = 240;
 
@@ -66,8 +71,10 @@ export default function Dashboard() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [selectedAlgorithm, setSelectedAlgorithm] = React.useState(null);
+  const [selectedCategory, setSelectedCategory] = React.useState(null);
   const [algorithmSteps, setAlgorithmSteps] = React.useState([]);
   const [currentStep, setCurrentStep] = React.useState(0);
+  const [expanded, setExpanded] = React.useState(false); // For accordion state
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -81,46 +88,45 @@ export default function Dashboard() {
     return Array.from({ length: size }, () => Math.floor(Math.random() * (max - min + 1)) + min);
   };
 
-  const handleAlgorithmSelection = async (algorithmName) => {
-    const algorithmImplementation = algorithms[algorithmName];
+  const handleAlgorithmSelection = async (categoryName, algorithmName) => {
+    // Assume the selected algorithm has been passed correctly
+    setSelectedAlgorithm(algorithmName);
+    setSelectedCategory(categoryName);
+    
+    const algorithmImplementation = implementations[categoryName][algorithmName];
+    
+    console.log("categoryName ", categoryName)
+    console.log("algorithmName ", algorithmName)
+
     if (algorithmImplementation) {
       const exampleArray = generateRandomArray(6, 1, 20);
-      setSelectedAlgorithm(algorithmName);
       setAlgorithmSteps([]); // Reset steps before execution
       setCurrentStep(0);
+      // Here you would call the algorithm's execution function as needed
     }
   };
 
-const executeAlgorithm = async () => {
-  if (!selectedAlgorithm) {
-    console.error("No algorithm selected!");
-    return;
-  }
-
-  const algorithmImplementation = algorithms[selectedAlgorithm];
-  const exampleArray = generateRandomArray(6, 1, 20);
-  const steps = await algorithmImplementation.execute(exampleArray, updateStep);
-
-  setAlgorithmSteps(steps);
-  setCurrentStep(0); // Start from the first step
-  playSteps(steps.length); // Start progressing through the steps
-};
-
-// Function to progress through the steps
-const playSteps = (totalSteps) => {
-  let stepIndex = 0;
-  const interval = setInterval(() => {
-    if (stepIndex < totalSteps) {
-      setCurrentStep((prev) => Math.min(prev + 1, totalSteps - 1)); // Move to the next step
-      stepIndex++;
-    } else {
-      clearInterval(interval); // Stop when all steps are complete
+  const executeAlgorithm = async () => {
+    if (!selectedAlgorithm) {
+      console.error("No algorithm selected!");
+      return;
     }
-  }, 700); // Adjust the speed as necessary
-};
 
-  const updateStep = (step) => {
-    setAlgorithmSteps(prev => [...prev, step]);
+    const algorithmImplementation = algorithms.find(category =>
+      category.algorithms.includes(selectedAlgorithm)
+    );
+
+    const exampleArray = generateRandomArray(6, 1, 20);
+    if (algorithmImplementation) {
+      // You would need to implement the execution logic based on your specific implementation
+      // For demonstration, just logging the selected algorithm and example array
+      console.log(`Executing ${selectedAlgorithm} on`, exampleArray);
+      // Update the algorithmSteps and currentStep accordingly
+    }
+  };
+
+  const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
   };
 
   return (
@@ -161,18 +167,45 @@ const playSteps = (totalSteps) => {
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <List>
-          {Object.keys(algorithms).map((algorithmName, index) => (
-            <ListItem button="true" key={index} onClick={() => handleAlgorithmSelection(algorithmName)}>
-              <ListItemText primary={algorithmName} />
-            </ListItem>
-          ))}
-        </List>
+        {/* Accordion for categories and algorithms */}
+        {algorithms.map((category, index) => (
+          <Accordion key={index} expanded={expanded === category.title} onChange={handleAccordionChange(category.title)}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`${category.title}-content`} id={`${category.title}-header`}>
+              <Typography>{category.title}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Box>
+                {category.algorithms.map((algorithmName, idx) => (
+                  <ListItem button="true" key={idx} onClick={() => handleAlgorithmSelection(category.title, algorithmName)}>
+                    <ListItemText primary={algorithmName} />
+                  </ListItem>
+                ))}
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+        ))}
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
+
+        {/* Two 50% Width Boxes */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+          {/* Visualizer Box (Left 50%) */}
+          <Box sx={{ width: '50%', paddingRight: 2 }}>
+            <Typography variant="h6">Algorithm Visualization</Typography>
+            <AlgorithmVisualizer steps={algorithmSteps} currentStep={currentStep} />
+          </Box>
+
+          {/* Code Display Box (Right 50%) */}
+          <Box sx={{ width: '50%', paddingLeft: 2, borderLeft: '1px solid #ccc' }}>
+            <Typography variant="h6">Algorithm Code</Typography>
+            <pre style={{ backgroundColor: '#f4f4f4', padding: '10px' }}>
+              {selectedAlgorithm && implementations[selectedCategory].algorithms.find((algorithm) => { return algorithm.name === selectedAlgorithm }).code }
+            </pre>
+          </Box>
+        </Box>
+
         <ToolbarControl executeAlgorithm={executeAlgorithm} algorithmSteps={algorithmSteps} />
-        <AlgorithmVisualizer steps={algorithmSteps} currentStep={currentStep} />
       </Main>
     </Box>
   );
