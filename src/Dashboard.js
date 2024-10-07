@@ -142,6 +142,11 @@ export default function Dashboard() {
     return parameters.map(param => {
       if (!param) return null; // Handle missing parameter gracefully
   
+      // Define default values for rows and columns if not provided
+      const [defaultRows, defaultCols] = param.size || [1, 1];
+      const numRows = param.numRows !== undefined ? param.numRows : defaultRows;
+      const numCols = param.numCols !== undefined ? param.numCols : defaultCols;
+  
       if (param.type === 'array') {
         return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min);
   
@@ -149,9 +154,10 @@ export default function Dashboard() {
         return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min).sort((a, b) => a - b);
   
       } else if (param.type === 'matrix') {
-        const rows = Math.floor(Math.random() * (param.max - param.min + 1)) + param.min; // Random number of rows
-        const cols = Math.floor(Math.random() * (param.max - param.min + 1)) + param.min; // Random number of cols
-        return Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min));
+        // Use the number of rows and columns specified
+        return Array.from({ length: numRows }, () => 
+          Array.from({ length: numCols }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min)
+        );
   
       } else if (param.type === 'integer' || param.type === 'number') {
         return Math.floor(Math.random() * (param.max - param.min + 1)) + param.min;
@@ -165,6 +171,7 @@ export default function Dashboard() {
       } else if (param.type === 'string' || param.type === 'pattern') {
         const length = Math.floor(Math.random() * (param.maxLength - param.minLength + 1)) + param.minLength;
         return Array.from({ length }, () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('') || 'a'; // Ensure it's non-empty
+  
       } else if (param.type === 'graph') {
         const numVertices = Math.floor(Math.random() * (param.max - param.min + 1)) + param.min; // Random number of vertices
         const edges = [];
@@ -189,6 +196,7 @@ export default function Dashboard() {
       }
     });
   };
+  
 
   const handleAlgorithmSelection = async (categoryName, algorithmName) => {
     setSelectedAlgorithm(algorithmName);

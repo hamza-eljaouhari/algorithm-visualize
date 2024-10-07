@@ -2184,7 +2184,7 @@ export const implementations = {
       {
         name: 'Job Scheduling Problem',
         parameters: [
-          { name: 'jobs', type: 'array', length: 5, min: 1, max: 10 }, // Array of [profit, deadline]
+          { name: 'jobs', type: 'matrix', min: 1, max: 10, numRows: 10, numCols: 2 } // Example of specifying rows and columns
         ],
         outputType: 'number',
         visualization: {
@@ -2296,6 +2296,18 @@ export const implementations = {
             throw new Error('Edges must be a non-empty array.');
           }
 
+
+          edges = [
+              4,   // Coin denomination
+              14,  
+              39,  
+              61,  
+              63,  
+              68,  
+              77,  
+              54
+          ];
+          
           edges.sort((a, b) => a[2] - b[2]);
 
           const parent = Array(vertices).fill(0).map((_, index) => index);
@@ -2560,8 +2572,7 @@ export const implementations = {
 
           const freqMap = new Map();
           for (let i = 0; i < data.length; i++) {
-            const [char, freq] = data[i];
-            freqMap.set(char, freq);
+            freqMap.set(data[i].char, data[i].freq);
           }
 
           const heap = [...freqMap.entries()].sort((a, b) => a[1] - b[1]);
