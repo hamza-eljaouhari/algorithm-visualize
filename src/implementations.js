@@ -8,7 +8,7 @@ export const implementations = {
         ],
         outputType: 'array',
         visualization: {
-          stepType: 'array', 
+          stepType: 'array',
           finalType: 'array',
         },
         code: `
@@ -39,6 +39,8 @@ export const implementations = {
           let bucketSize = 5;
           let bucketCount = Math.floor((max - min) / bucketSize) + 1;
           let buckets = Array.from({ length: bucketCount }, () => []);
+
+          console.log("It is executing !")
           updateStep({ arr: [...arr], current: [], operation: 'initialize', final: false });
 
           for (let i = 0; i < arr.length; i++) {
@@ -120,7 +122,7 @@ export const implementations = {
         ],
         outputType: 'array',
         visualization: {
-          stepType: 'array', 
+          stepType: 'array',
           finalType: 'array',
         },
         code: `
@@ -341,6 +343,10 @@ export const implementations = {
           { name: 'target', type: 'number', min: 1, max: 100 },
         ],
         outputType: 'array',
+        visualization: {
+          stepType: 'array',
+          finalType: 'array',
+        },
         code: `
         function binarySearch(arr, target) {
           if (!Array.isArray(arr) || arr.length === 0) {
@@ -366,19 +372,19 @@ export const implementations = {
             updateStep({ arr: [], current: [], operation: 'error', final: true });
             return -1;
           }
-      
+
           let left = 0;
           let right = arr.length - 1;
-      
+
           while (left <= right) {
             const mid = Math.floor((left + right) / 2);
             updateStep({ arr: [...arr], current: [mid], operation: 'conditionCheck', final: false });
-      
+
             if (arr[mid] === target) {
               updateStep({ arr: [...arr], current: [mid], operation: 'final', final: true });
               return mid;
             }
-      
+
             if (arr[mid] < target) {
               left = mid + 1;
               updateStep({ arr: [...arr], current: [mid], operation: 'increment', final: false });
@@ -387,7 +393,7 @@ export const implementations = {
               updateStep({ arr: [...arr], current: [mid], operation: 'decrement', final: false });
             }
           }
-      
+
           updateStep({ arr: [...arr], current: [], operation: 'notFound', final: true });
           return -1;
         }
@@ -400,7 +406,7 @@ export const implementations = {
         ],
         outputType: 'matrix',
         visualization: {
-          stepType: 'matrix', 
+          stepType: 'matrix',
           finalType: 'matrix',
         },
         code: `
@@ -608,4 +614,576 @@ export const implementations = {
       },
     ],
   },
-};
+  'Dynamic Programming': {
+    algorithms: [
+        {
+          name: 'Fibonacci Sequence',
+          parameters: [
+            { name: 'n', type: 'integer', min: 1, max: 20 },
+          ],
+          outputType: 'number',
+          visualization: {
+            stepType: 'tree',
+            finalType: 'number',
+          },
+          code: `
+          function fibonacci(n) {
+            if (n <= 1) return n;
+            return fibonacci(n - 1) + fibonacci(n - 2);
+          }
+          `,
+          execute: async function (n, updateStep) {
+            const fibonacci = (n) => {
+              if (n <= 1) {
+                updateStep({ arr: [], current: [n], operation: 'final', final: true });
+                return n;
+              }
+              updateStep({ arr: [], current: [n], operation: 'recursion', final: false });
+              return fibonacci(n - 1) + fibonacci(n - 2);
+            };
+            return fibonacci(n);
+          },
+        },
+        {
+          name: 'Knapsack Problem',
+          parameters: [
+            { name: 'weights', type: 'array', length: 5, min: 1, max: 10 },
+            { name: 'values', type: 'array', length: 5, min: 10, max: 100 },
+            { name: 'capacity', type: 'integer', min: 1, max: 50 },
+          ],
+          outputType: 'number',
+          visualization: {
+            stepType: 'matrix',
+            finalType: 'number',
+          },
+          code: `
+          function knapsack(values, weights, capacity) {
+            const n = values.length;
+            const dp = Array.from({ length: n + 1 }, () => Array(capacity + 1).fill(0));
+            for (let i = 1; i <= n; i++) {
+              for (let w = 1; w <= capacity; w++) {
+                if (weights[i - 1] <= w) {
+                  dp[i][w] = Math.max(values[i - 1] + dp[i - 1][w - weights[i - 1]], dp[i - 1][w]);
+                } else {
+                  dp[i][w] = dp[i - 1][w];
+                }
+              }
+            }
+            return dp[n][capacity];
+          }
+          `,
+          execute: async function (values, weights, capacity, updateStep) {
+            const n = values.length;
+            const dp = Array.from({ length: n + 1 }, () => Array(capacity + 1).fill(0));
+            updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
+  
+            for (let i = 1; i <= n; i++) {
+              for (let w = 1; w <= capacity; w++) {
+                if (weights[i - 1] <= w) {
+                  dp[i][w] = Math.max(values[i - 1] + dp[i - 1][w - weights[i - 1]], dp[i - 1][w]);
+                  updateStep({ arr: dp.flat(), current: [i, w], operation: 'assignment', final: false });
+                } else {
+                  dp[i][w] = dp[i - 1][w];
+                  updateStep({ arr: dp.flat(), current: [i, w], operation: 'noAssignment', final: false });
+                }
+              }
+            }
+            updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
+            return dp[n][capacity];
+          },
+        },
+        {
+          name: 'Longest Common Subsequence',
+          parameters: [
+            { name: 'str1', type: 'string', minLength: 1, maxLength: 10 },
+            { name: 'str2', type: 'string', minLength: 1, maxLength: 10 },
+          ],
+          outputType: 'number',
+          visualization: {
+            stepType: 'matrix',
+            finalType: 'number',
+          },
+          code: `
+          function longestCommonSubsequence(str1, str2) {
+            const m = str1.length, n = str2.length;
+            const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+            for (let i = 1; i <= m; i++) {
+              for (let j = 1; j <= n; j++) {
+                if (str1[i - 1] === str2[j - 1]) {
+                  dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                  dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                }
+              }
+            }
+            return dp[m][n];
+          }
+          `,
+          execute: async function (str1, str2, updateStep) {
+            const m = str1.length, n = str2.length;
+            const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+            updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
+  
+            for (let i = 1; i <= m; i++) {
+              for (let j = 1; j <= n; j++) {
+                if (str1[i - 1] === str2[j - 1]) {
+                  dp[i][j] = dp[i - 1][j - 1] + 1;
+                  updateStep({ arr: dp.flat(), current: [i, j], operation: 'match', final: false });
+                } else {
+                  dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                  updateStep({ arr: dp.flat(), current: [i, j], operation: 'noMatch', final: false });
+                }
+              }
+            }
+            updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
+            return dp[m][n];
+          },
+        },
+        {
+          name: 'Coin Change Problem',
+          parameters: [
+            { name: 'coins', type: 'array', length: 5, min: 1, max: 20 },
+            { name: 'amount', type: 'integer', min: 1, max: 50 },
+          ],
+          outputType: 'number',
+          visualization: {
+            stepType: 'array',
+            finalType: 'number',
+          },
+          code: `
+          function coinChange(coins, amount) {
+            const dp = Array(amount + 1).fill(Infinity);
+            dp[0] = 0;
+            for (let coin of coins) {
+              for (let i = coin; i <= amount; i++) {
+                dp[i] = Math.min(dp[i], dp[i - coin] + 1);
+              }
+            }
+            return dp[amount] === Infinity ? -1 : dp[amount];
+          }
+          `,
+          execute: async function (coins, amount, updateStep) {
+            const dp = Array(amount + 1).fill(Infinity);
+            dp[0] = 0;
+            updateStep({ arr: [...dp], current: [], operation: 'initialize', final: false });
+  
+            for (let coin of coins) {
+              for (let i = coin; i <= amount; i++) {
+                dp[i] = Math.min(dp[i], dp[i - coin] + 1);
+                updateStep({ arr: [...dp], current: [i], operation: 'update', final: false });
+              }
+            }
+            updateStep({ arr: [...dp], current: [], operation: 'final', final: true });
+            return dp[amount] === Infinity ? -1 : dp[amount];
+          },
+        },
+        {
+          name: 'Edit Distance',
+          parameters: [
+            { name: 'str1', type: 'string', minLength: 1, maxLength: 10 },
+            { name: 'str2', type: 'string', minLength: 1, maxLength: 10 },
+          ],
+          outputType: 'number',
+          visualization: {
+            stepType: 'matrix',
+            finalType: 'number',
+          },
+          code: `
+          function editDistance(str1, str2) {
+            const m = str1.length, n = str2.length;
+            const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+            for (let i = 0; i <= m; i++) dp[i][0] = i;
+            for (let j = 0; j <= n; j++) dp[0][j] = j;
+            for (let i = 1; i <= m; i++) {
+              for (let j = 1; j <= n; j++) {
+                if (str1[i - 1] === str2[j - 1]) {
+                  dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                  dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+                }
+              }
+            }
+            return dp[m][n];
+          }
+          `,
+          execute: async function (str1, str2, updateStep) {
+            const m = str1.length, n = str2.length;
+            const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+            for (let i = 0; i <= m; i++) dp[i][0] = i;
+            for (let j = 0; j <= n; j++) dp[0][j] = j;
+            updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
+  
+            for (let i = 1; i <= m; i++) {
+              for (let j = 1; j <= n; j++) {
+                if (str1[i - 1] === str2[j - 1]) {
+                  dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                  dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+                }
+                updateStep({ arr: dp.flat(), current: [i, j], operation: 'assignment', final: false });
+              }
+            }
+            updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
+            return dp[m][n];
+          },
+        },
+        {
+          name: 'Maximum Subarray',
+          parameters: [
+            { name: 'arr', type: 'array', length: 10, min: -50, max: 50 },
+          ],
+          outputType: 'number',
+          visualization: {
+            stepType: 'array',
+            finalType: 'number',
+          },
+          code: `
+          function maximumSubarray(arr) {
+            let maxSoFar = arr[0];
+            let maxEndingHere = arr[0];
+            for (let i = 1; i < arr.length; i++) {
+              maxEndingHere = Math.max(arr[i], maxEndingHere + arr[i]);
+              maxSoFar = Math.max(maxSoFar, maxEndingHere);
+            }
+            return maxSoFar;
+          }
+          `,
+          execute: async function (arr, updateStep) {
+            let maxSoFar = arr[0];
+            let maxEndingHere = arr[0];
+            updateStep({ arr: [...arr], current: [0], operation: 'initialize', final: false });
+  
+            for (let i = 1; i < arr.length; i++) {
+              maxEndingHere = Math.max(arr[i], maxEndingHere + arr[i]);
+              maxSoFar = Math.max(maxSoFar, maxEndingHere);
+              updateStep({ arr: [...arr], current: [i], operation: 'update', final: false });
+            }
+  
+            updateStep({ arr: [maxSoFar], current: [], operation: 'final', final: true });
+            return maxSoFar;
+          },
+        },
+        {
+          name: 'Longest Increasing Subsequence',
+          parameters: [
+            { name: 'arr', type: 'array', length: 10, min: 1, max: 50 },
+          ],
+          outputType: 'number',
+          visualization: {
+            stepType: 'array',
+            finalType: 'number',
+          },
+          code: `
+          function longestIncreasingSubsequence(arr) {
+            const dp = Array(arr.length).fill(1);
+            for (let i = 1; i < arr.length; i++) {
+              for (let j = 0; j < i; j++) {
+                if (arr[i] > arr[j] && dp[i] < dp[j] + 1) {
+                  dp[i] = dp[j] + 1;
+                }
+              }
+            }
+            return Math.max(...dp);
+          }
+          `,
+          execute: async function (arr, updateStep) {
+            const dp = Array(arr.length).fill(1);
+            updateStep({ arr: [...dp], current: [], operation: 'initialize', final: false });
+  
+            for (let i = 1; i < arr.length; i++) {
+              for (let j = 0; j < i; j++) {
+                if (arr[i] > arr[j] && dp[i] < dp[j] + 1) {
+                  dp[i] = dp[j] + 1;
+                  updateStep({ arr: [...dp], current: [i, j], operation: 'update', final: false });
+                }
+              }
+            }
+            updateStep({ arr: [...dp], current: [], operation: 'final', final: true });
+            return Math.max(...dp);
+          },
+        },
+        {
+          name: 'Catalan Number',
+          parameters: [
+            { name: 'n', type: 'integer', min: 1, max: 10 },
+          ],
+          outputType: 'number',
+          visualization: {
+            stepType: 'array',
+            finalType: 'number',
+          },
+          code: `
+          function catalanNumber(n) {
+            const dp = Array(n + 1).fill(0);
+            dp[0] = dp[1] = 1;
+            for (let i = 2; i <= n; i++) {
+              for (let j = 0; j < i; j++) {
+                dp[i] += dp[j] * dp[i - j - 1];
+              }
+            }
+            return dp[n];
+          }
+          `,
+          execute: async function (n, updateStep) {
+            const dp = Array(n + 1).fill(0);
+            dp[0] = dp[1] = 1;
+            updateStep({ arr: [...dp], current: [], operation: 'initialize', final: false });
+  
+            for (let i = 2; i <= n; i++) {
+              for (let j = 0; j < i; j++) {
+                dp[i] += dp[j] * dp[i - j - 1];
+                updateStep({ arr: [...dp], current: [i, j], operation: 'update', final: false });
+              }
+            }
+            updateStep({ arr: [...dp], current: [], operation: 'final', final: true });
+            return dp[n];
+          },
+        },
+        {
+          name: 'Longest Palindromic Subsequence',
+          parameters: [
+            { name: 'str', type: 'string', minLength: 1, maxLength: 20 },
+          ],
+          outputType: 'number',
+          visualization: {
+            stepType: 'matrix',
+            finalType: 'number',
+          },
+          code: `
+          function longestPalindromicSubsequence(str) {
+            const n = str.length;
+            const dp = Array.from({ length: n }, () => Array(n).fill(0));
+            
+            for (let i = 0; i < n; i++) {
+              dp[i][i] = 1;
+            }
+  
+            for (let length = 2; length <= n; length++) {
+              for (let i = 0; i < n - length + 1; i++) {
+                const j = i + length - 1;
+                if (str[i] === str[j]) {
+                  dp[i][j] = dp[i + 1][j - 1] + 2;
+                } else {
+                  dp[i][j] = Math.max(dp[i + 1][j], dp[i][j - 1]);
+                }
+              }
+            }
+            return dp[0][n - 1];
+          }
+          `,
+          execute: async function (str, updateStep) {
+            const n = str.length;
+            const dp = Array.from({ length: n }, () => Array(n).fill(0));
+  
+            for (let i = 0; i < n; i++) {
+              dp[i][i] = 1; // Single character palindromes
+              updateStep({ arr: dp.flat(), current: [i, i], operation: 'initialize', final: false });
+            }
+  
+            for (let length = 2; length <= n; length++) {
+              for (let i = 0; i < n - length + 1; i++) {
+                const j = i + length - 1;
+                if (str[i] === str[j]) {
+                  dp[i][j] = dp[i + 1][j - 1] + 2;
+                  updateStep({ arr: dp.flat(), current: [i, j], operation: 'match', final: false });
+                } else {
+                  dp[i][j] = Math.max(dp[i + 1][j], dp[i][j - 1]);
+                  updateStep({ arr: dp.flat(), current: [i, j], operation: 'noMatch', final: false });
+                }
+              }
+            }
+            updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
+            return dp[0][n - 1];
+          },
+        },
+        {
+          name: 'Matrix Chain Multiplication',
+          parameters: [
+            { name: 'dimensions', type: 'array', length: 5, min: 1, max: 100 },
+          ],
+          outputType: 'number',
+          visualization: {
+            stepType: 'matrix',
+            finalType: 'number',
+          },
+          code: `
+          function matrixChainOrder(dimensions) {
+            const n = dimensions.length - 1;
+            const dp = Array.from({ length: n }, () => Array(n).fill(0));
+            for (let length = 2; length <= n; length++) {
+              for (let i = 0; i < n - length + 1; i++) {
+                const j = i + length - 1;
+                dp[i][j] = Infinity;
+                for (let k = i; k < j; k++) {
+                  const cost = dp[i][k] + dp[k + 1][j] + dimensions[i] * dimensions[k + 1] * dimensions[j + 1];
+                  if (cost < dp[i][j]) dp[i][j] = cost;
+                }
+              }
+            }
+            return dp[0][n - 1];
+          }
+          `,
+          execute: async function (dimensions, updateStep) {
+            const n = dimensions.length - 1;
+            const dp = Array.from({ length: n }, () => Array(n).fill(0));
+            updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
+  
+            for (let length = 2; length <= n; length++) {
+              for (let i = 0; i < n - length + 1; i++) {
+                const j = i + length - 1;
+                dp[i][j] = Infinity;
+                updateStep({ arr: dp.flat(), current: [i, j], operation: 'initializeCell', final: false });
+  
+                for (let k = i; k < j; k++) {
+                  const cost = dp[i][k] + dp[k + 1][j] + dimensions[i] * dimensions[k + 1] * dimensions[j + 1];
+                  if (cost < dp[i][j]) dp[i][j] = cost;
+                  updateStep({ arr: dp.flat(), current: [i, j, k], operation: 'calculateCost', final: false });
+                }
+              }
+            }
+            updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
+            return dp[0][n - 1];
+          },
+        },
+        {
+          name: 'Partition Problem',
+          parameters: [
+            { name: 'arr', type: 'array', length: 6, min: 1, max: 50 },
+          ],
+          outputType: 'boolean',
+          visualization: {
+            stepType: 'array',
+            finalType: 'boolean',
+          },
+          code: `
+          function partitionProblem(arr) {
+            const sum = arr.reduce((acc, num) => acc + num, 0);
+            if (sum % 2 !== 0) return false;
+            const target = sum / 2;
+            const dp = Array(target + 1).fill(false);
+            dp[0] = true;
+            for (const num of arr) {
+              for (let j = target; j >= num; j--) {
+                dp[j] = dp[j] || dp[j - num];
+              }
+            }
+            return dp[target];
+          }
+          `,
+          execute: async function (arr, updateStep) {
+            const sum = arr.reduce((acc, num) => acc + num, 0);
+            if (sum % 2 !== 0) {
+              updateStep({ arr: [], current: [], operation: 'final', final: true });
+              return false;
+            }
+  
+            const target = sum / 2;
+            const dp = Array(target + 1).fill(false);
+            dp[0] = true;
+            updateStep({ arr: [...dp], current: [], operation: 'initialize', final: false });
+  
+            for (const num of arr) {
+              for (let j = target; j >= num; j--) {
+                dp[j] = dp[j] || dp[j - num];
+                updateStep({ arr: [...dp], current: [j], operation: 'update', final: false });
+              }
+            }
+            updateStep({ arr: [...dp], current: [], operation: 'final', final: true });
+            return dp[target];
+          },
+        },
+        {
+          name: 'Ugly Numbers',
+          parameters: [
+            { name: 'n', type: 'integer', min: 1, max: 50 },
+          ],
+          outputType: 'number',
+          visualization: {
+            stepType: 'array',
+            finalType: 'number',
+          },
+          code: `
+          function uglyNumber(n) {
+            const uglyNumbers = Array(n).fill(1);
+            let i2 = 0, i3 = 0, i5 = 0;
+            let nextMultipleOf2 = 2, nextMultipleOf3 = 3, nextMultipleOf5 = 5;
+            for (let i = 1; i < n; i++) {
+              const nextUgly = Math.min(nextMultipleOf2, nextMultipleOf3, nextMultipleOf5);
+              uglyNumbers[i] = nextUgly;
+              if (nextUgly === nextMultipleOf2) nextMultipleOf2 = uglyNumbers[++i2] * 2;
+              if (nextUgly === nextMultipleOf3) nextMultipleOf3 = uglyNumbers[++i3] * 3;
+              if (nextUgly === nextMultipleOf5) nextMultipleOf5 = uglyNumbers[++i5] * 5;
+            }
+            return uglyNumbers[n - 1];
+          }
+          `,
+          execute: async function (n, updateStep) {
+            const uglyNumbers = Array(n).fill(1);
+            let i2 = 0, i3 = 0, i5 = 0;
+            let nextMultipleOf2 = 2, nextMultipleOf3 = 3, nextMultipleOf5 = 5;
+            updateStep({ arr: [...uglyNumbers], current: [], operation: 'initialize', final: false });
+  
+            for (let i = 1; i < n; i++) {
+              const nextUgly = Math.min(nextMultipleOf2, nextMultipleOf3, nextMultipleOf5);
+              uglyNumbers[i] = nextUgly;
+              updateStep({ arr: [...uglyNumbers], current: [i], operation: 'update', final: false });
+  
+              if (nextUgly === nextMultipleOf2) nextMultipleOf2 = uglyNumbers[++i2] * 2;
+              if (nextUgly === nextMultipleOf3) nextMultipleOf3 = uglyNumbers[++i3] * 3;
+              if (nextUgly === nextMultipleOf5) nextMultipleOf5 = uglyNumbers[++i5] * 5;
+            }
+            updateStep({ arr: [...uglyNumbers], current: [], operation: 'final', final: true });
+            return uglyNumbers[n - 1];
+          },
+        },
+        {
+          name: 'Bellman-Ford\'s Shortest Path',
+          parameters: [
+            { name: 'edges', type: 'array', length: 10, min: 1, max: 50 }, // [ [src, dest, weight], ... ]
+            { name: 'vertices', type: 'integer', min: 2, max: 10 },
+            { name: 'source', type: 'integer', min: 0, max: 9 },
+          ],
+          outputType: 'array',
+          visualization: {
+            stepType: 'array',
+            finalType: 'array',
+          },
+          code: `
+          function bellmanFord(edges, vertices, source) {
+            const dist = Array(vertices).fill(Infinity);
+            dist[source] = 0;
+            for (let i = 1; i < vertices; i++) {
+              for (const [u, v, w] of edges) {
+                if (dist[u] !== Infinity && dist[u] + w < dist[v]) {
+                  dist[v] = dist[u] + w;
+                }
+              }
+            }
+            return dist;
+          }
+          `,
+          execute: async function (edges, vertices, source, updateStep) {
+            const dist = Array(vertices).fill(Infinity);
+            dist[source] = 0;
+            updateStep({ arr: [...dist], current: [source], operation: 'initialize', final: false });
+  
+            for (let i = 1; i < vertices; i++) {
+              for (let j = 0; j < edges.length; j++) {
+                const edge = edges[j];
+                const u = edge[0], v = edge[1], w = edge[2];
+  
+                if (dist[u] !== Infinity && dist[u] + w < dist[v]) {
+                  dist[v] = dist[u] + w;
+                  updateStep({ arr: [...dist], current: [u, v], operation: 'update', final: false });
+                }
+              }
+            }
+  
+            updateStep({ arr: [...dist], current: [], operation: 'final', final: true });
+            return dist;
+          },
+        },
+      ],
+    },
+  };
+  
