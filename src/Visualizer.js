@@ -1,42 +1,41 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 
-const boxSize = '50px';
-
 export default function Visualizer({ steps, currentStep, stepType }) {
   const operationColors = {
-    conditionFail: '#4B0082',       
-    conditionSuccess: '#32CD32',    
-    assignment: '#4682B4',          
-    swap: '#6A5ACD',                
-    increment: '#8A2BE2',           
-    decrement: '#9400D3',           
-    reset: '#708090',               
-    initialize: '#483D8B',          
-    nullify: '#8B008B',             
-    undefine: '#7B68EE',            
-    final: '#4B0082',               
-    match: '#FFD700',               // Added color for match operation
-    noMatch: '#FF4500',             // Added color for noMatch operation
-    calculateCost: '#FF6347',       // Added color for cost calculation
-    initializeCell: '#00BFFF',      // Added color for cell initialization
+    conditionFail: '#4B0082',
+    conditionSuccess: '#32CD32',
+    assignment: '#4682B4',
+    swap: '#6A5ACD',
+    increment: '#8A2BE2',
+    decrement: '#9400D3',
+    reset: '#708090',
+    initialize: '#483D8B',
+    nullify: '#8B008B',
+    undefine: '#7B68EE',
+    final: '#4B0082',
+    match: '#FFD700',
+    noMatch: '#FF4500',
+    calculateCost: '#FF6347',
+    initializeCell: '#00BFFF',
   };
 
   const renderArray = (stepData) => {
     const { arr, current, operation } = stepData;
+    const squareWidth = `${100 / arr.length}%`; // Calculate width based on number of squares
+
     return (
-      <Box display="flex" mt={2}>
+      <Box display="flex" justifyContent="center">
         {arr && arr.map((value, idx) => (
           <Box
             key={idx}
             sx={{
-              width: boxSize,
-              height: boxSize,
-              lineHeight: boxSize,
+              width: squareWidth, // Set width as a percentage
+              height: '50px', // Keep the height fixed
+              lineHeight: '50px',
               textAlign: 'center',
               backgroundColor: current?.includes(idx) ? operationColors[operation] : '#2C2C54',
               color: 'white',
-              marginRight: '5px',
               border: '1px solid #1e1e1e',
             }}
           >
@@ -50,21 +49,22 @@ export default function Visualizer({ steps, currentStep, stepType }) {
   const renderMatrix = (stepData) => {
     const { arr, current, operation } = stepData;
     const size = Math.sqrt(arr.length); // assuming a square matrix for simplicity
+    const squareWidth = `${100 / size}%`; // Calculate width for matrix cells
+
     return (
       <Box mt={2}>
         {Array.from({ length: size }, (_, rowIndex) => (
-          <Box key={rowIndex} display="flex">
+          <Box key={rowIndex} display="flex" justifyContent="center">
             {arr.slice(rowIndex * size, (rowIndex + 1) * size).map((value, colIndex) => (
               <Box
                 key={colIndex}
                 sx={{
-                  width: boxSize,
-                  height: boxSize,
-                  lineHeight: boxSize,
+                  width: squareWidth,
+                  height: '50px',
+                  lineHeight: '50px',
                   textAlign: 'center',
                   backgroundColor: current?.includes(rowIndex * size + colIndex) ? operationColors[operation] : '#2C2C54',
                   color: 'white',
-                  marginRight: '5px',
                   border: '1px solid #1e1e1e',
                 }}
               >
@@ -89,8 +89,6 @@ export default function Visualizer({ steps, currentStep, stepType }) {
   };
 
   const renderVisualization = (stepData) => {
-
-    console.log("Step Type : ", stepType)
     switch (stepType) {
       case 'array':
         return renderArray(stepData);
@@ -104,7 +102,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
   };
 
   return (
-    <Box sx={{ mt: 2 }}>
+    <Box sx={{ mt: 2, overflow: 'hidden' }}> {/* Set overflow hidden on parent */}
       <Typography variant="subtitle1" sx={{ textAlign: 'left', mb: 1, ml: 2 }}>Visualization</Typography>
       {steps.slice(0, currentStep + 1).map((stepData, index) => (
         <Box key={index}>{renderVisualization(stepData)}</Box>
