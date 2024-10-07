@@ -147,19 +147,19 @@ export default function Dashboard() {
       const numCols = param.numCols !== undefined ? param.numCols : defaultCols;
   
       if (param.type === 'array') {
-        return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min);
+        return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max || 10 - ( param.min || 1) + 1)) + param.min || 1);
   
       } else if (param.type === 'sortedArray') {
-        return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min).sort((a, b) => a - b);
+        return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max || 10 - ( param.min || 1 ) + 1)) + ( param.min || 1 )).sort((a, b) => a - b);
   
       } else if (param.type === 'matrix') {
         // Use the number of rows and columns specified
         return Array.from({ length: numRows }, () => 
-          Array.from({ length: numCols }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min)
+          Array.from({ length: numCols }, () => Math.floor(Math.random() * (param.max || 10 - ( param.min || 1 ) + 1)) + param.min || 1)
         );
   
       } else if (param.type === 'integer' || param.type === 'number') {
-        return Math.floor(Math.random() * (param.max - param.min + 1)) + param.min;
+        return Math.floor(Math.random() * (param.max || 10 - ( param.min || 1 ) + 1)) + param.min || 1;
   
       } else if (param.type === 'points') {
         return Array.from({ length: param.length }, () => [
