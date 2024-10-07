@@ -2234,8 +2234,8 @@ export const implementations = {
       {
         name: 'Kruskal\'s Minimum Spanning Tree',
         parameters: [
-          { name: 'edges', type: 'array', length: 10, min: 1, max: 100 }, // Expecting an array of edges [ [u, v, weight], ... ]
-          { name: 'vertices', type: 'integer', min: 2, max: 10 },
+          { name: 'edges', type: 'matrix', min: 1, max: 5, numRows: 50, numCols: 3 }, // Example of specifying rows and columns
+          { name: 'vertices', type: 'integer', min: 2, max: 60 },
         ],
         outputType: 'array',
         visualization: {
@@ -2296,18 +2296,6 @@ export const implementations = {
             throw new Error('Edges must be a non-empty array.');
           }
 
-
-          edges = [
-              4,   // Coin denomination
-              14,  
-              39,  
-              61,  
-              63,  
-              68,  
-              77,  
-              54
-          ];
-          
           edges.sort((a, b) => a[2] - b[2]);
 
           const parent = Array(vertices).fill(0).map((_, index) => index);
@@ -2357,8 +2345,15 @@ export const implementations = {
       {
         name: 'Prim\'s Minimum Spanning Tree',
         parameters: [
-          { name: 'graph', type: 'array', length: 10, min: 1, max: 100 }, // Adjacency list representation
-          { name: 'source', type: 'integer', min: 0, max: 9 },
+          {
+            name: 'graph',
+            type: 'matrix',
+            min: 1,         // Minimum weight for edges
+            max: 20,         // Maximum weight for edges
+            numRows: 5,     // Number of vertices (or rows in the matrix)
+            numCols: 10      // Number of columns (for the adjacency matrix)
+          },
+          { name: 'source', type: 'integer', min: 1, max: 5 }
         ],
         outputType: 'array',
         visualization: {
@@ -2533,7 +2528,7 @@ export const implementations = {
       {
         name: 'Huffman Coding',
         parameters: [
-          { name: 'data', type: 'array', length: 10, min: 1, max: 100 }, // Array of characters and their frequencies
+          { name: 'data', type: 'charFreqArray', arrayLength: 2, length: 5, minFreq: 1, maxFreq: 5 }, // Array of characters and their frequencies
         ],
         outputType: 'object',
         visualization: {

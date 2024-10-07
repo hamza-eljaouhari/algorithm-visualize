@@ -172,6 +172,14 @@ export default function Dashboard() {
         const length = Math.floor(Math.random() * (param.maxLength - param.minLength + 1)) + param.minLength;
         return Array.from({ length }, () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('') || 'a'; // Ensure it's non-empty
   
+      } else if (param.type === 'charFreqArray') {
+        const length = param.length || 5; // Default length of the array
+        return Array.from({ length }, () => {
+          const char = String.fromCharCode(Math.floor(Math.random() * 26) + 97); // Random lowercase letter
+          const freq = Math.floor(Math.random() * (param.maxFreq - param.minFreq + 1)) + param.minFreq; // Random frequency
+          return { char, freq };
+        });
+  
       } else if (param.type === 'graph') {
         const numVertices = Math.floor(Math.random() * (param.max - param.min + 1)) + param.min; // Random number of vertices
         const edges = [];
@@ -196,7 +204,6 @@ export default function Dashboard() {
       }
     });
   };
-  
 
   const handleAlgorithmSelection = async (categoryName, algorithmName) => {
     setSelectedAlgorithm(algorithmName);
