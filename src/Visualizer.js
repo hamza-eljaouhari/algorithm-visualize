@@ -60,7 +60,7 @@ export default function Visualizer({ steps, currentStep }) {
 
   return (
     <Box sx={{ mt: 2 }}>
-      <Typography variant="subtitle1" sx={{ textAlign: 'center', mb: 1 }}>Array Visualization</Typography>
+      <Typography variant="subtitle1" sx={{ textAlign: 'left', mb: 1, ml: 2 }}>Array Visualization</Typography>
       {steps.slice(0, currentStep + 1).map((stepData, index) => renderArray(stepData, index))}
       {currentStep >= steps.length && (
         <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>No more steps to display</Typography>
