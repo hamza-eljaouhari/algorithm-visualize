@@ -141,29 +141,51 @@ export default function Dashboard() {
   const generateParameters = (parameters) => {
     return parameters.map(param => {
       if (!param) return null; // Handle missing parameter gracefully
-
+  
       if (param.type === 'array') {
         return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min);
-
+  
       } else if (param.type === 'sortedArray') {
-        return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min).sort();
-
+        return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min).sort((a, b) => a - b);
+  
       } else if (param.type === 'matrix') {
-        const rows = param.length;
-        return Array.from({ length: rows }, () => Array.from({ length: rows }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min));
-
+        const rows = Math.floor(Math.random() * (param.max - param.min + 1)) + param.min; // Random number of rows
+        const cols = Math.floor(Math.random() * (param.max - param.min + 1)) + param.min; // Random number of cols
+        return Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min));
+  
       } else if (param.type === 'integer' || param.type === 'number') {
         return Math.floor(Math.random() * (param.max - param.min + 1)) + param.min;
-
+  
       } else if (param.type === 'points') {
         return Array.from({ length: param.length }, () => [
           Math.floor(Math.random() * (param.max - param.min + 1)) + param.min,
           Math.floor(Math.random() * (param.max - param.min + 1)) + param.min
         ]);
+  
       } else if (param.type === 'string' || param.type === 'pattern') {
         const length = Math.floor(Math.random() * (param.maxLength - param.minLength + 1)) + param.minLength;
-        const generatedString = Array.from({ length }, () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('');
-        return generatedString || 'a'; // Ensure it's non-empty
+        return Array.from({ length }, () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('') || 'a'; // Ensure it's non-empty
+      } else if (param.type === 'graph') {
+        const numVertices = Math.floor(Math.random() * (param.max - param.min + 1)) + param.min; // Random number of vertices
+        const edges = [];
+        const addedEdges = new Set(); // To prevent duplicate edges
+  
+        // Create random edges
+        for (let i = 0; i < numVertices; i++) {
+          for (let j = 0; j < Math.floor(Math.random() * numVertices); j++) {
+            if (i !== j) {
+              const weight = Math.floor(Math.random() * 10) + 1; // Positive weights
+              edges.push([i, j, weight]); // Create directed edge
+              addedEdges.add(`${i}-${j}`);
+            }
+          }
+        }
+  
+        return edges;
+  
+      } else {
+        console.error(`Unknown parameter type: ${param.type}`);
+        return null;
       }
     });
   };
