@@ -48,14 +48,17 @@ export default function Visualizer({ steps, currentStep, stepType }) {
 
   const renderMatrix = (stepData) => {
     const { arr, current, operation } = stepData;
-    const size = Math.sqrt(arr.length); // assuming a square matrix for simplicity
-    const squareWidth = `${100 / size}%`; // Calculate width for matrix cells
+    
+    // Assume arr is a 2D array
+    const numRows = arr.length;
+    const numCols = arr[0].length;
+    const squareWidth = `${100 / numCols}%`; // Calculate width for matrix cells
 
     return (
       <Box mt={2}>
-        {Array.from({ length: size }, (_, rowIndex) => (
+        {arr.map((row, rowIndex) => (
           <Box key={rowIndex} display="flex" justifyContent="center">
-            {arr.slice(rowIndex * size, (rowIndex + 1) * size).map((value, colIndex) => (
+            {row.map((value, colIndex) => (
               <Box
                 key={colIndex}
                 sx={{
@@ -63,7 +66,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
                   height: '50px',
                   lineHeight: '50px',
                   textAlign: 'center',
-                  backgroundColor: current?.includes(rowIndex * size + colIndex) ? operationColors[operation] : '#2C2C54',
+                  backgroundColor: current?.includes(rowIndex * numCols + colIndex) ? operationColors[operation] : '#2C2C54',
                   color: 'white',
                   border: '1px solid #1e1e1e',
                 }}

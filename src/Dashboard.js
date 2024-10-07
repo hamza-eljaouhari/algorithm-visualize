@@ -160,7 +160,7 @@ export default function Dashboard() {
           Math.floor(Math.random() * (param.max - param.min + 1)) + param.min,
           Math.floor(Math.random() * (param.max - param.min + 1)) + param.min
         ]);
-      } else if (param.type === 'text' || param.type === 'pattern') {
+      } else if (param.type === 'string' || param.type === 'pattern') {
         const length = Math.floor(Math.random() * (param.maxLength - param.minLength + 1)) + param.minLength;
         const generatedString = Array.from({ length }, () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('');
         return generatedString || 'a'; // Ensure it's non-empty
