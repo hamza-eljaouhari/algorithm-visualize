@@ -218,20 +218,36 @@ export default function Dashboard() {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
+            backgroundColor: '#faf0e6', // Light beige background for the drawer
           },
         }}
         variant="persistent"
         anchor="left"
         open={open}
       >
-        <DrawerHeader>
+        <DrawerHeader 
+          sx={{
+            backgroundColor: 'white' // Light beige background for the drawer
+          }}
+        >
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
         </DrawerHeader>
         <Divider />
         {algorithms.map((category, index) => (
-          <Accordion key={index} expanded={expanded === category.title} onChange={handleAccordionChange(category.title)}>
+          <Accordion
+            key={index}
+            expanded={expanded === category.title}
+            onChange={handleAccordionChange(category.title)}
+            sx={{
+              backgroundColor: '#faf0e6', // Light beige background for the accordions
+              boxShadow: 'none', // Remove shadow for a cleaner look
+              '&:not(:last-child)': {
+                marginBottom: '0px', // Remove bottom margin between accordion items
+              },
+            }}
+          >
             <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`${category.title}-content`} id={`${category.title}-header`}>
               <Typography>{category.title}</Typography>
             </AccordionSummary>

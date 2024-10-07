@@ -1,15 +1,21 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 
 const boxSize = '50px'; // Medium size for the array element boxes
-const parameterBoxSize = '200px'; // Size for the parameter changes box
 
-export default function Visualizer({ steps, currentStep }) {
+export default function Visualizer({ steps, currentStep, executeAlgorithm }) {
   if (steps.length === 0 || currentStep >= steps.length) {
-    return <Typography variant="subtitle1"  sx={{ ml: 2 }}>No visualization available.</Typography>
+    return (
+      <Box sx={{ ml: 2, textAlign: 'center' }}>
+        <Typography variant="subtitle1">No visualization available.</Typography>
+        <Button variant="contained" color="primary" onClick={executeAlgorithm} sx={{ mt: 2 }}>
+          Execute Algorithm
+        </Button>
+      </Box>
+    );
   }
 
-  const { arr, parameters, current, operation } = steps[currentStep];
+  const { arr, current, operation } = steps[currentStep];
 
   const operationColors = {
     conditionFail: 'red',
@@ -25,7 +31,6 @@ export default function Visualizer({ steps, currentStep }) {
     final: 'lightgreen',
   };
 
-  // Render each array element as a box, only if `arr` is defined
   const renderArray = () => (
     arr ? (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2 }}>
@@ -57,6 +62,11 @@ export default function Visualizer({ steps, currentStep }) {
     <Box sx={{ mt: 2 }}>
       <Typography variant="subtitle1" sx={{ textAlign: 'center', mb: 1 }}>Array Visualization</Typography>
       {renderArray()}
+      <Box sx={{ textAlign: 'center', mt: 2 }}>
+        <Button variant="contained" color="primary" onClick={executeAlgorithm}>
+          Execute Algorithm
+        </Button>
+      </Box>
     </Box>
   );
 }
