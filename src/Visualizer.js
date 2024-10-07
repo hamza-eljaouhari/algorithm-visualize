@@ -1,16 +1,13 @@
 import React from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 const boxSize = '50px'; // Medium size for the array element boxes
 
-export default function Visualizer({ steps, currentStep, executeAlgorithm }) {
+export default function Visualizer({ steps, currentStep }) {
   if (steps.length === 0 || currentStep >= steps.length) {
     return (
       <Box sx={{ ml: 2, textAlign: 'center' }}>
         <Typography variant="subtitle1">No visualization available.</Typography>
-        <Button variant="contained" color="primary" onClick={executeAlgorithm} sx={{ mt: 2 }}>
-          Execute Algorithm
-        </Button>
       </Box>
     );
   }
@@ -62,11 +59,6 @@ export default function Visualizer({ steps, currentStep, executeAlgorithm }) {
     <Box sx={{ mt: 2 }}>
       <Typography variant="subtitle1" sx={{ textAlign: 'center', mb: 1 }}>Array Visualization</Typography>
       {renderArray()}
-      <Box sx={{ textAlign: 'center', mt: 2 }}>
-        <Button variant="contained" color="primary" onClick={executeAlgorithm}>
-          Execute Algorithm
-        </Button>
-      </Box>
     </Box>
   );
 }

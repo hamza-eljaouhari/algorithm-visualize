@@ -11,10 +11,14 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
+import SkipNextIcon from '@mui/icons-material/SkipNext';
+import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
+import FastForwardIcon from '@mui/icons-material/FastForward';
+import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import ToolbarControl from './ToolbarControl';
-import Visualizer from './Visualizer';
 import { algorithms } from './algorithms';
 import { implementations } from './implementations';
 import Accordion from '@mui/material/Accordion';
@@ -24,6 +28,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import TextField from '@mui/material/TextField';
+import Visualizer from './Visualizer';
 
 const drawerWidth = 240;
 
@@ -73,7 +78,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-// Custom scrollbar styling
 const scrollbarStyle = {
   '&::-webkit-scrollbar': {
     width: '8px',
@@ -101,6 +105,7 @@ export default function Dashboard() {
   const [expanded, setExpanded] = useState(false);
   const [finalResult, setFinalResult] = useState(null); 
   const [code, setCode] = useState('');
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -108,6 +113,35 @@ export default function Dashboard() {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+  };
+
+  const handleNextStep = () => {
+    if (currentStep < algorithmSteps.length - 1) {
+      setCurrentStep((prevStep) => prevStep + 1);
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep((prevStep) => prevStep - 1);
+    }
+  };
+
+  const handleRunAllSteps = () => {
+    setCurrentStep(algorithmSteps.length - 1); // Skip to the end
+  };
+
+  const handleRunVisualized = () => {
+    executeAlgorithm();
+    setIsPlaying(true); // Start visualizing after execution
   };
 
   const generateParameters = (parameters) => {
@@ -184,13 +218,13 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    if (currentStep < algorithmSteps.length) {
+    if (isPlaying && currentStep < algorithmSteps.length - 1) {
       const timer = setTimeout(() => {
         setCurrentStep((prevStep) => prevStep + 1);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [currentStep, algorithmSteps]);
+  }, [isPlaying, currentStep, algorithmSteps]);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -218,18 +252,14 @@ export default function Dashboard() {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            backgroundColor: '#faf0e6', // Light beige background for the drawer
+            backgroundColor: '#faf0e6',
           },
         }}
         variant="persistent"
         anchor="left"
         open={open}
       >
-        <DrawerHeader 
-          sx={{
-            backgroundColor: 'white' // Light beige background for the drawer
-          }}
-        >
+        <DrawerHeader sx={{ backgroundColor: 'white' }}>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
@@ -241,10 +271,10 @@ export default function Dashboard() {
             expanded={expanded === category.title}
             onChange={handleAccordionChange(category.title)}
             sx={{
-              backgroundColor: '#faf0e6', // Light beige background for the accordions
-              boxShadow: 'none', // Remove shadow for a cleaner look
+              backgroundColor: '#faf0e6', 
+              boxShadow: 'none', 
               '&:not(:last-child)': {
-                marginBottom: '0px', // Remove bottom margin between accordion items
+                marginBottom: '0px', 
               },
             }}
           >
@@ -254,7 +284,7 @@ export default function Dashboard() {
             <AccordionDetails>
               <Box>
                 {category.algorithms.map((algorithmName, idx) => (
-                  <ListItem button="true" key={idx} onClick={() => handleAlgorithmSelection(category.title, algorithmName)}>
+                  <ListItem button key={idx} onClick={() => handleAlgorithmSelection(category.title, algorithmName)}>
                     <ListItemText primary={algorithmName} />
                   </ListItem>
                 ))}
@@ -265,8 +295,33 @@ export default function Dashboard() {
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-        <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)', flexDirection: 'column' }}>
-          {/* Parameters, Visualizer, and Final Result */}
+
+        {/* Control Toolbar */}
+        <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'center' }}>
+          <IconButton color="primary" onClick={handlePreviousStep}>
+            <SkipPreviousIcon />
+          </IconButton>
+          {isPlaying ? (
+            <IconButton color="primary" onClick={handlePause}>
+              <PauseIcon />
+            </IconButton>
+          ) : (
+            <IconButton color="primary" onClick={handlePlay}>
+              <PlayArrowIcon />
+            </IconButton>
+          )}
+          <IconButton color="primary" onClick={handleNextStep}>
+            <SkipNextIcon />
+          </IconButton>
+          <IconButton color="primary" onClick={handleRunAllSteps}>
+            <FastForwardIcon /> {/* Executes entire algorithm */}
+          </IconButton>
+          <IconButton color="primary" onClick={handleRunVisualized}>
+            <PlayCircleFilledIcon /> {/* Executes and starts visualization */}
+          </IconButton>
+        </Toolbar>
+
+        <Box sx={{ display: 'flex', height: 'calc(100vh - 64px - 56px)', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', width: '100%' }}>
             <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
               <Card sx={{ height: '33vh', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
@@ -308,14 +363,6 @@ export default function Dashboard() {
               />
             </Box>
           </Box>
-          
-          {/* Toolbar for Controls */}
-          <ToolbarControl
-            executeAlgorithm={executeAlgorithm}
-            algorithmSteps={algorithmSteps}
-            currentStep={currentStep}
-            setCurrentStep={setCurrentStep}
-          />
         </Box>
       </Main>
     </Box>
