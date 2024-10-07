@@ -11,7 +11,8 @@ export const implementations = {
           stepType: 'array', 
           finalType: 'array',
         },
-        code: `function bucketSort(arr, bucketSize = 5) {
+        code: `
+        function bucketSort(arr, bucketSize = 5) {
           if (arr.length === 0) return arr;
           let min = Math.min(...arr);
           let max = Math.max(...arr);
@@ -69,7 +70,8 @@ export const implementations = {
           stepType: 'array',
           finalType: 'array',
         },
-        code: `function countingSort(arr) {
+        code: `
+        function countingSort(arr) {
           let min = Math.min(...arr);
           let max = Math.max(...arr);
           let count = Array(max - min + 1).fill(0);
@@ -121,7 +123,8 @@ export const implementations = {
           stepType: 'array', 
           finalType: 'array',
         },
-        code: `function mergeSort(arr) {
+        code: `
+        function mergeSort(arr) {
           if (arr.length <= 1) return arr;
           const mid = Math.floor(arr.length / 2);
           const left = mergeSort(arr.slice(0, mid));
@@ -188,7 +191,8 @@ export const implementations = {
           stepType: 'array',
           finalType: 'array',
         },
-        code: `function pigeonholeSort(arr) {
+        code: `
+        function pigeonholeSort(arr) {
           let min = Math.min(...arr);
           let max = Math.max(...arr);
           let size = max - min + 1;
@@ -240,7 +244,8 @@ export const implementations = {
           stepType: 'array',
           finalType: 'array',
         },
-        code: `function quicksort(arr) {
+        code: `
+        function quicksort(arr) {
           if (arr.length <= 1) return arr;
           const pivot = arr[arr.length - 1];
           const left = [];
@@ -294,7 +299,8 @@ export const implementations = {
           stepType: 'array',
           finalType: 'array',
         },
-        code: `function radixSort(arr) {
+        code: `
+        function radixSort(arr) {
           const maxNum = Math.max(...arr) * 10;
           let divisor = 10;
           while (divisor < maxNum) {
@@ -335,7 +341,8 @@ export const implementations = {
           { name: 'target', type: 'number', min: 1, max: 100 },
         ],
         outputType: 'array',
-        code: `function binarySearch(arr, target) {
+        code: `
+        function binarySearch(arr, target) {
           if (!Array.isArray(arr) || arr.length === 0) {
             console.error("Invalid array provided.");
             return -1;
@@ -396,7 +403,8 @@ export const implementations = {
           stepType: 'matrix', 
           finalType: 'matrix',
         },
-        code: `function strassenMultiply(A, B) {
+        code: `
+        function strassenMultiply(A, B) {
           const n = A.length;
           if (n === 1) return [[A[0][0] * B[0][0]]];
           const half = Math.floor(n / 2);
@@ -472,7 +480,8 @@ export const implementations = {
           stepType: 'points',
           finalType: 'points',
         },
-        code: `function closestPair(points) {
+        code: `
+        function closestPair(points) {
           points.sort((a, b) => a[0] - b[0]);
           function distance(p1, p2) {
             return Math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2);
@@ -541,7 +550,8 @@ export const implementations = {
           stepType: 'points',
           finalType: 'points',
         },
-        code: `function convexHull(points) {
+        code: `
+        function convexHull(points) {
           points.sort((a, b) => a[0] - b[0]);
           function cross(o, a, b) {
             return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);

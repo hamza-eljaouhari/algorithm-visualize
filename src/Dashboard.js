@@ -21,17 +21,24 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import TextField from '@mui/material/TextField';
 
 const drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
   flexGrow: 1,
-  padding: theme.spacing(3),
+  height: '100vh',
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+  backgroundColor: '#1e1e1e',
+  marginLeft: `-${drawerWidth}px`,
   transition: theme.transitions.create('margin', {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  marginLeft: `-${drawerWidth}px`,
   ...(open && {
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.easeOut,
@@ -66,6 +73,23 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
+// Custom scrollbar styling
+const scrollbarStyle = {
+  '&::-webkit-scrollbar': {
+    width: '8px',
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: '#333',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: '#888',
+    borderRadius: '4px',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    backgroundColor: '#555',
+  },
+};
+
 export default function Dashboard() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
@@ -76,7 +100,8 @@ export default function Dashboard() {
   const [generatedParams, setGeneratedParams] = useState([]);
   const [expanded, setExpanded] = useState(false);
   const [finalResult, setFinalResult] = useState(null); 
-  
+  const [code, setCode] = useState('');
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -115,6 +140,7 @@ export default function Dashboard() {
       setFinalResult(null); 
       const params = generateParameters(algorithmImplementation.parameters);
       setGeneratedParams(params);
+      setCode(algorithmImplementation.code || '');
     }
   };
 
@@ -223,29 +249,58 @@ export default function Dashboard() {
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', width: '100%' }}>
-          <Box sx={{ width: '50%', padding: 2 }}>
-            <Typography variant="h6">Initial Parameters</Typography>
-            <Box sx={{ backgroundColor: '#f4f4f4', padding: '10px', borderRadius: '4px' }}>
-              <pre>{JSON.stringify(generatedParams, null, 2)}</pre>
+        <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)', flexDirection: 'column' }}>
+          {/* Parameters, Visualizer, and Final Result */}
+          <Box sx={{ display: 'flex', width: '100%' }}>
+            <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
+              <Card sx={{ height: '33vh', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
+                <CardContent>
+                  <Typography variant="h6">Initial Parameters</Typography>
+                  <pre>{JSON.stringify(generatedParams, null, 2)}</pre>
+                </CardContent>
+              </Card>
+              <Card sx={{ height: '33vh', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
+                <Visualizer steps={algorithmSteps} currentStep={currentStep} />
+              </Card>
+              <Card sx={{ height: '33vh', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
+                <CardContent>
+                  <Typography variant="subtitle1">Final Result:</Typography>
+                  <pre>{JSON.stringify(finalResult, null, 2)}</pre>
+                </CardContent>
+              </Card>
             </Box>
-            <Visualizer steps={algorithmSteps} currentStep={currentStep} />
-            {finalResult && (
-              <Box sx={{ mt: 2, width: '100%', backgroundColor: '#f0f0f0', borderRadius: '4px', padding: '10px' }}>
-                <Typography variant="subtitle1">Final Result:</Typography>
-                <pre>{JSON.stringify(finalResult, null, 2)}</pre>
-              </Box>
-            )}
-          </Box> 
-          <Box sx={{ width: '50%', padding: 2 }}>
-            <Typography variant="h6">Algorithm Code</Typography>
-            <pre style={{ backgroundColor: '#f4f4f4', padding: '10px' }}>
-              {selectedAlgorithm && implementations[selectedCategory]?.algorithms.find(algorithm => algorithm.name === selectedAlgorithm)?.code}
-            </pre>
+
+            {/* Code Visualizer Section */}
+            <Box sx={{
+              width: '50%',
+              position: 'sticky',
+              top: 0,
+              height: '100vh',
+              overflowY: 'auto',
+              ...scrollbarStyle
+            }}>
+              <TextField
+                multiline
+                fullWidth
+                variant="outlined"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                sx={{ height: '100%', color: '#ddd', fontFamily: 'monospace', ...scrollbarStyle }}
+                inputProps={{
+                  style: { color: '#ddd', backgroundColor: '#333', padding: '16px', border: 'none' }
+                }}
+              />
+            </Box>
           </Box>
+          
+          {/* Toolbar for Controls */}
+          <ToolbarControl
+            executeAlgorithm={executeAlgorithm}
+            algorithmSteps={algorithmSteps}
+            currentStep={currentStep}
+            setCurrentStep={setCurrentStep}
+          />
         </Box>
-        
-        <ToolbarControl executeAlgorithm={executeAlgorithm} algorithmSteps={algorithmSteps} />
       </Main>
     </Box>
   );

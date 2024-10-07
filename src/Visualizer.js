@@ -6,7 +6,7 @@ const parameterBoxSize = '200px'; // Size for the parameter changes box
 
 export default function Visualizer({ steps, currentStep }) {
   if (steps.length === 0 || currentStep >= steps.length) {
-    return <div>No visualization available.</div>;
+    return <Typography variant="subtitle1"  sx={{ ml: 2 }}>No visualization available.</Typography>
   }
 
   const { arr, parameters, current, operation } = steps[currentStep];
