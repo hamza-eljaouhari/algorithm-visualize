@@ -137,7 +137,6 @@ export default function Dashboard() {
     setIsPlaying(true);
     setCurrentStep(0);
   };
-
   const generateParameters = (parameters) => {
     return parameters.map(param => {
       if (!param) return null; // Handle missing parameter gracefully
@@ -180,23 +179,25 @@ export default function Dashboard() {
           return { char, freq };
         });
   
-      } else if (param.type === 'graph') {
-        const numVertices = Math.floor(Math.random() * (param.max - param.min + 1)) + param.min; // Random number of vertices
-        const edges = [];
-        const addedEdges = new Set(); // To prevent duplicate edges
+      } else if (param.type === 'adjacencyList') {
+        const numVertices = param.numVertices || 5; // Number of vertices
+        const edges = Array.from({ length: numVertices }, () => []); // Initialize adjacency list
   
-        // Create random edges
         for (let i = 0; i < numVertices; i++) {
-          for (let j = 0; j < Math.floor(Math.random() * numVertices); j++) {
-            if (i !== j) {
-              const weight = Math.floor(Math.random() * 10) + 1; // Positive weights
-              edges.push([i, j, weight]); // Create directed edge
-              addedEdges.add(`${i}-${j}`);
+          const numEdges = Math.floor(Math.random() * (numVertices - 1)) + 1; // Random number of edges for each vertex
+          const connectedVertices = new Set(); // To avoid duplicate edges
+  
+          while (connectedVertices.size < numEdges) {
+            const neighbor = Math.floor(Math.random() * numVertices);
+            if (neighbor !== i && !connectedVertices.has(neighbor)) {
+              const weight = Math.floor(Math.random() * 10) + 1; // Random weight between 1 and 10
+              edges[i].push([neighbor, weight]); // Add edge to the adjacency list
+              connectedVertices.add(neighbor); // Mark this neighbor as connected
             }
           }
         }
   
-        return edges;
+        return edges; // Return the generated adjacency list
   
       } else {
         console.error(`Unknown parameter type: ${param.type}`);

@@ -2345,15 +2345,8 @@ export const implementations = {
       {
         name: 'Prim\'s Minimum Spanning Tree',
         parameters: [
-          {
-            name: 'graph',
-            type: 'matrix',
-            min: 1,         // Minimum weight for edges
-            max: 20,         // Maximum weight for edges
-            numRows: 5,     // Number of vertices (or rows in the matrix)
-            numCols: 10      // Number of columns (for the adjacency matrix)
-          },
-          { name: 'source', type: 'integer', min: 1, max: 5 }
+          { name: 'graph', type: 'adjacencyList', numVertices: 5 }, // Generates a graph with 5 vertices
+          { name: 'source', type: 'integer', min: 1, max: 3}
         ],
         outputType: 'array',
         visualization: {
