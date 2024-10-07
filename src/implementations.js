@@ -2444,8 +2444,8 @@ export const implementations = {
       {
         name: 'Stable Matching',
         parameters: [
-          { name: 'menPreferences', type: 'array', length: 5, min: 1, max: 10 }, // Array of arrays
-          { name: 'womenPreferences', type: 'array', length: 5, min: 1, max: 10 }, // Array of arrays
+          { name: 'menPreferences', type: 'matrix', min: 1, max: 5, numRows: 20, numCols: 3 }, // Example of specifying rows and columns
+          { name: 'womenPreferences', type: 'matrix', min: 1, max: 5, numRows: 20, numCols: 3 } // Example of specifying rows and columns
         ],
         outputType: 'array',
         visualization: {
@@ -2636,7 +2636,7 @@ export const implementations = {
       {
         name: 'Fractional Knapsack Problem',
         parameters: [
-          { name: 'items', type: 'array', length: 5, min: 1, max: 10 }, // Array of [value, weight]
+          { name: 'items', type: 'matrix', min: 1, max: 5, numRows: 5, numCols: 3 }, // Example of specifying rows and columns
           { name: 'capacity', type: 'integer', min: 1, max: 50 },
         ],
         outputType: 'number',
