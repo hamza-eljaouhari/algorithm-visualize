@@ -2052,26 +2052,25 @@ export const implementations = {
           finalType: 'number',
         },
         code: `
-              function majorityVote(array) {
-                  let candidate = null;
-                  let count = 0;
-          
-                  for (let i = 0; i < array.length; i++) {
-                      if (count === 0) {
-                          candidate = array[i];
-                          count = 1;
-                      } else if (candidate === array[i]) {
-                          count++;
-                      } else {
-                          count--;
-                      }
-                  }
-          
-                  return candidate;
+          function majorityVote(array) {
+            let candidate = null;
+            let count = 0;
+
+            for (let i = 0; i < array.length; i++) {
+              if (count === 0) {
+                candidate = array[i];
+                count = 1;
+              } else if (candidate === array[i]) {
+                count++;
+              } else {
+                count--;
               }
-            `,
+            }
+
+            return candidate;
+          }
+        `,
         execute: async function (array, updateStep) {
-          console.log('Input array for Majority Vote:', array); // Log input parameters
           let candidate = null;
           let count = 0;
           updateStep({ arr: [...array], current: [], operation: 'initialize', final: false });
@@ -2106,43 +2105,41 @@ export const implementations = {
           finalType: 'array',
         },
         code: `
-              function dijkstra(graph, source) {
-                  if (!Array.isArray(graph) || graph.length === 0) {
-                      throw new Error('Graph must be a non-empty array.');
-                  }
-                  const dist = Array(graph.length).fill(Infinity);
-                  dist[source] = 0;
-                  const visited = new Set();
-              
-                  while (visited.size < graph.length) {
-                      let minDistance = Infinity;
-                      let minNode = null;
-            
-                      for (let i = 0; i < dist.length; i++) {
-                          if (!visited.has(i) && dist[i] < minDistance) {
-                              minDistance = dist[i];
-                              minNode = i;
-                          }
-                      }
-            
-                      if (minNode === null) break; // Break if no unvisited nodes are left
-            
-                      visited.add(minNode);
-              
-                      for (let i = 0; i < graph[minNode].length; i++) {
-                          const [neighbor, weight] = graph[minNode][i];
-                          if (!visited.has(neighbor)) {
-                              dist[neighbor] = Math.min(dist[neighbor], dist[minNode] + weight);
-                          }
-                      }
-                  }
-              
-                  return dist;
+          function dijkstra(graph, source) {
+            if (!Array.isArray(graph) || graph.length === 0) {
+              throw new Error('Graph must be a non-empty array.');
+            }
+            const dist = Array(graph.length).fill(Infinity);
+            dist[source] = 0;
+            const visited = new Set();
+
+            while (visited.size < graph.length) {
+              let minDistance = Infinity;
+              let minNode = null;
+
+              for (let i = 0; i < dist.length; i++) {
+                if (!visited.has(i) && dist[i] < minDistance) {
+                  minDistance = dist[i];
+                  minNode = i;
+                }
               }
-            `,
+
+              if (minNode === null) break; // Break if no unvisited nodes are left
+
+              visited.add(minNode);
+
+              for (let i = 0; i < graph[minNode].length; i++) {
+                const [neighbor, weight] = graph[minNode][i];
+                if (!visited.has(neighbor)) {
+                  dist[neighbor] = Math.min(dist[neighbor], dist[minNode] + weight);
+                }
+              }
+            }
+
+            return dist;
+          }
+        `,
         execute: async function (graph, source, updateStep) {
-          console.log('Input graph for Dijkstra:', graph); // Log input parameters
-          console.log('Source index for Dijkstra:', source); // Log input parameters
           if (!Array.isArray(graph) || graph.length === 0) {
             throw new Error('Graph must be a non-empty array.');
           }
@@ -2194,12 +2191,31 @@ export const implementations = {
           stepType: 'array',
           finalType: 'number',
         },
+        code: `
+          function jobScheduling(jobs) {
+            jobs.sort((a, b) => b[0] - a[0]); // Sort jobs by profit
+            const result = Array(jobs.length).fill(false);
+            const jobOrder = Array(jobs.length).fill(-1);
+
+            for (let i = 0; i < jobs.length; i++) {
+              for (let j = Math.min(jobs.length, jobs[i][1]) - 1; j >= 0; j--) {
+                if (result[j] === false) {
+                  result[j] = true;
+                  jobOrder[j] = i;
+                  break;
+                }
+              }
+            }
+
+            return jobOrder.reduce((total, idx) => total + (idx !== -1 ? jobs[idx][0] : 0), 0);
+          }
+        `,
         execute: async function (jobs, updateStep) {
           jobs.sort((a, b) => b[0] - a[0]); // Sort jobs by profit
           const result = Array(jobs.length).fill(false);
           const jobOrder = Array(jobs.length).fill(-1);
           updateStep({ arr: [...jobs], current: [], operation: 'initialize', final: false });
-      
+
           for (let i = 0; i < jobs.length; i++) {
             for (let j = Math.min(jobs.length, jobs[i][1]) - 1; j >= 0; j--) {
               if (result[j] === false) {
@@ -2210,12 +2226,11 @@ export const implementations = {
               }
             }
           }
-      
           const totalProfit = jobOrder.reduce((total, idx) => total + (idx !== -1 ? jobs[idx][0] : 0), 0);
           updateStep({ arr: [...jobs], current: [], operation: 'final', final: true });
           return totalProfit;
-        }
-      },      
+        },
+      },
       {
         name: 'Kruskal\'s Minimum Spanning Tree',
         parameters: [
@@ -2227,25 +2242,74 @@ export const implementations = {
           stepType: 'array',
           finalType: 'array',
         },
+        code: `
+          function kruskal(vertices, edges) {
+            if (!Array.isArray(edges) || edges.length === 0) {
+              throw new Error('Edges must be a non-empty array.');
+            }
+
+            edges.sort((a, b) => a[2] - b[2]);
+
+            const parent = Array(vertices).fill(0).map((_, index) => index);
+            const rank = Array(vertices).fill(0);
+            const mst = [];
+
+            const find = (v) => {
+              if (parent[v] !== v) {
+                parent[v] = find(parent[v]);
+              }
+              return parent[v];
+            };
+
+            const union = (u, v) => {
+              const rootU = find(u);
+              const rootV = find(v);
+              if (rootU !== rootV) {
+                if (rank[rootU] > rank[rootV]) {
+                  parent[rootV] = rootU;
+                } else if (rank[rootU] < rank[rootV]) {
+                  parent[rootU] = rootV;
+                } else {
+                  parent[rootV] = rootU;
+                  rank[rootU]++;
+                }
+              }
+            };
+
+            for (let i = 0; i < edges.length; i++) {
+              const edge = edges[i];
+              const u = edge[0];
+              const v = edge[1];
+              const weight = edge[2];
+
+              if (find(u) !== find(v)) {
+                union(u, v);
+                mst.push([u, v, weight]);
+              }
+            }
+
+            return mst;
+          }
+        `,
         execute: async function (edges, vertices, updateStep) {
           if (!Array.isArray(edges) || edges.length === 0) {
             throw new Error('Edges must be a non-empty array.');
           }
-      
+
           edges.sort((a, b) => a[2] - b[2]);
-          
+
           const parent = Array(vertices).fill(0).map((_, index) => index);
           const rank = Array(vertices).fill(0);
           const mst = [];
           updateStep({ arr: edges, current: [], operation: 'initialize', final: false });
-      
+
           const find = (v) => {
             if (parent[v] !== v) {
               parent[v] = find(parent[v]);
             }
             return parent[v];
           };
-      
+
           const union = (u, v) => {
             const rootU = find(u);
             const rootV = find(v);
@@ -2260,24 +2324,24 @@ export const implementations = {
               }
             }
           };
-      
+
           for (let i = 0; i < edges.length; i++) {
             const edge = edges[i];
             const u = edge[0];
             const v = edge[1];
             const weight = edge[2];
-      
+
             if (find(u) !== find(v)) {
               union(u, v);
               mst.push([u, v, weight]);
               updateStep({ arr: mst, current: [u, v, weight], operation: 'addEdge', final: false });
             }
           }
-      
+
           updateStep({ arr: mst, current: [], operation: 'final', final: true });
           return mst;
-        }
-      },      
+        },
+      },
       {
         name: 'Prim\'s Minimum Spanning Tree',
         parameters: [
@@ -2289,6 +2353,45 @@ export const implementations = {
           stepType: 'array',
           finalType: 'array',
         },
+        code: `
+          function prim(graph, source) {
+            if (!Array.isArray(graph) || graph.length === 0) {
+              throw new Error('Graph must be a non-empty array.');
+            }
+            if (source < 0 || source >= graph.length) {
+              throw new Error('Source must be a valid index within the graph.');
+            }
+
+            const mstSet = new Set();
+            const key = Array(graph.length).fill(Infinity);
+            key[source] = 0;
+
+            for (let count = 0; count < graph.length - 1; count++) {
+              let minKey = Infinity;
+              let minIndex = -1;
+
+              for (let v = 0; v < graph.length; v++) {
+                if (!mstSet.has(v) && key[v] < minKey) {
+                  minKey = key[v];
+                  minIndex = v;
+                }
+              }
+
+              if (minIndex === -1) break; // Break if no more vertices are left
+
+              mstSet.add(minIndex);
+
+              for (let i = 0; i < graph[minIndex].length; i++) {
+                const [neighbor, weight] = graph[minIndex][i]; // Access neighbor and weight
+                if (!mstSet.has(neighbor) && weight < key[neighbor]) {
+                  key[neighbor] = weight;
+                }
+              }
+            }
+
+            return key; // Return the total weight of the MST
+          }
+        `,
         execute: async function (graph, source, updateStep) {
           if (!Array.isArray(graph) || graph.length === 0) {
             throw new Error('Graph must be a non-empty array.');
@@ -2296,27 +2399,27 @@ export const implementations = {
           if (source < 0 || source >= graph.length) {
             throw new Error('Source must be a valid index within the graph.');
           }
-      
+
           const mstSet = new Set();
           const key = Array(graph.length).fill(Infinity);
           key[source] = 0;
           updateStep({ arr: key, current: [], operation: 'initialize', final: false });
-      
+
           for (let count = 0; count < graph.length - 1; count++) {
             let minKey = Infinity;
             let minIndex = -1;
-      
+
             for (let v = 0; v < graph.length; v++) {
               if (!mstSet.has(v) && key[v] < minKey) {
                 minKey = key[v];
                 minIndex = v;
               }
             }
-      
+
             if (minIndex === -1) break; // Break if no more vertices are left
-      
+
             mstSet.add(minIndex);
-      
+
             for (let i = 0; i < graph[minIndex].length; i++) {
               const neighbor = graph[minIndex][i][0]; // Access the neighbor index
               const weight = graph[minIndex][i][1]; // Access the edge weight
@@ -2326,11 +2429,11 @@ export const implementations = {
               }
             }
           }
-      
+
           updateStep({ arr: key, current: [], operation: 'final', final: true });
           return key; // Return the total weight of the MST
-        }
-      },      
+        },
+      },
       {
         name: 'Stable Matching',
         parameters: [
@@ -2342,19 +2445,58 @@ export const implementations = {
           stepType: 'array',
           finalType: 'array',
         },
+        code: `
+          function stableMatching(menPreferences, womenPreferences) {
+            const men = Array(menPreferences.length).fill(null);
+            const women = Array(womenPreferences.length).fill(null);
+            const freeMen = Array.from({ length: menPreferences.length }, (_, i) => i);
+            const proposals = Array(menPreferences.length).fill(0);
+
+            while (freeMen.length) {
+              const man = freeMen.pop();
+              const womanIndex = proposals[man]++;
+              const woman = menPreferences[man][womanIndex];
+
+              if (woman === undefined) {
+                continue; // Ensure valid woman index
+              }
+
+              if (women[woman] === null) {
+                women[woman] = man;
+                men[man] = woman;
+              } else {
+                const currentMan = women[woman];
+                if (womenPreferences[woman].indexOf(man) < womenPreferences[woman].indexOf(currentMan)) {
+                  men[currentMan] = null;
+                  freeMen.push(currentMan);
+                  women[woman] = man;
+                  men[man] = woman;
+                } else {
+                  freeMen.push(man);
+                }
+              }
+            }
+
+            return men;
+          }
+        `,
         execute: async function (menPreferences, womenPreferences, updateStep) {
           const men = Array(menPreferences.length).fill(null);
           const women = Array(womenPreferences.length).fill(null);
           const freeMen = Array.from({ length: menPreferences.length }, (_, i) => i);
           const proposals = Array(menPreferences.length).fill(0);
-      
+
           updateStep({ arr: [...men], current: [], operation: 'initialize', final: false });
-      
+
           while (freeMen.length) {
             const man = freeMen.pop();
             const womanIndex = proposals[man]++;
             const woman = menPreferences[man][womanIndex];
-      
+
+            if (woman === undefined) {
+              continue; // Prevents undefined woman
+            }
+
             if (women[woman] === null) {
               women[woman] = man;
               men[man] = woman;
@@ -2371,11 +2513,11 @@ export const implementations = {
             }
             updateStep({ arr: [...men], current: [], operation: 'update', final: false });
           }
-      
+
           updateStep({ arr: [...men], current: [], operation: 'final', final: true });
           return men;
-        }
-      },      
+        },
+      },
       {
         name: 'Huffman Coding',
         parameters: [
@@ -2386,33 +2528,60 @@ export const implementations = {
           stepType: 'array',
           finalType: 'object',
         },
+        code: `
+          function huffmanCoding(data) {
+            if (!Array.isArray(data) || data.length === 0) {
+              throw new Error('Input must be a non-empty array of character-frequency pairs.');
+            }
+
+            const freqMap = new Map();
+            for (let i = 0; i < data.length; i++) {
+              const [char, freq] = data[i];
+              freqMap.set(char, freq);
+            }
+
+            const heap = [...freqMap.entries()].sort((a, b) => a[1] - b[1]);
+
+            while (heap.length > 1) {
+              const [leftChar, leftFreq] = heap.shift();
+              const [rightChar, rightFreq] = heap.shift();
+              const newNode = [leftChar + rightChar, leftFreq + rightFreq];
+              heap.push(newNode);
+              heap.sort((a, b) => a[1] - b[1]);
+            }
+
+            return heap[0][0]; // Return the combined character string
+          }
+        `,
         execute: async function (data, updateStep) {
           if (!Array.isArray(data) || data.length === 0) {
             throw new Error('Input must be a non-empty array of character-frequency pairs.');
           }
-      
+
           const freqMap = new Map();
-          for (const [char, freq] of data) {
+          for (let i = 0; i < data.length; i++) {
+            const [char, freq] = data[i];
             freqMap.set(char, freq);
           }
-      
+
           const heap = [...freqMap.entries()].sort((a, b) => a[1] - b[1]);
+
           updateStep({ arr: [...heap], current: [], operation: 'initialize', final: false });
-      
+
           while (heap.length > 1) {
             const [leftChar, leftFreq] = heap.shift();
             const [rightChar, rightFreq] = heap.shift();
             const newNode = [leftChar + rightChar, leftFreq + rightFreq];
             heap.push(newNode);
             heap.sort((a, b) => a[1] - b[1]);
-      
+
             updateStep({ arr: [...heap], current: [], operation: 'combine', final: false });
           }
-      
+
           updateStep({ arr: [...heap], current: [], operation: 'final', final: true });
           return heap[0][0]; // Return the combined character string
-        }
-      },      
+        },
+      },
       {
         name: 'Activity Selection Problem',
         parameters: [
@@ -2424,24 +2593,23 @@ export const implementations = {
           finalType: 'array',
         },
         code: `
-              function activitySelection(activities) {
-                  activities.sort((a, b) => a[1] - b[1]); // Sort by finish time
-                  const selectedActivities = [activities[0]];
-        
-                  let lastFinishTime = activities[0][1];
-        
-                  for (let i = 1; i < activities.length; i++) {
-                      if (activities[i][0] >= lastFinishTime) {
-                          selectedActivities.push(activities[i]);
-                          lastFinishTime = activities[i][1];
-                      }
-                  }
-        
-                  return selectedActivities;
+          function activitySelection(activities) {
+            activities.sort((a, b) => a[1] - b[1]); // Sort by finish time
+            const selectedActivities = [activities[0]];
+
+            let lastFinishTime = activities[0][1];
+
+            for (let i = 1; i < activities.length; i++) {
+              if (activities[i][0] >= lastFinishTime) {
+                selectedActivities.push(activities[i]);
+                lastFinishTime = activities[i][1];
               }
-            `,
+            }
+
+            return selectedActivities;
+          }
+        `,
         execute: async function (activities, updateStep) {
-          console.log('Input activities for Selection:', activities); // Log input parameters
           activities.sort((a, b) => a[1] - b[1]); // Sort by finish time
           const selectedActivities = [activities[0]];
           updateStep({ arr: [...activities], current: [], operation: 'initialize', final: false });
@@ -2470,29 +2638,50 @@ export const implementations = {
           stepType: 'array',
           finalType: 'number',
         },
+        code: `
+          function fractionalKnapsack(items, capacity) {
+            items.sort((a, b) => (b[0] / b[1]) - (a[0] / a[1])); // Sort by value-to-weight ratio
+            let totalValue = 0;
+
+            for (let i = 0; i < items.length; i++) {
+              const value = items[i][0];
+              const weight = items[i][1];
+
+              if (capacity >= weight) {
+                totalValue += value;
+                capacity -= weight;
+              } else {
+                totalValue += value * (capacity / weight);
+                break;
+              }
+            }
+
+            return totalValue;
+          }
+        `,
         execute: async function (items, capacity, updateStep) {
           items.sort((a, b) => (b[0] / b[1]) - (a[0] / a[1])); // Sort by value-to-weight ratio
           let totalValue = 0;
           updateStep({ arr: [...items], current: [], operation: 'initialize', final: false });
-      
+
           for (let i = 0; i < items.length; i++) {
             const value = items[i][0];
             const weight = items[i][1];
-      
+
             if (capacity >= weight) {
               totalValue += value;
               capacity -= weight;
-              updateStep({ arr: [...items], current: [i], operation: 'addFull', final: false });
+              updateStep({ arr: [...items], current: [value], operation: 'addFull', final: false });
             } else {
               totalValue += value * (capacity / weight);
-              updateStep({ arr: [...items], current: [i], operation: 'addPartial', final: false });
-              break; // Stop when capacity is reached
+              updateStep({ arr: [...items], current: [value], operation: 'addPartial', final: false });
+              break;
             }
           }
           updateStep({ arr: [...items], current: [], operation: 'final', final: true });
           return totalValue;
-        }
-      },      
+        },
+      },
       {
         name: 'Change-Making Problem',
         parameters: [
@@ -2505,22 +2694,20 @@ export const implementations = {
           finalType: 'array',
         },
         code: `
-              function changeMaking(coins, amount) {
-                  const dp = Array(amount + 1).fill(Infinity);
-                  dp[0] = 0;
-        
-                  for (let i = 0; i < coins.length; i++) {
-                      for (let j = coins[i]; j <= amount; j++) {
-                          dp[j] = Math.min(dp[j], dp[j - coins[i]] + 1);
-                      }
-                  }
-        
-                  return dp[amount] === Infinity ? -1 : dp[amount];
+          function changeMaking(coins, amount) {
+            const dp = Array(amount + 1).fill(Infinity);
+            dp[0] = 0;
+
+            for (let i = 0; i < coins.length; i++) {
+              for (let j = coins[i]; j <= amount; j++) {
+                dp[j] = Math.min(dp[j], dp[j - coins[i]] + 1);
               }
-            `,
+            }
+
+            return dp[amount] === Infinity ? -1 : dp[amount];
+          }
+        `,
         execute: async function (coins, amount, updateStep) {
-          console.log('Input coins for Change Making:', coins); // Log input parameters
-          console.log('Input amount for Change Making:', amount); // Log input parameters
           const dp = Array(amount + 1).fill(Infinity);
           dp[0] = 0;
           updateStep({ arr: [...dp], current: [], operation: 'initialize', final: false });
@@ -2536,6 +2723,6 @@ export const implementations = {
           return dp[amount] === Infinity ? -1 : dp[amount];
         },
       },
-    ]
+    ],
   }
 }
