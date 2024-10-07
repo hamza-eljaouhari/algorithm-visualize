@@ -2346,7 +2346,7 @@ export const implementations = {
         name: 'Prim\'s Minimum Spanning Tree',
         parameters: [
           { name: 'graph', type: 'adjacencyList', numVertices: 5 }, // Generates a graph with 5 vertices
-          { name: 'source', type: 'integer', min: 1, max: 3}
+          { name: 'source', type: 'integer', min: 1, max: 3 }
         ],
         outputType: 'array',
         visualization: {
@@ -2723,5 +2723,979 @@ export const implementations = {
         },
       },
     ],
+    'Simple Recursive': {
+      algorithms: [
+        {
+          name: 'Cellular Automata',
+          description: 'Simulates cellular automata, which consists of a grid of cells that evolve through iterations.',
+          parameters: [],
+          execute: (callback) => {
+            // Sample implementation for Cellular Automata
+            const grid = initializeGrid(); // Define grid initialization logic
+            for (let step = 0; step < numSteps; step++) {
+              // Update the grid
+              updateGrid(grid);
+              callback({ step, grid });
+            }
+          },
+          code: `
+    function cellularAutomata(steps) {
+      // Initialize grid and iterate through steps
+    }
+            `,
+        },
+        {
+          name: 'Cycle Detection',
+          description: 'Detects cycles in a directed graph using DFS.',
+          parameters: [
+            { name: 'graph', type: 'adjacencyList' },
+          ],
+          execute: (graph, callback) => {
+            // Sample implementation for Cycle Detection
+            const visited = new Set();
+            const recursionStack = new Set();
+
+            const detectCycle = (node) => {
+              if (!visited.has(node)) {
+                visited.add(node);
+                recursionStack.add(node);
+                graph[node].forEach((neighbor) => {
+                  if (!visited.has(neighbor) && detectCycle(neighbor)) {
+                    return true;
+                  } else if (recursionStack.has(neighbor)) {
+                    return true;
+                  }
+                });
+              }
+              recursionStack.delete(node);
+              return false;
+            };
+
+            for (const node in graph) {
+              if (detectCycle(node)) {
+                callback({ cycleDetected: true });
+                return;
+              }
+            }
+            callback({ cycleDetected: false });
+          },
+          code: `
+    function cycleDetection(graph) {
+      // Implement DFS to detect cycles in a directed graph
+    }
+            `,
+        },
+        {
+          name: 'Euclidean Greatest Common Divisor',
+          description: 'Computes the GCD of two numbers using the Euclidean algorithm.',
+          parameters: [
+            { name: 'a', type: 'integer' },
+            { name: 'b', type: 'integer' },
+          ],
+          execute: (a, b, callback) => {
+            while (b) {
+              [a, b] = [b, a % b];
+              callback({ a, b });
+            }
+            return a;
+          },
+          code: `
+    function gcd(a, b) {
+      while (b) {
+        [a, b] = [b, a % b];
+      }
+      return a;
+    }
+            `,
+        },
+        {
+          name: 'Nth Factorial',
+          description: 'Calculates the factorial of a number recursively.',
+          parameters: [
+            { name: 'n', type: 'integer' },
+          ],
+          execute: (n, callback) => {
+            const factorial = (num) => {
+              if (num <= 1) return 1;
+              const result = num * factorial(num - 1);
+              callback({ num, result });
+              return result;
+            };
+            return factorial(n);
+          },
+          code: `
+    function factorial(n) {
+      if (n <= 1) return 1;
+      return n * factorial(n - 1);
+    }
+            `,
+        },
+        {
+          name: 'Suffix Array',
+          description: 'Constructs a suffix array for a given string.',
+          parameters: [
+            { name: 'string', type: 'string' },
+          ],
+          execute: (str, callback) => {
+            const suffixes = Array.from({ length: str.length }, (_, i) => str.slice(i));
+            const sortedSuffixes = suffixes.sort();
+            callback({ sortedSuffixes });
+            return sortedSuffixes.map((suffix) => str.length - suffix.length);
+          },
+          code: `
+    function buildSuffixArray(str) {
+      const suffixes = Array.from({ length: str.length }, (_, i) => str.slice(i));
+      return suffixes.sort();
+    }
+            `,
+        },
+        {
+          name: 'Recursive Backtracking (N-Queens Problem)',
+          description: 'Solves the N-Queens problem using recursive backtracking.',
+          parameters: [
+            { name: 'n', type: 'integer' },
+          ],
+          execute: (n, callback) => {
+            const board = Array.from({ length: n }, () => Array(n).fill(0));
+            const solveNQueens = (row) => {
+              if (row === n) {
+                callback({ board });
+                return true;
+              }
+              for (let col = 0; col < n; col++) {
+                if (isSafe(board, row, col)) {
+                  board[row][col] = 1;
+                  if (solveNQueens(row + 1)) return true;
+                  board[row][col] = 0; // backtrack
+                }
+              }
+              return false;
+            };
+            solveNQueens(0);
+          },
+          code: `
+    function solveNQueens(n) {
+      // Implement N-Queens problem using backtracking
+    }
+            `,
+        },
+      ],
+    },
+    'Graph Algorithms': {
+      algorithms: [
+        {
+          name: 'Depth-First Search (DFS)',
+          description: 'Performs a depth-first traversal of a graph.',
+          parameters: [
+            { name: 'graph', type: 'adjacencyList' },
+            { name: 'start', type: 'integer' },
+          ],
+          execute: (graph, start, callback) => {
+            const visited = new Set();
+            const dfs = (node) => {
+              visited.add(node);
+              callback({ node });
+              graph[node].forEach((neighbor) => {
+                if (!visited.has(neighbor)) dfs(neighbor);
+              });
+            };
+            dfs(start);
+          },
+          code: `
+  function dfs(graph, start) {
+    const visited = new Set();
+    // Implement DFS logic here
+  }
+          `,
+        },
+        {
+          name: 'Breadth-First Search (BFS)',
+          description: 'Performs a breadth-first traversal of a graph.',
+          parameters: [
+            { name: 'graph', type: 'adjacencyList' },
+            { name: 'start', type: 'integer' },
+          ],
+          execute: (graph, start, callback) => {
+            const visited = new Set();
+            const queue = [start];
+            while (queue.length) {
+              const node = queue.shift();
+              if (!visited.has(node)) {
+                visited.add(node);
+                callback({ node });
+                queue.push(...graph[node].filter(neighbor => !visited.has(neighbor)));
+              }
+            }
+          },
+          code: `
+  function bfs(graph, start) {
+    const visited = new Set();
+    // Implement BFS logic here
+  }
+          `,
+        },
+        {
+          name: 'A* Search Algorithm',
+          description: 'Finds the shortest path from a start node to a goal node in a weighted graph.',
+          parameters: [
+            { name: 'graph', type: 'adjacencyList' },
+            { name: 'start', type: 'integer' },
+            { name: 'goal', type: 'integer' },
+          ],
+          execute: (graph, start, goal, callback) => {
+            // Implement A* Search logic here
+          },
+          code: `
+  function aStar(graph, start, goal) {
+    // A* Search algorithm implementation
+  }
+          `,
+        },
+        {
+          name: 'Topological Sorting',
+          description: 'Returns a topological ordering of a directed acyclic graph (DAG).',
+          parameters: [
+            { name: 'graph', type: 'adjacencyList' },
+          ],
+          execute: (graph, callback) => {
+            // Implement Topological Sort logic here
+          },
+          code: `
+  function topologicalSort(graph) {
+    // Topological sort implementation
+  }
+          `,
+        },
+        {
+          name: 'Tarjan\'s Algorithm (Strongly Connected Components)',
+          description: 'Finds strongly connected components in a directed graph.',
+          parameters: [
+            { name: 'graph', type: 'adjacencyList' },
+          ],
+          execute: (graph, callback) => {
+            // Implement Tarjan's algorithm logic here
+          },
+          code: `
+  function tarjan(graph) {
+    // Tarjan's algorithm implementation
+  }
+          `,
+        },
+        {
+          name: 'Bellman-Ford Algorithm',
+          description: 'Finds the shortest path from a single source to all vertices in a weighted graph.',
+          parameters: [
+            { name: 'graph', type: 'adjacencyList' },
+            { name: 'source', type: 'integer' },
+          ],
+          execute: (graph, source, callback) => {
+            // Implement Bellman-Ford logic here
+          },
+          code: `
+  function bellmanFord(graph, source) {
+    // Bellman-Ford algorithm implementation
+  }
+          `,
+        },
+        {
+          name: 'Johnson\'s Algorithm',
+          description: 'Finds shortest paths between all pairs of vertices in a sparse graph.',
+          parameters: [
+            { name: 'graph', type: 'adjacencyList' },
+          ],
+          execute: (graph, callback) => {
+            // Implement Johnson's algorithm logic here
+          },
+          code: `
+  function johnson(graph) {
+    // Johnson's algorithm implementation
+  }
+          `,
+        },
+        {
+          name: 'Minimum Spanning Tree (Kruskal and Prim)',
+          description: 'Finds the minimum spanning tree of a graph.',
+          parameters: [
+            { name: 'graph', type: 'adjacencyList' },
+          ],
+          execute: (graph, callback) => {
+            // Implement Minimum Spanning Tree logic here
+          },
+          code: `
+  function minimumSpanningTree(graph) {
+    // Minimum Spanning Tree implementation
+  }
+          `,
+        },
+        {
+          name: 'Floyd-Warshall Algorithm',
+          description: 'Finds shortest paths between all pairs of vertices in a weighted graph.',
+          parameters: [
+            { name: 'graph', type: 'adjacencyList' },
+          ],
+          execute: (graph, callback) => {
+            // Implement Floyd-Warshall logic here
+          },
+          code: `
+  function floydWarshall(graph) {
+    // Floyd-Warshall algorithm implementation
+  }
+          `,
+        },
+      ],
+    },
+    'Searching Algorithms': {
+      algorithms: [
+        {
+          name: 'Linear Search',
+          description: 'Searches for an element in an array by checking each element.',
+          parameters: [
+            { name: 'array', type: 'array' },
+            { name: 'target', type: 'integer' },
+          ],
+          execute: (array, target, callback) => {
+            for (let i = 0; i < array.length; i++) {
+              callback({ index: i, value: array[i] });
+              if (array[i] === target) return i;
+            }
+            return -1;
+          },
+          code: `
+  function linearSearch(array, target) {
+    // Implement Linear Search logic here
+  }
+          `,
+        },
+        {
+          name: 'Binary Search',
+          description: 'Searches for an element in a sorted array using the binary search algorithm.',
+          parameters: [
+            { name: 'array', type: 'sortedArray' },
+            { name: 'target', type: 'integer' },
+          ],
+          execute: (array, target, callback) => {
+            let left = 0;
+            let right = array.length - 1;
+            while (left <= right) {
+              const mid = Math.floor((left + right) / 2);
+              callback({ mid, value: array[mid] });
+              if (array[mid] === target) return mid;
+              if (array[mid] < target) left = mid + 1;
+              else right = mid - 1;
+            }
+            return -1;
+          },
+          code: `
+  function binarySearch(array, target) {
+    // Implement Binary Search logic here
+  }
+          `,
+        },
+        {
+          name: 'Interpolation Search',
+          description: 'Searches for an element in a sorted array, using interpolation to find the index.',
+          parameters: [
+            { name: 'array', type: 'sortedArray' },
+            { name: 'target', type: 'integer' },
+          ],
+          execute: (array, target, callback) => {
+            let low = 0;
+            let high = array.length - 1;
+            while (low <= high && target >= array[low] && target <= array[high]) {
+              const mid = low + Math.floor((high - low) / (array[high] - array[low]) * (target - array[low]));
+              callback({ mid, value: array[mid] });
+              if (array[mid] === target) return mid;
+              if (array[mid] < target) low = mid + 1;
+              else high = mid - 1;
+            }
+            return -1;
+          },
+          code: `
+  function interpolationSearch(array, target) {
+    // Implement Interpolation Search logic here
+  }
+          `,
+        },
+        {
+          name: 'Exponential Search',
+          description: 'Searches for an element in a sorted array using exponential growth to find the range.',
+          parameters: [
+            { name: 'array', type: 'sortedArray' },
+            { name: 'target', type: 'integer' },
+          ],
+          execute: (array, target, callback) => {
+            if (array[0] === target) return 0;
+            let i = 1;
+            while (i < array.length && array[i] <= target) {
+              callback({ index: i, value: array[i] });
+              i *= 2;
+            }
+            return binarySearch(array.slice(Math.floor(i / 2), Math.min(i, array.length)), target, callback);
+          },
+          code: `
+  function exponentialSearch(array, target) {
+    // Implement Exponential Search logic here
+  }
+          `,
+        },
+        {
+          name: 'Fibonacci Search',
+          description: 'Searches for an element in a sorted array using Fibonacci numbers.',
+          parameters: [
+            { name: 'array', type: 'sortedArray' },
+            { name: 'target', type: 'integer' },
+          ],
+          execute: (array, target, callback) => {
+            let fibM2 = 0;
+            let fibM1 = 1;
+            let fibM = fibM1 + fibM2;
+
+            while (fibM < array.length) {
+              fibM2 = fibM1;
+              fibM1 = fibM;
+              fibM = fibM1 + fibM2;
+            }
+
+            let offset = -1;
+
+            while (fibM > 1) {
+              const i = Math.min(offset + fibM2, array.length - 1);
+              callback({ index: i, value: array[i] });
+
+              if (array[i] < target) {
+                fibM = fibM1;
+                fibM1 = fibM2;
+                fibM2 = fibM - fibM1;
+                offset = i;
+              } else if (array[i] > target) {
+                fibM = fibM2;
+                fibM1 -= fibM1;
+                fibM2 = fibM - fibM1;
+              } else return i;
+            }
+
+            if (fibM1 && array[offset + 1] === target) return offset + 1;
+            return -1;
+          },
+          code: `
+  function fibonacciSearch(array, target) {
+    // Implement Fibonacci Search logic here
+  }
+          `,
+        },
+      ],
+    },
+    'Sorting Algorithms': {
+      algorithms: [
+        {
+          name: 'Bubble Sort',
+          description: 'Sorts an array using the bubble sort algorithm.',
+          parameters: [
+            { name: 'array', type: 'array' },
+          ],
+          execute: (array, callback) => {
+            const n = array.length;
+            for (let i = 0; i < n - 1; i++) {
+              for (let j = 0; j < n - i - 1; j++) {
+                callback({ j, swapped: array[j] > array[j + 1] });
+                if (array[j] > array[j + 1]) {
+                  [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                }
+              }
+            }
+            return array;
+          },
+          code: `
+  function bubbleSort(array) {
+    // Implement Bubble Sort logic here
+  }
+          `,
+        },
+        {
+          name: 'Insertion Sort',
+          description: 'Sorts an array using the insertion sort algorithm.',
+          parameters: [
+            { name: 'array', type: 'array' },
+          ],
+          execute: (array, callback) => {
+            const n = array.length;
+            for (let i = 1; i < n; i++) {
+              let key = array[i];
+              let j = i - 1;
+              while (j >= 0 && array[j] > key) {
+                callback({ j, shifted: true });
+                array[j + 1] = array[j];
+                j--;
+              }
+              array[j + 1] = key;
+            }
+            return array;
+          },
+          code: `
+  function insertionSort(array) {
+    // Implement Insertion Sort logic here
+  }
+          `,
+        },
+        {
+          name: 'Selection Sort',
+          description: 'Sorts an array using the selection sort algorithm.',
+          parameters: [
+            { name: 'array', type: 'array' },
+          ],
+          execute: (array, callback) => {
+            const n = array.length;
+            for (let i = 0; i < n - 1; i++) {
+              let minIndex = i;
+              for (let j = i + 1; j < n; j++) {
+                callback({ j, isMinimum: array[j] < array[minIndex] });
+                if (array[j] < array[minIndex]) {
+                  minIndex = j;
+                }
+              }
+              if (minIndex !== i) {
+                [array[i], array[minIndex]] = [array[minIndex], array[i]];
+              }
+            }
+            return array;
+          },
+          code: `
+  function selectionSort(array) {
+    // Implement Selection Sort logic here
+  }
+          `,
+        },
+        {
+          name: 'Shell Sort',
+          description: 'Sorts an array using the shell sort algorithm.',
+          parameters: [
+            { name: 'array', type: 'array' },
+          ],
+          execute: (array, callback) => {
+            const n = array.length;
+            let gap = Math.floor(n / 2);
+            while (gap > 0) {
+              for (let i = gap; i < n; i++) {
+                const temp = array[i];
+                let j;
+                for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
+                  callback({ j, swapped: true });
+                  array[j] = array[j - gap];
+                }
+                array[j] = temp;
+              }
+              gap = Math.floor(gap / 2);
+            }
+            return array;
+          },
+          code: `
+  function shellSort(array) {
+    // Implement Shell Sort logic here
+  }
+          `,
+        },
+        {
+          name: 'Heap Sort',
+          description: 'Sorts an array using the heap sort algorithm.',
+          parameters: [
+            { name: 'array', type: 'array' },
+          ],
+          execute: (array, callback) => {
+            const n = array.length;
+            const heapify = (arr, n, i) => {
+              let largest = i;
+              const left = 2 * i + 1;
+              const right = 2 * i + 2;
+
+              if (left < n && arr[left] > arr[largest]) largest = left;
+              if (right < n && arr[right] > arr[largest]) largest = right;
+
+              if (largest !== i) {
+                [arr[i], arr[largest]] = [arr[largest], arr[i]];
+                heapify(arr, n, largest);
+              }
+            };
+
+            for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(array, n, i);
+            for (let i = n - 1; i > 0; i--) {
+              callback({ i });
+              [array[0], array[i]] = [array[i], array[0]];
+              heapify(array, i, 0);
+            }
+            return array;
+          },
+          code: `
+  function heapSort(array) {
+    // Implement Heap Sort logic here
+  }
+          `,
+        },
+        {
+          name: 'Comb Sort',
+          description: 'Sorts an array using the comb sort algorithm.',
+          parameters: [
+            { name: 'array', type: 'array' },
+          ],
+          execute: (array, callback) => {
+            const n = array.length;
+            let gap = n;
+            let swapped = true;
+
+            while (gap !== 1 || swapped) {
+              gap = Math.max(1, Math.floor(gap / 1.3));
+              swapped = false;
+
+              for (let i = 0; i + gap < n; i++) {
+                callback({ i, swapped: array[i] > array[i + gap] });
+                if (array[i] > array[i + gap]) {
+                  [array[i], array[i + gap]] = [array[i + gap], array[i]];
+                  swapped = true;
+                }
+              }
+            }
+            return array;
+          },
+          code: `
+  function combSort(array) {
+    // Implement Comb Sort logic here
+  }
+          `,
+        },
+        {
+          name: 'Tim Sort',
+          description: 'Sorts an array using the Tim sort algorithm, a hybrid sorting algorithm derived from merge sort and insertion sort.',
+          parameters: [
+            { name: 'array', type: 'array' },
+          ],
+          execute: (array, callback) => {
+            // Implement Tim Sort logic here
+          },
+          code: `
+  function timSort(array) {
+    // Tim Sort algorithm implementation
+  }
+          `,
+        },
+      ],
+    },
+    'String Algorithms': {
+      algorithms: [
+        {
+          name: 'Rabin-Karp Algorithm',
+          description: 'Searches for a pattern in a text using hashing.',
+          parameters: [
+            { name: 'text', type: 'string' },
+            { name: 'pattern', type: 'string' },
+          ],
+          execute: (text, pattern, callback) => {
+            // Implement Rabin-Karp logic here
+          },
+          code: `
+  function rabinKarp(text, pattern) {
+    // Rabin-Karp algorithm implementation
+  }
+          `,
+        },
+        {
+          name: 'Z Algorithm',
+          description: 'Searches for occurrences of a pattern in a text using the Z-array.',
+          parameters: [
+            { name: 'text', type: 'string' },
+            { name: 'pattern', type: 'string' },
+          ],
+          execute: (text, pattern, callback) => {
+            // Implement Z algorithm logic here
+          },
+          code: `
+  function zAlgorithm(text, pattern) {
+    // Z algorithm implementation
+  }
+          `,
+        },
+        {
+          name: 'Aho-Corasick Algorithm',
+          description: 'Searches for multiple patterns in a text simultaneously using a trie and a finite state machine.',
+          parameters: [
+            { name: 'text', type: 'string' },
+            { name: 'patterns', type: 'array' },
+          ],
+          execute: (text, patterns, callback) => {
+            // Implement Aho-Corasick logic here
+          },
+          code: `
+  function ahoCorasick(text, patterns) {
+    // Aho-Corasick algorithm implementation
+  }
+          `,
+        },
+        {
+          name: 'KMP Algorithm',
+          description: 'Searches for a pattern in a text using the Knuth-Morris-Pratt algorithm.',
+          parameters: [
+            { name: 'text', type: 'string' },
+            { name: 'pattern', type: 'string' },
+          ],
+          execute: (text, pattern, callback) => {
+            // Implement KMP logic here
+          },
+          code: `
+  function kmp(text, pattern) {
+    // KMP algorithm implementation
+  }
+          `,
+        },
+        {
+          name: 'Suffix Tree Construction',
+          description: 'Constructs a suffix tree from a given string.',
+          parameters: [
+            { name: 'string', type: 'string' },
+          ],
+          execute: (string, callback) => {
+            // Implement Suffix Tree logic here
+          },
+          code: `
+  function buildSuffixTree(string) {
+    // Suffix Tree construction implementation
+  }
+          `,
+        },
+        {
+          name: 'Longest Repeated Substring',
+          description: 'Finds the longest repeated substring in a given string.',
+          parameters: [
+            { name: 'string', type: 'string' },
+          ],
+          execute: (string, callback) => {
+            // Implement Longest Repeated Substring logic here
+          },
+          code: `
+  function longestRepeatedSubstring(string) {
+    // Longest Repeated Substring implementation
+  }
+          `,
+        },
+      ],
+    },
+    'Miscellaneous Algorithms': {
+      algorithms: [
+        {
+          name: 'Backtracking (Hamiltonian Cycle)',
+          description: 'Finds Hamiltonian cycles in a graph using backtracking.',
+          parameters: [
+            { name: 'graph', type: 'adjacencyList' },
+          ],
+          execute: (graph, callback) => {
+            // Implement Hamiltonian Cycle logic here
+          },
+          code: `
+  function hamiltonianCycle(graph) {
+    // Hamiltonian Cycle implementation
+  }
+          `,
+        },
+        {
+          name: 'Randomized Algorithms (Randomized QuickSort)',
+          description: 'Sorts an array using randomized quicksort.',
+          parameters: [
+            { name: 'array', type: 'array' },
+          ],
+          execute: (array, callback) => {
+            // Implement Randomized QuickSort logic here
+          },
+          code: `
+  function randomizedQuickSort(array) {
+    // Randomized QuickSort implementation
+  }
+          `,
+        },
+        {
+          name: 'Monte Carlo Algorithms',
+          description: 'Uses random sampling to obtain numerical results, typically used for probabilistic algorithms.',
+          parameters: [],
+          execute: (callback) => {
+            // Implement Monte Carlo algorithm logic here
+          },
+          code: `
+  function monteCarlo() {
+    // Monte Carlo algorithm implementation
+  }
+          `,
+        },
+        {
+          name: 'Simulated Annealing',
+          description: 'An optimization algorithm that searches for a good solution by exploring the solution space and accepting worse solutions with decreasing probability.',
+          parameters: [],
+          execute: (callback) => {
+            // Implement Simulated Annealing logic here
+          },
+          code: `
+  function simulatedAnnealing() {
+    // Simulated Annealing implementation
+  }
+          `,
+        },
+        {
+          name: 'Genetic Algorithms',
+          description: 'An optimization technique based on the principles of natural selection and genetics.',
+          parameters: [],
+          execute: (callback) => {
+            // Implement Genetic Algorithms logic here
+          },
+          code: `
+  function geneticAlgorithm() {
+    // Genetic Algorithms implementation
+  }
+          `,
+        },
+      ],
+    },
+    'Uncategorised': {
+      algorithms: [
+        {
+          name: 'Affine Cipher',
+          description: 'An encryption algorithm that uses a simple mathematical function.',
+          parameters: [
+            { name: 'text', type: 'string' },
+            { name: 'a', type: 'integer' },
+            { name: 'b', type: 'integer' },
+          ],
+          execute: (text, a, b, callback) => {
+            // Implement Affine Cipher logic here
+          },
+          code: `
+    function affineCipher(text, a, b) {
+      // Affine Cipher implementation
+    }
+            `,
+        },
+        {
+          name: 'Caesar Cipher',
+          description: 'A simple encryption technique that shifts characters by a fixed number.',
+          parameters: [
+            { name: 'text', type: 'string' },
+            { name: 'shift', type: 'integer' },
+          ],
+          execute: (text, shift, callback) => {
+            // Implement Caesar Cipher logic here
+          },
+          code: `
+    function caesarCipher(text, shift) {
+      // Caesar Cipher implementation
+    }
+            `,
+        },
+        {
+          name: 'Freivalds\' Matrix-Multiplication Verification',
+          description: 'Verifies the product of two matrices using randomization.',
+          parameters: [
+            { name: 'matrixA', type: 'matrix' },
+            { name: 'matrixB', type: 'matrix' },
+            { name: 'resultMatrix', type: 'matrix' },
+          ],
+          execute: (matrixA, matrixB, resultMatrix, callback) => {
+            // Implement Freivalds' verification logic here
+          },
+          code: `
+    function freivaldsVerification(matrixA, matrixB, resultMatrix) {
+      // Freivalds' algorithm implementation
+    }
+            `,
+        },
+        {
+          name: 'K-Means Clustering',
+          description: 'Partitions n observations into k clusters in which each observation belongs to the cluster with the nearest mean.',
+          parameters: [
+            { name: 'data', type: 'array' },
+            { name: 'k', type: 'integer' },
+          ],
+          execute: (data, k, callback) => {
+            // Implement K-Means Clustering logic here
+          },
+          code: `
+    function kMeans(data, k) {
+      // K-Means algorithm implementation
+    }
+            `,
+        },
+        {
+          name: 'Magic Square',
+          description: 'Generates a magic square of a given size.',
+          parameters: [
+            { name: 'n', type: 'integer' },
+          ],
+          execute: (n, callback) => {
+            // Implement Magic Square logic here
+          },
+          code: `
+    function magicSquare(n) {
+      // Magic Square algorithm implementation
+    }
+            `,
+        },
+        {
+          name: 'Maze Generation',
+          description: 'Generates a maze using algorithms like Prim\'s or Kruskal\'s.',
+          parameters: [
+            { name: 'width', type: 'integer' },
+            { name: 'height', type: 'integer' },
+          ],
+          execute: (width, height, callback) => {
+            // Implement Maze Generation logic here
+          },
+          code: `
+    function generateMaze(width, height) {
+      // Maze generation algorithm implementation
+    }
+            `,
+        },
+        {
+          name: 'Miller-Rabin\'s Primality Test',
+          description: 'Tests whether a number is a prime using probabilistic methods.',
+          parameters: [
+            { name: 'n', type: 'integer' },
+            { name: 'k', type: 'integer' },
+          ],
+          execute: (n, k, callback) => {
+            // Implement Miller-Rabin logic here
+          },
+          code: `
+    function millerRabin(n, k) {
+      // Miller-Rabin primality test implementation
+    }
+            `,
+        },
+        {
+          name: 'Shortest Unsorted Continuous Subarray',
+          description: 'Finds the length of the shortest unsorted continuous subarray.',
+          parameters: [
+            { name: 'array', type: 'array' },
+          ],
+          execute: (array, callback) => {
+            // Implement Shortest Unsorted Continuous Subarray logic here
+          },
+          code: `
+    function shortestUnsortedSubarray(array) {
+      // Shortest Unsorted Continuous Subarray implementation
+    }
+            `,
+        },
+        {
+          name: 'Conway\'s Game of Life',
+          description: 'Simulates Conway\'s Game of Life, a cellular automaton.',
+          parameters: [
+            { name: 'grid', type: 'matrix' },
+            { name: 'steps', type: 'integer' },
+          ],
+          execute: (grid, steps, callback) => {
+            // Implement Game of Life logic here
+          },
+          code: `
+    function gameOfLife(grid, steps) {
+      // Conway's Game of Life implementation
+    }
+            `,
+        },
+      ],
+    },
   }
 }
