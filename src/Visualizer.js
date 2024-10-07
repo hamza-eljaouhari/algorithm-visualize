@@ -4,17 +4,6 @@ import { Box, Typography } from '@mui/material';
 const boxSize = '50px'; // Medium size for the array element boxes
 
 export default function Visualizer({ steps, currentStep }) {
-  // Ensure steps[currentStep] exists
-  if (!steps[currentStep]) {
-    return (
-      <Box sx={{ ml: 2, textAlign: 'center' }}>
-        <Typography variant="subtitle1">No visualization available.</Typography>
-      </Box>
-    );
-  }
-
-  const { arr, current, operation } = steps[currentStep] || {}; // Destructure safely
-
   const operationColors = {
     conditionFail: '#4B0082',       // Dark Indigo for failure conditions
     conditionSuccess: '#32CD32',    // Lime Green for success conditions
@@ -29,18 +18,31 @@ export default function Visualizer({ steps, currentStep }) {
     final: '#4B0082',               // Dark Indigo for final
   };
 
-  const renderArray = () => (
-    arr ? (
-      <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', mt: 2 }}>
-        {arr.map((value, index) => (
+  const renderArray = (stepData, index) => {
+    const { arr, current, operation } = stepData;
+
+    return (
+      <Box
+        key={index}
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          mt: 2,
+          borderBottom: '1px solid #444', // Divider between steps
+          pb: 1,
+          ml: 2
+        }}
+      >
+        {arr ? arr.map((value, idx) => (
           <Box
-            key={index}
+            key={idx}
             sx={{
               width: boxSize,
               height: boxSize,
               lineHeight: boxSize,
               textAlign: 'center',
-              backgroundColor: current?.includes(index) ? operationColors[operation] || '#2C2C54' : '#2C2C54',
+              backgroundColor: current?.includes(idx) ? operationColors[operation] || '#2C2C54' : '#2C2C54',
               color: 'white', // White text for readability
               marginRight: '5px',
               border: '1px solid #1e1e1e', // Subtle dark border
@@ -49,17 +51,20 @@ export default function Visualizer({ steps, currentStep }) {
           >
             {value}
           </Box>
-        ))}
+        )) : (
+          <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>No array data to display</Typography>
+        )}
       </Box>
-    ) : (
-      <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>No array data to display</Typography>
-    )
-  );
+    );
+  };
 
   return (
     <Box sx={{ mt: 2 }}>
       <Typography variant="subtitle1" sx={{ textAlign: 'center', mb: 1 }}>Array Visualization</Typography>
-      {renderArray()}
+      {steps.slice(0, currentStep + 1).map((stepData, index) => renderArray(stepData, index))}
+      {currentStep >= steps.length && (
+        <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>No more steps to display</Typography>
+      )}
     </Box>
   );
 }

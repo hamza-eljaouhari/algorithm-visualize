@@ -291,7 +291,6 @@ export default function Dashboard() {
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-
         <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', pl: 2 }}>
           <IconButton color="primary" onClick={handlePreviousStep} sx={{ color: '#d32f2f' }}>
             <SkipPreviousIcon />
@@ -321,7 +320,6 @@ export default function Dashboard() {
             <Typography variant="caption">Visualize</Typography>
           </IconButton>
         </Toolbar>
-
         <Box sx={{ display: 'flex', height: 'calc(100vh - 64px - 56px)', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', width: '100%' }}>
             <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', height: "100" }}>
@@ -341,7 +339,6 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             </Box>
-
             <Box sx={{
               width: '50%',
               position: 'sticky',
