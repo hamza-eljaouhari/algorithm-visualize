@@ -14,7 +14,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ToolbarControl from './ToolbarControl';
-import AlgorithmVisualizer from './AlgorithmVisualizer';
+import Visualizer from './Visualizer';
 import { algorithms } from './algorithms';
 import { implementations } from './implementations';
 import Accordion from '@mui/material/Accordion';
@@ -75,8 +75,7 @@ export default function Dashboard() {
   const [currentStep, setCurrentStep] = useState(0);
   const [generatedParams, setGeneratedParams] = useState([]);
   const [expanded, setExpanded] = useState(false);
-  const [visualizationType, setVisualizationType] = useState(false);
-  const [finalResult, setFinalResult] = useState(null); // New state to store final results
+  const [finalResult, setFinalResult] = useState(null); 
   
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -90,6 +89,8 @@ export default function Dashboard() {
     return parameters.map(param => {
       if (param.type === 'array') {
         return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min);
+      } else if (param.type === 'sortedArray') {
+        return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min).sort();
       } else if (param.type === 'matrix') {
         const [rows, cols] = param.size;
         return Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.floor(Math.random() * (param.max - param.min + 1)) + param.min));
@@ -111,17 +112,13 @@ export default function Dashboard() {
     if (algorithmImplementation) {
       setAlgorithmSteps([]);
       setCurrentStep(0);
-      setFinalResult(null); // Reset final result
+      setFinalResult(null); 
       const params = generateParameters(algorithmImplementation.parameters);
       setGeneratedParams(params);
-      setVisualizationType(algorithmImplementation.outputType)
     }
   };
 
   const updateStep = (stepData) => {
-    if (stepData.final) {
-      setFinalResult(stepData.arr); // Store the final result
-    }
     setAlgorithmSteps((prevSteps) => [...prevSteps, stepData]);
   };
 
@@ -130,18 +127,30 @@ export default function Dashboard() {
       console.error('No algorithm selected!');
       return;
     }
-
+  
     const algorithmImplementation = implementations[selectedCategory]?.algorithms.find(
       (algorithm) => algorithm.name === selectedAlgorithm
     );
-
+  
     if (!algorithmImplementation || !algorithmImplementation.execute) {
       console.error('No valid implementation found for the selected algorithm!');
       return;
     }
-
-    updateStep({ data: generatedParams, color: 'initial' });
-    await algorithmImplementation.execute(...generatedParams, updateStep);
+  
+    updateStep({
+      parameters: Object.fromEntries(generatedParams.map((param, i) => [algorithmImplementation.parameters[i].name, param])),
+    });
+  
+    const result = await algorithmImplementation.execute(...generatedParams, (stepData) => {
+      updateStep({
+        ...stepData,
+        parameters: Object.fromEntries(generatedParams.map((param, i) => [algorithmImplementation.parameters[i].name, param])),
+      });
+    });
+  
+    if (result) {
+      setFinalResult(result); 
+    }
   };
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
@@ -153,7 +162,6 @@ export default function Dashboard() {
       const timer = setTimeout(() => {
         setCurrentStep((prevStep) => prevStep + 1);
       }, 500);
-
       return () => clearTimeout(timer);
     }
   }, [currentStep, algorithmSteps]);
@@ -215,24 +223,28 @@ export default function Dashboard() {
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-          <Box sx={{ width: '50%', paddingRight: 2 }}>
-            <Typography variant="h6">Algorithm Visualization</Typography>
-            <AlgorithmVisualizer steps={algorithmSteps} currentStep={currentStep} outputType={visualizationType} />
+        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', width: '100%' }}>
+          <Box sx={{ width: '50%', padding: 2 }}>
+            <Typography variant="h6">Initial Parameters</Typography>
+            <Box sx={{ backgroundColor: '#f4f4f4', padding: '10px', borderRadius: '4px' }}>
+              <pre>{JSON.stringify(generatedParams, null, 2)}</pre>
+            </Box>
+            <Visualizer steps={algorithmSteps} currentStep={currentStep} />
             {finalResult && (
-              <Box sx={{ mt: 2, p: 2, backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
+              <Box sx={{ mt: 2, width: '100%', backgroundColor: '#f0f0f0', borderRadius: '4px', padding: '10px' }}>
                 <Typography variant="subtitle1">Final Result:</Typography>
                 <pre>{JSON.stringify(finalResult, null, 2)}</pre>
               </Box>
             )}
-          </Box>
-          <Box sx={{ width: '50%', paddingLeft: 2, borderLeft: '1px solid #ccc' }}>
+          </Box> 
+          <Box sx={{ width: '50%', padding: 2 }}>
             <Typography variant="h6">Algorithm Code</Typography>
             <pre style={{ backgroundColor: '#f4f4f4', padding: '10px' }}>
               {selectedAlgorithm && implementations[selectedCategory]?.algorithms.find(algorithm => algorithm.name === selectedAlgorithm)?.code}
             </pre>
           </Box>
         </Box>
+        
         <ToolbarControl executeAlgorithm={executeAlgorithm} algorithmSteps={algorithmSteps} />
       </Main>
     </Box>

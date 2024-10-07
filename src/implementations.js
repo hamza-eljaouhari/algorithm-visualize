@@ -334,34 +334,44 @@ export const implementations = {
           { name: 'arr', type: 'sortedArray', length: 10, min: 1, max: 100 },
           { name: 'target', type: 'number', min: 1, max: 100 },
         ],
-        outputType: 'index',
-        visualization: {
-          stepType: 'array',
-          finalType: 'array',
-        },
+        outputType: 'array',
         code: `function binarySearch(arr, target) {
+          if (!Array.isArray(arr) || arr.length === 0) {
+            console.error("Invalid array provided.");
+            return -1;
+          }
+      
           let left = 0;
           let right = arr.length - 1;
+          
           while (left <= right) {
             const mid = Math.floor((left + right) / 2);
             if (arr[mid] === target) return mid;
             if (arr[mid] < target) left = mid + 1;
             else right = mid - 1;
           }
+          
           return -1;
         }`,
         execute: async function (arr, target, updateStep) {
+          if (!Array.isArray(arr) || arr.length === 0) {
+            console.error("Invalid array provided to binary search.");
+            updateStep({ arr: [], current: [], operation: 'error', final: true });
+            return -1;
+          }
+      
           let left = 0;
           let right = arr.length - 1;
+      
           while (left <= right) {
             const mid = Math.floor((left + right) / 2);
             updateStep({ arr: [...arr], current: [mid], operation: 'conditionCheck', final: false });
-
+      
             if (arr[mid] === target) {
               updateStep({ arr: [...arr], current: [mid], operation: 'final', final: true });
               return mid;
             }
-
+      
             if (arr[mid] < target) {
               left = mid + 1;
               updateStep({ arr: [...arr], current: [mid], operation: 'increment', final: false });
@@ -370,10 +380,10 @@ export const implementations = {
               updateStep({ arr: [...arr], current: [mid], operation: 'decrement', final: false });
             }
           }
-
+      
           updateStep({ arr: [...arr], current: [], operation: 'notFound', final: true });
           return -1;
-        },
+        }
       },
       {
         name: "Strassen's Matrix Multiplication",
