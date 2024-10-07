@@ -103,29 +103,22 @@ export default function Dashboard() {
   const [currentStep, setCurrentStep] = useState(0);
   const [generatedParams, setGeneratedParams] = useState([]);
   const [expanded, setExpanded] = useState(false);
-  const [finalResult, setFinalResult] = useState(null); 
+  const [finalResult, setFinalResult] = useState(null);
   const [code, setCode] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(false);
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
+  const handleDrawerOpen = () => setOpen(true);
+  const handleDrawerClose = () => setOpen(false);
 
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
-  const handlePlay = () => {
-    setIsPlaying(true);
-  };
-
-  const handlePause = () => {
-    setIsPlaying(false);
-  };
+  const handlePlay = () => executeAlgorithm();
+  const handlePause = () => setIsPlaying(false);
 
   const handleNextStep = () => {
     if (currentStep < algorithmSteps.length - 1) {
       setCurrentStep((prevStep) => prevStep + 1);
+    } else {
+      setIsPlaying(false);
     }
   };
 
@@ -135,13 +128,13 @@ export default function Dashboard() {
     }
   };
 
-  const handleRunAllSteps = () => {
-    setCurrentStep(algorithmSteps.length - 1); // Skip to the end
-  };
+  const handleRunAllSteps = () => setCurrentStep(algorithmSteps.length - 1);
 
-  const handleRunVisualized = () => {
-    executeAlgorithm();
-    setIsPlaying(true); // Start visualizing after execution
+  const handleRunVisualized = async () => {
+    await executeAlgorithm();
+    setAutoPlay(true);
+    setIsPlaying(true);
+    setCurrentStep(0);
   };
 
   const generateParameters = (parameters) => {
@@ -171,7 +164,7 @@ export default function Dashboard() {
     if (algorithmImplementation) {
       setAlgorithmSteps([]);
       setCurrentStep(0);
-      setFinalResult(null); 
+      setFinalResult(null);
       const params = generateParameters(algorithmImplementation.parameters);
       setGeneratedParams(params);
       setCode(algorithmImplementation.code || '');
@@ -187,29 +180,29 @@ export default function Dashboard() {
       console.error('No algorithm selected!');
       return;
     }
-  
+
     const algorithmImplementation = implementations[selectedCategory]?.algorithms.find(
       (algorithm) => algorithm.name === selectedAlgorithm
     );
-  
+
     if (!algorithmImplementation || !algorithmImplementation.execute) {
       console.error('No valid implementation found for the selected algorithm!');
       return;
     }
-  
+
     updateStep({
       parameters: Object.fromEntries(generatedParams.map((param, i) => [algorithmImplementation.parameters[i].name, param])),
     });
-  
+
     const result = await algorithmImplementation.execute(...generatedParams, (stepData) => {
       updateStep({
         ...stepData,
         parameters: Object.fromEntries(generatedParams.map((param, i) => [algorithmImplementation.parameters[i].name, param])),
       });
     });
-  
+
     if (result) {
-      setFinalResult(result); 
+      setFinalResult(result);
     }
   };
 
@@ -223,8 +216,11 @@ export default function Dashboard() {
         setCurrentStep((prevStep) => prevStep + 1);
       }, 500);
       return () => clearTimeout(timer);
+    } else if (isPlaying && autoPlay && currentStep >= algorithmSteps.length - 1) {
+      setIsPlaying(false); // Stop when reaching the end
+      setAutoPlay(false); // Reset autoplay mode
     }
-  }, [isPlaying, currentStep, algorithmSteps]);
+  }, [isPlaying, currentStep, algorithmSteps, autoPlay]);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -271,10 +267,10 @@ export default function Dashboard() {
             expanded={expanded === category.title}
             onChange={handleAccordionChange(category.title)}
             sx={{
-              backgroundColor: '#faf0e6', 
-              boxShadow: 'none', 
+              backgroundColor: '#faf0e6',
+              boxShadow: 'none',
               '&:not(:last-child)': {
-                marginBottom: '0px', 
+                marginBottom: '0px',
               },
             }}
           >
@@ -284,7 +280,7 @@ export default function Dashboard() {
             <AccordionDetails>
               <Box>
                 {category.algorithms.map((algorithmName, idx) => (
-                  <ListItem button key={idx} onClick={() => handleAlgorithmSelection(category.title, algorithmName)}>
+                  <ListItem button="true" key={idx} onClick={() => handleAlgorithmSelection(category.title, algorithmName)}>
                     <ListItemText primary={algorithmName} />
                   </ListItem>
                 ))}
@@ -296,44 +292,49 @@ export default function Dashboard() {
       <Main open={open}>
         <DrawerHeader />
 
-        {/* Control Toolbar */}
-        <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'center' }}>
-          <IconButton color="primary" onClick={handlePreviousStep}>
+        <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', pl: 2 }}>
+          <IconButton color="primary" onClick={handlePreviousStep} sx={{ color: '#d32f2f' }}>
             <SkipPreviousIcon />
+            <Typography variant="caption">Previous</Typography>
           </IconButton>
           {isPlaying ? (
-            <IconButton color="primary" onClick={handlePause}>
+            <IconButton color="primary" onClick={handlePause} sx={{ color: '#0288d1' }}>
               <PauseIcon />
+              <Typography variant="caption">Pause</Typography>
             </IconButton>
           ) : (
-            <IconButton color="primary" onClick={handlePlay}>
+            <IconButton color="primary" onClick={handlePlay} sx={{ color: '#388e3c' }}>
               <PlayArrowIcon />
+              <Typography variant="caption">Play</Typography>
             </IconButton>
           )}
-          <IconButton color="primary" onClick={handleNextStep}>
+          <IconButton color="primary" onClick={handleNextStep} sx={{ color: '#d32f2f' }}>
             <SkipNextIcon />
+            <Typography variant="caption">Next</Typography>
           </IconButton>
-          <IconButton color="primary" onClick={handleRunAllSteps}>
-            <FastForwardIcon /> {/* Executes entire algorithm */}
+          <IconButton color="primary" onClick={handleRunAllSteps} sx={{ color: '#ffa000' }}>
+            <FastForwardIcon />
+            <Typography variant="caption">Run All</Typography>
           </IconButton>
-          <IconButton color="primary" onClick={handleRunVisualized}>
-            <PlayCircleFilledIcon /> {/* Executes and starts visualization */}
+          <IconButton color="primary" onClick={handleRunVisualized} sx={{ color: '#7b1fa2' }}>
+            <PlayCircleFilledIcon />
+            <Typography variant="caption">Visualize</Typography>
           </IconButton>
         </Toolbar>
 
         <Box sx={{ display: 'flex', height: 'calc(100vh - 64px - 56px)', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', width: '100%' }}>
-            <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column' }}>
-              <Card sx={{ height: '33vh', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
+            <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', height: "100" }}>
+              <Card sx={{ height: 'calc(33vh - (64px + 56px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
                 <CardContent>
                   <Typography variant="h6">Initial Parameters</Typography>
                   <pre>{JSON.stringify(generatedParams, null, 2)}</pre>
                 </CardContent>
               </Card>
-              <Card sx={{ height: '33vh', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
+              <Card sx={{ height: 'calc(33vh - (64px + 56px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle, border: '1px solid black' }}>
                 <Visualizer steps={algorithmSteps} currentStep={currentStep} />
               </Card>
-              <Card sx={{ height: '33vh', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
+              <Card sx={{ height: 'calc(33vh - (64px + 56px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
                 <CardContent>
                   <Typography variant="subtitle1">Final Result:</Typography>
                   <pre>{JSON.stringify(finalResult, null, 2)}</pre>
@@ -341,12 +342,11 @@ export default function Dashboard() {
               </Card>
             </Box>
 
-            {/* Code Visualizer Section */}
             <Box sx={{
               width: '50%',
               position: 'sticky',
               top: 0,
-              height: '100vh',
+              height: '50vh',
               overflowY: 'auto',
               ...scrollbarStyle
             }}>
