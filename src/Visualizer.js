@@ -367,30 +367,6 @@ export default function Visualizer({ steps, currentStep, stepType }) {
     }
   };
 
-  const renderSteps = () => {
-    if (!steps || steps.length === 0) return null;
-
-    const totalSteps = steps.length;
-    const firstSteps = steps.slice(0, 20);
-    const lastSteps = steps.slice(-20);
-
-    return (
-      <>
-        {firstSteps.map((stepData, index) => (
-          <Box key={index}>{renderVisualization(stepData)}</Box>
-        ))}
-
-        {totalSteps > 40 && (
-          <Typography variant="body2" sx={{ textAlign: 'center', my: 2 }}>...</Typography>
-        )}
-
-        {lastSteps.map((stepData, index) => (
-          <Box key={totalSteps - 20 + index}>{renderVisualization(stepData)}</Box>
-        ))}
-      </>
-    );
-  };
-
   return (
     <Box sx={{ mt: 0 }}>
       <Box

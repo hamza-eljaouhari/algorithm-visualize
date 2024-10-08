@@ -310,15 +310,13 @@ export default function Dashboard() {
     if(params.length > 0){
       result = await algorithmImplementation.execute(...params, (stepData) => {
         updateStep({
-          ...stepData,
-          visualizationType: algorithmImplementation.visualization.stepType,
+          ...stepData
         });
       });
     } else {
       result = await algorithmImplementation.execute((stepData) => {
         updateStep({
-          ...stepData,
-          visualizationType: algorithmImplementation.visualization.stepType,
+          ...stepData
         });
       })
     }
