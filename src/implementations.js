@@ -5365,7 +5365,23 @@ function kmp(text, pattern, updateStep) {
           }
           return result;
         },
-        code: `function affineCipher(text, a, b, updateStep) { ... }`
+        code: `
+          function affineCipher(text, a, b, updateStep) {
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+              const char = text.charCodeAt(i);
+              if (char >= 65 && char <= 90) {
+                result += String.fromCharCode(((a * (char - 65) + b) % 26) + 65);
+              } else if (char >= 97 && char <= 122) {
+                result += String.fromCharCode(((a * (char - 97) + b) % 26) + 97);
+              } else {
+                result += text[i];
+              }
+              updateStep({ char: text[i], encrypted: result[i] });
+            }
+            return result;
+          }
+        `
       },
       {
         name: 'Caesar Cipher',
@@ -5398,7 +5414,23 @@ function kmp(text, pattern, updateStep) {
           }
           return result;
         },
-        code: `function caesarCipher(text, shift, updateStep) { ... }`
+        code: `
+          function caesarCipher(text, shift, updateStep) {
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+              const char = text.charCodeAt(i);
+              if (char >= 65 && char <= 90) {
+                result += String.fromCharCode(((char - 65 + shift) % 26) + 65);
+              } else if (char >= 97 && char <= 122) {
+                result += String.fromCharCode(((char - 97 + shift) % 26) + 97);
+              } else {
+                result += text[i];
+              }
+              updateStep({ char: text[i], encrypted: result[i] });
+            }
+            return result;
+          }
+        `
       },
       {
         name: 'Freivalds\' Matrix-Multiplication Verification',
@@ -5420,21 +5452,38 @@ function kmp(text, pattern, updateStep) {
         execute: (matrixA, matrixB, resultMatrix, updateStep) => {
           const rows = matrixA.length;
           const cols = matrixB[0].length;
-
+      
           const randomVector = Array.from({ length: cols }, () => Math.round(Math.random()));
-
+      
           const matrixAxB = matrixA.map(row => row.reduce((sum, value, idx) => sum + value * randomVector[idx], 0));
           const matrixResult = resultMatrix.map(row => row.reduce((sum, value, idx) => sum + value * randomVector[idx], 0));
-
+      
           for (let i = 0; i < rows; i++) {
             const verificationStep = matrixAxB[i] === matrixResult[i];
             updateStep({ row: i, verificationStep });
           }
-
+      
           return matrixAxB.every((val, idx) => val === matrixResult[idx]);
         },
-        code: `function freivaldsVerification(matrixA, matrixB, resultMatrix, updateStep) { ... }`
-      },
+        code: `
+          function freivaldsVerification(matrixA, matrixB, resultMatrix, updateStep) {
+            const rows = matrixA.length;
+            const cols = matrixB[0].length;
+      
+            const randomVector = Array.from({ length: cols }, () => Math.round(Math.random()));
+      
+            const matrixAxB = matrixA.map(row => row.reduce((sum, value, idx) => sum + value * randomVector[idx], 0));
+            const matrixResult = resultMatrix.map(row => row.reduce((sum, value, idx) => sum + value * randomVector[idx], 0));
+      
+            for (let i = 0; i < rows; i++) {
+              const verificationStep = matrixAxB[i] === matrixResult[i];
+              updateStep({ row: i, verificationStep });
+            }
+      
+            return matrixAxB.every((val, idx) => val === matrixResult[idx]);
+          }
+        `
+      },      
       {
         name: 'K-Means Clustering',
         description: 'Partitions n observations into k clusters in which each observation belongs to the cluster with the nearest mean.',
