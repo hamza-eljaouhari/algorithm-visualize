@@ -74,8 +74,8 @@ export default function Visualizer({ steps, currentStep, stepType }) {
   };
 
   const renderArray = (stepData) => {
-    const { arr = [], action, current } = stepData;
-
+    const { arr = [], index, action } = stepData;
+  
     return (
       <Box display="flex" whiteSpace="nowrap">
         {arr.map((value, idx) => (
@@ -86,27 +86,12 @@ export default function Visualizer({ steps, currentStep, stepType }) {
               height: '50px',
               lineHeight: '50px',
               textAlign: 'center',
-              backgroundColor: current === idx ? operationColors[action] || '#4682B4' : '#2C2C54',
+              backgroundColor: index === idx ? operationColors[action] || '#4682B4' : '#2C2C54',
               color: 'white',
               border: '1px solid #1e1e1e',
               position: 'relative'
             }}
           >
-            {Array.isArray(value) ? (
-              <IconButton
-                size="small"
-                color="primary"
-                onClick={() => handleOpenModal(value)}
-                sx={{
-                  position: 'absolute',
-                  top: '50%',
-                  right: '50%',
-                  transform: 'translate(50%, -50%)'
-                }}
-              >
-                <VisibilityIcon fontSize="small" />
-              </IconButton>
-            ) : null}
             {value !== undefined && value !== null ? value : ''}
           </Box>
         ))}

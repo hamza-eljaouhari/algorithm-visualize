@@ -802,26 +802,26 @@ export const implementations = {
             return dp[n][capacity];
           }
           `,
-          execute: async function (values, weights, capacity, updateStep) {
-            const n = values.length;
-            const dp = Array.from({ length: n + 1 }, () => Array(capacity + 1).fill(0));
-            updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
-          
-            for (let i = 1; i <= n; i++) {
-              for (let w = 1; w <= capacity; w++) {
-                if (weights[i - 1] <= w) {
-                  dp[i][w] = Math.max(values[i - 1] + dp[i - 1][w - weights[i - 1]], dp[i - 1][w]);
-                  updateStep({ arr: dp, current: [i, w], operation: 'assignment', final: false });
-                } else {
-                  dp[i][w] = dp[i - 1][w];
-                  updateStep({ arr: dp, current: [i, w], operation: 'noAssignment', final: false });
-                }
+        execute: async function (values, weights, capacity, updateStep) {
+          const n = values.length;
+          const dp = Array.from({ length: n + 1 }, () => Array(capacity + 1).fill(0));
+          updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
+
+          for (let i = 1; i <= n; i++) {
+            for (let w = 1; w <= capacity; w++) {
+              if (weights[i - 1] <= w) {
+                dp[i][w] = Math.max(values[i - 1] + dp[i - 1][w - weights[i - 1]], dp[i - 1][w]);
+                updateStep({ arr: dp, current: [i, w], operation: 'assignment', final: false });
+              } else {
+                dp[i][w] = dp[i - 1][w];
+                updateStep({ arr: dp, current: [i, w], operation: 'noAssignment', final: false });
               }
             }
-            updateStep({ arr: dp, current: [], operation: 'final', final: true });
-            console.log("Result : ", dp[n][capacity]);
-            return dp[n][capacity];
-          },
+          }
+          updateStep({ arr: dp, current: [], operation: 'final', final: true });
+          console.log("Result : ", dp[n][capacity]);
+          return dp[n][capacity];
+        },
       },
       {
         name: 'Longest Common Subsequence',
@@ -855,10 +855,10 @@ export const implementations = {
           const m = str1.length;
           const n = str2.length;
           const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-        
+
           // Initial step with the matrix as a 2D array
           updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
-        
+
           for (let i = 1; i <= m; i++) {
             for (let j = 1; j <= n; j++) {
               if (str1[i - 1] === str2[j - 1]) {
@@ -870,12 +870,12 @@ export const implementations = {
               }
             }
           }
-          
+
           // Final step to mark completion
           updateStep({ arr: dp, current: [], operation: 'final', final: true });
           return dp[m][n];
         },
-      },      
+      },
       {
         name: 'Coin Change Problem',
         parameters: [
@@ -946,31 +946,31 @@ export const implementations = {
           const m = matrix.length;
           const n = matrix[0].length;
           const dp = Array.from({ length: m }, () => Array(n).fill(0));
-        
+
           dp[0][0] = matrix[0][0];
           updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
-        
+
           for (let i = 1; i < m; i++) {
             dp[i][0] = dp[i - 1][0] + matrix[i][0];
             updateStep({ arr: dp, current: [i, 0], operation: 'update', final: false });
           }
-          
+
           for (let j = 1; j < n; j++) {
             dp[0][j] = dp[0][j - 1] + matrix[0][j];
             updateStep({ arr: dp, current: [0, j], operation: 'update', final: false });
           }
-        
+
           for (let i = 1; i < m; i++) {
             for (let j = 1; j < n; j++) {
               dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]) + matrix[i][j];
               updateStep({ arr: dp, current: [i, j], operation: 'update', final: false });
             }
           }
-          
+
           updateStep({ arr: dp, current: [], operation: 'final', final: true });
           return dp[m - 1][n - 1];
         },
-      },      
+      },
       {
         name: 'Edit Distance',
         parameters: [
@@ -1004,16 +1004,16 @@ export const implementations = {
           if (!str1 || !str2) {
             throw new Error('Both strings must be provided.');
           }
-        
+
           const m = str1.length, n = str2.length;
           const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-          
+
           // Initialize base cases
           for (let i = 0; i <= m; i++) dp[i][0] = i;
           for (let j = 0; j <= n; j++) dp[0][j] = j;
-          
+
           updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
-        
+
           // Fill dp table
           for (let i = 1; i <= m; i++) {
             for (let j = 1; j <= n; j++) {
@@ -1025,10 +1025,10 @@ export const implementations = {
               updateStep({ arr: dp, current: [i, j], operation: 'update', final: false });
             }
           }
-          
+
           updateStep({ arr: dp, current: [], operation: 'final', final: true });
           return dp[m][n];
-        }        
+        }
       },
       {
         name: 'Maximum Subarray',
@@ -1095,7 +1095,7 @@ export const implementations = {
           const n = arr.length;
           const dp = Array(n).fill(1);
           updateStep({ arr: [...dp], current: [], operation: 'initialize', final: false });
-      
+
           for (let i = 1; i < n; i++) {
             for (let j = 0; j < i; j++) {
               if (arr[i] > arr[j]) {
@@ -1107,7 +1107,7 @@ export const implementations = {
           updateStep({ arr: [...dp], current: [], operation: 'final', final: true });
           return Math.max(...dp);
         },
-      },      
+      },
       {
         name: 'Longest Palindromic Subsequence',
         parameters: [
@@ -1144,15 +1144,15 @@ export const implementations = {
           if (!str) {
             throw new Error('String must be provided.');
           }
-        
+
           const n = str.length;
           const dp = Array.from({ length: n }, () => Array(n).fill(0));
-        
+
           for (let i = 0; i < n; i++) {
             dp[i][i] = 1; // Single character palindromes
             updateStep({ arr: dp, current: [i, i], operation: 'initialize', final: false });
           }
-        
+
           for (let length = 2; length <= n; length++) {
             for (let i = 0; i < n - length + 1; i++) {
               const j = i + length - 1;
@@ -1165,10 +1165,10 @@ export const implementations = {
               }
             }
           }
-          
+
           updateStep({ arr: dp, current: [], operation: 'final', final: true });
           return dp[0][n - 1];
-        }        
+        }
       },
       {
         name: 'Catalan Number',
@@ -1299,33 +1299,33 @@ export const implementations = {
         execute: async function (dimensions, updateStep) {
           const n = dimensions.length - 1;
           const dp = Array.from({ length: n }, () => Array(n).fill(0));
-          
+
           // Update step with the initial state of dp
           updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
-        
+
           for (let length = 2; length <= n; length++) {
             for (let i = 0; i < n - length + 1; i++) {
               const j = i + length - 1;
               dp[i][j] = Infinity;
-              
+
               // Update step when initializing cell (i, j)
               updateStep({ arr: dp, current: [i, j], operation: 'initializeCell', final: false });
-        
+
               for (let k = i; k < j; k++) {
                 const cost = dp[i][k] + dp[k + 1][j] + dimensions[i] * dimensions[k + 1] * dimensions[j + 1];
                 if (cost < dp[i][j]) dp[i][j] = cost;
-                
+
                 // Update step when calculating cost with k
                 updateStep({ arr: dp, current: [i, j, k], operation: 'calculateCost', final: false });
               }
             }
           }
-        
+
           // Final step to mark completion
           updateStep({ arr: dp, current: [], operation: 'final', final: true });
           return dp[0][n - 1];
         }
-      },      
+      },
       {
         name: 'Partition Problem',
         parameters: [
@@ -1614,16 +1614,16 @@ export const implementations = {
           if (!str1 || !str2) {
             throw new Error('Both strings must be provided.');
           }
-        
+
           const dp = Array.from({ length: str1.length + 1 }, () => Array(str2.length + 1).fill(0));
-        
+
           // Initialize the dp array for base cases
           for (let i = 0; i <= str1.length; i++) dp[i][0] = i;
           for (let j = 0; j <= str2.length; j++) dp[0][j] = j;
-        
+
           // Update visualization after initialization
           updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
-        
+
           for (let i = 1; i <= str1.length; i++) {
             for (let j = 1; j <= str2.length; j++) {
               if (str1[i - 1] === str2[j - 1]) {
@@ -1631,15 +1631,15 @@ export const implementations = {
               } else {
                 dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
               }
-        
+
               // Update visualization at each step with the current 2D dp matrix
               updateStep({ arr: dp, current: [i, j], operation: 'update', final: false });
             }
           }
-        
+
           // Final step to mark completion
           updateStep({ arr: dp, current: [], operation: 'final', final: true });
-        
+
           // Return the result
           return dp[str1.length][str2.length];
         },
@@ -1678,16 +1678,16 @@ export const implementations = {
           if (!str1 || !str2) {
             throw new Error('Both strings must be provided.');
           }
-        
+
           const dp = Array.from({ length: str1.length + 1 }, () => Array(str2.length + 1).fill(0));
-          
+
           // Initialize the base cases
           for (let i = 0; i <= str1.length; i++) dp[i][0] = i;
           for (let j = 0; j <= str2.length; j++) dp[0][j] = j;
-        
+
           // Update step for initialization
           await updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
-        
+
           for (let i = 1; i <= str1.length; i++) {
             for (let j = 1; j <= str2.length; j++) {
               if (str1[i - 1] === str2[j - 1]) {
@@ -1695,15 +1695,15 @@ export const implementations = {
               } else {
                 dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
               }
-              
+
               // Update the visualization for each step
               await updateStep({ arr: dp, current: [i, j], operation: 'update', final: false });
             }
           }
-        
+
           // Final step to mark completion
           await updateStep({ arr: dp, current: [], operation: 'final', final: true });
-          
+
           return dp[str1.length][str2.length];
         },
       },
@@ -2038,11 +2038,11 @@ export const implementations = {
         execute: async function (set, target, updateStep) {
           const n = set.length;
           const dp = Array.from({ length: n + 1 }, () => Array(target + 1).fill(false));
-        
+
           // Initialize the dp table for the base case
           for (let i = 0; i <= n; i++) dp[i][0] = true;
           updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
-        
+
           for (let i = 1; i <= n; i++) {
             for (let j = 1; j <= target; j++) {
               if (set[i - 1] <= j) {
@@ -2056,8 +2056,8 @@ export const implementations = {
           }
           updateStep({ arr: dp, current: [], operation: 'final', final: true });
           return dp[n][target];
-        }        
-      },      
+        }
+      },
       {
         name: 'Z String Search',
         parameters: [
@@ -3815,8 +3815,9 @@ export const implementations = {
         description: 'Searches for an element in an array by checking each element.',
         outputType: 'integer',
         visualization: {
+          stepType: 'array',
           details: {
-            type: 'searching',
+            type: 'array',
             description: 'Linear search visualization steps.',
           },
         },
@@ -3826,26 +3827,27 @@ export const implementations = {
         ],
         execute: (array, target, updateStep) => {
           for (let i = 0; i < array.length; i++) {
-            updateStep({ index: i, value: array[i] });
-            if (array[i] === target) { console.log("test"); return i; }; // Return the index if the target is found
+            updateStep({ arr: array, index: i, action: 'visiting' });
+            if (array[i] === target) return i; // Return the index if the target is found
           }
           return -1; // Return -1 if the target is not found
         },
         code: `
-      function linearSearch(array, target, updateStep) {
-        for (let i = 0; i < array.length; i++) {
-          updateStep({ index: i, value: array[i], action: 'visiting' });
-          if (array[i] === target) return i; // Correctly returns index when found
-        }
-        return -1; // Correctly returns -1 if not found
-      }
-        `,
-      },      
+  function linearSearch(array, target, updateStep) {
+    for (let i = 0; i < array.length; i++) {
+      updateStep({ arr: array, index: i, action: 'visiting' });
+      if (array[i] === target) return i;
+    }
+    return -1;
+  }
+      `,
+      },
       {
         name: 'Binary Search',
         description: 'Searches for an element in a sorted array using the binary search algorithm.',
         outputType: 'integer',
         visualization: {
+          stepType: 'array',
           details: {
             type: 'searching',
             description: 'Binary search visualization steps.',
@@ -3861,7 +3863,7 @@ export const implementations = {
 
           while (left <= right) {
             const mid = Math.floor((left + right) / 2);
-            updateStep({ mid, value: array[mid], action: 'visiting' });
+            updateStep({ arr: array, index: mid, action: 'visiting' });
             if (array[mid] === target) return mid;
             if (array[mid] < target) left = mid + 1;
             else right = mid - 1;
@@ -3875,20 +3877,21 @@ export const implementations = {
 
     while (left <= right) {
       const mid = Math.floor((left + right) / 2);
-      updateStep({ mid, value: array[mid], action: 'visiting' });
+      updateStep({ arr: array, index: mid, action: 'visiting' });
       if (array[mid] === target) return mid;
       if (array[mid] < target) left = mid + 1;
       else right = mid - 1;
     }
     return -1;
   }
-        `,
+      `,
       },
       {
         name: 'Interpolation Search',
         description: 'Searches for an element in a sorted array using interpolation.',
         outputType: 'integer',
         visualization: {
+          stepType: 'array',
           details: {
             type: 'searching',
             description: 'Interpolation search visualization steps.',
@@ -3904,7 +3907,7 @@ export const implementations = {
 
           while (low <= high && target >= array[low] && target <= array[high]) {
             const mid = low + Math.floor((high - low) / (array[high] - array[low]) * (target - array[low]));
-            updateStep({ mid, value: array[mid], action: 'visiting' });
+            updateStep({ arr: array, index: mid, action: 'visiting' });
 
             if (array[mid] === target) return mid;
             if (array[mid] < target) low = mid + 1;
@@ -3919,7 +3922,7 @@ export const implementations = {
 
     while (low <= high && target >= array[low] && target <= array[high]) {
       const mid = low + Math.floor((high - low) / (array[high] - array[low]) * (target - array[low]));
-      updateStep({ mid, value: array[mid], action: 'visiting' });
+      updateStep({ arr: array, index: mid, action: 'visiting' });
 
       if (array[mid] === target) return mid;
       if (array[mid] < target) low = mid + 1;
@@ -3927,13 +3930,14 @@ export const implementations = {
     }
     return -1;
   }
-        `,
+      `,
       },
       {
         name: 'Exponential Search',
         description: 'Searches for an element in a sorted array using exponential growth.',
         outputType: 'integer',
         visualization: {
+          stepType: 'array',
           details: {
             type: 'searching',
             description: 'Exponential search visualization steps.',
@@ -3949,13 +3953,13 @@ export const implementations = {
 
           // Find the range for binary search
           while (i < array.length && array[i] <= target) {
-            updateStep({ index: i, value: array[i], action: 'visiting' });
+            updateStep({ arr: array, index: i, action: 'visiting' });
             i *= 2; // Double the index
           }
 
           // Perform binary search in the found range
           const resultIndex = binarySearch(array.slice(Math.floor(i / 2), Math.min(i, array.length)), target, updateStep);
-          
+
           // Adjust the result index based on the starting index of the slice
           return resultIndex !== -1 ? Math.floor(i / 2) + resultIndex : -1;
         },
@@ -3966,7 +3970,7 @@ export const implementations = {
 
     // Find the range for binary search
     while (i < array.length && array[i] <= target) {
-      updateStep({ index: i, value: array[i], action: 'visiting' });
+      updateStep({ arr: array, index: i, action: 'visiting' });
       i *= 2; // Double the index
     }
 
@@ -3976,13 +3980,14 @@ export const implementations = {
     // Adjust the result index based on the starting index of the slice
     return resultIndex !== -1 ? Math.floor(i / 2) + resultIndex : -1;
   }
-        `,
+      `,
       },
       {
         name: 'Fibonacci Search',
         description: 'Searches for an element in a sorted array using Fibonacci numbers.',
         outputType: 'integer',
         visualization: {
+          stepType: 'array',
           details: {
             type: 'searching',
             description: 'Fibonacci search visualization steps.',
@@ -3993,72 +3998,83 @@ export const implementations = {
           { name: 'target', type: 'integer' },
         ],
         execute: (array, target, updateStep) => {
-          let fibM2 = 0;
-          let fibM1 = 1;
-          let fibM = fibM1 + fibM2;
-
+          let fibM2 = 0;  // (n-2)'th Fibonacci number
+          let fibM1 = 1;  // (n-1)'th Fibonacci number
+          let fibM = fibM2 + fibM1; // nth Fibonacci number
+      
+          // Find the largest Fibonacci number less than or equal to the length of the array
           while (fibM < array.length) {
             fibM2 = fibM1;
             fibM1 = fibM;
             fibM = fibM1 + fibM2;
           }
-
-          let offset = -1;
-
+      
+          let offset = -1; // Marks the eliminated range from the front
+      
+          // While there are elements to be inspected
           while (fibM > 1) {
+            // Calculate the index to be compared
             const i = Math.min(offset + fibM2, array.length - 1);
-            updateStep({ index: i, value: array[i], action: 'visiting' });
-
+            updateStep({ arr: array, index: i, action: 'visiting' });
+      
+            // If target is greater than the value at index i, cut the subarray after i
             if (array[i] < target) {
               fibM = fibM1;
               fibM1 = fibM2;
               fibM2 = fibM - fibM1;
-              offset = i;
-            } else if (array[i] > target) {
+              offset = i; // Mark the index as the new offset
+            }
+            // If target is smaller than the value at index i, cut the subarray before i
+            else if (array[i] > target) {
               fibM = fibM2;
-              fibM1 -= fibM1;
+              fibM1 -= fibM2;
               fibM2 = fibM - fibM1;
-            } else return i;
+            }
+            // Element found
+            else return i;
           }
-
+      
+          // Comparing the last element with target
           if (fibM1 && array[offset + 1] === target) return offset + 1;
+      
+          // Element not found
           return -1;
         },
         code: `
-  function fibonacciSearch(array, target, updateStep) {
-    let fibM2 = 0;
-    let fibM1 = 1;
-    let fibM = fibM1 + fibM2;
-
-    while (fibM < array.length) {
-      fibM2 = fibM1;
-      fibM1 = fibM;
-      fibM = fibM1 + fibM2;
-    }
-
-    let offset = -1;
-
-    while (fibM > 1) {
-      const i = Math.min(offset + fibM2, array.length - 1);
-      updateStep({ index: i, value: array[i], action: 'visiting' });
-
-      if (array[i] < target) {
-        fibM = fibM1;
-        fibM1 = fibM2;
-        fibM2 = fibM - fibM1;
-        offset = i;
-      } else if (array[i] > target) {
-        fibM = fibM2;
-        fibM1 -= fibM1;
-        fibM2 = fibM - fibM1;
-      } else return i;
-    }
-
-    if (fibM1 && array[offset + 1] === target) return offset + 1;
-    return -1;
-  }
+      function fibonacciSearch(array, target, updateStep) {
+        let fibM2 = 0;  // (n-2)'th Fibonacci number
+        let fibM1 = 1;  // (n-1)'th Fibonacci number
+        let fibM = fibM2 + fibM1; // nth Fibonacci number
+      
+        while (fibM < array.length) {
+          fibM2 = fibM1;
+          fibM1 = fibM;
+          fibM = fibM1 + fibM2;
+        }
+      
+        let offset = -1;
+      
+        while (fibM > 1) {
+          const i = Math.min(offset + fibM2, array.length - 1);
+          updateStep({ arr: array, index: i, action: 'visiting' });
+      
+          if (array[i] < target) {
+            fibM = fibM1;
+            fibM1 = fibM2;
+            fibM2 = fibM - fibM1;
+            offset = i;
+          } else if (array[i] > target) {
+            fibM = fibM2;
+            fibM1 -= fibM1;
+            fibM2 = fibM - fibM1;
+          } else return i;
+        }
+      
+        if (fibM1 && array[offset + 1] === target) return offset + 1;
+        return -1;
+      }
         `,
-      },
+      }      
     ],
   },
   'Sorting Algorithms': {
