@@ -402,7 +402,7 @@ export const implementations = {
         name: "Strassen's Matrix Multiplication",
         parameters: [
           { name: 'A', type: 'matrix', size: [2, 5], min: 1, max: 100, depth: 0, numCols: 5 },
-          { name: 'B', type: 'matrix', size: [2, 5], min: 1, max: 100, depth: 0, numCols: 5},
+          { name: 'B', type: 'matrix', size: [2, 5], min: 1, max: 100, depth: 0, numCols: 5 },
         ],
         outputType: 'matrix',
         visualization: {
@@ -485,7 +485,7 @@ export const implementations = {
         execute: async function (A, B, updateStep) {
           console.log("A ", A);
           console.log("B ", B);
-        
+
           function addMatrices(A, B) {
             const result = [];
             for (let i = 0; i < A.length; i++) {
@@ -497,7 +497,7 @@ export const implementations = {
             updateStep({ operation: 'add', matrices: [A, B], result });
             return result;
           }
-        
+
           function subtractMatrices(A, B) {
             const result = [];
             for (let i = 0; i < A.length; i++) {
@@ -509,36 +509,36 @@ export const implementations = {
             updateStep({ operation: 'subtract', matrices: [A, B], result });
             return result;
           }
-        
+
           function strassen(A, B) {
             const n = A.length;
-        
+
             // Base case
             if (n === 1) {
               const result = [[A[0][0] * B[0][0]]];
               updateStep({ operation: 'baseMultiply', matrices: [A, B], result });
               return result;
             }
-        
+
             const mid = Math.floor(n / 2);
-        
+
             // Divide the matrices into quadrants
             const A11 = A.slice(0, mid).map(row => row.slice(0, mid));
             const A12 = A.slice(0, mid).map(row => row.slice(mid));
             const A21 = A.slice(mid).map(row => row.slice(0, mid));
             const A22 = A.slice(mid).map(row => row.slice(mid));
-        
+
             const B11 = B.slice(0, mid).map(row => row.slice(0, mid));
             const B12 = B.slice(0, mid).map(row => row.slice(mid));
             const B21 = B.slice(mid).map(row => row.slice(0, mid));
             const B22 = B.slice(mid).map(row => row.slice(mid));
-        
+
             updateStep({
               operation: 'split',
               matrices: { A, B },
               quadrants: { A11, A12, A21, A22, B11, B12, B21, B22 }
             });
-        
+
             // Calculate the 7 products using the Strassen algorithm
             const M1 = strassen(addMatrices(A11, A22), addMatrices(B11, B22));
             const M2 = strassen(addMatrices(A21, A22), B11);
@@ -547,18 +547,18 @@ export const implementations = {
             const M5 = strassen(addMatrices(A11, A12), B22);
             const M6 = strassen(subtractMatrices(A21, A11), addMatrices(B11, B12));
             const M7 = strassen(subtractMatrices(A12, A22), addMatrices(B21, B22));
-        
+
             updateStep({
               operation: 'intermediateProducts',
               products: { M1, M2, M3, M4, M5, M6, M7 }
             });
-        
+
             // Combine the results into a single matrix
             const C11 = addMatrices(subtractMatrices(addMatrices(M1, M4), M5), M7);
             const C12 = addMatrices(M3, M5);
             const C21 = addMatrices(M2, M4);
             const C22 = addMatrices(addMatrices(subtractMatrices(M1, M2), M3), M6);
-        
+
             const C = [];
             for (let i = 0; i < mid; i++) {
               C[i] = C11[i].concat(C12[i]);
@@ -566,21 +566,21 @@ export const implementations = {
             for (let i = 0; i < mid; i++) {
               C.push(C21[i].concat(C22[i]));
             }
-        
+
             updateStep({
               operation: 'combine',
               submatrices: { C11, C12, C21, C22 },
               result: C
             });
-        
+
             return C;
           }
-        
+
           // Call the strassen function and start recording steps
           const result = strassen(A, B);
           updateStep({ operation: 'finalResult', result });
           return result;
-        }        
+        }
       },
       {
         name: 'Closest Pair of Points',
@@ -802,25 +802,26 @@ export const implementations = {
             return dp[n][capacity];
           }
           `,
-        execute: async function (values, weights, capacity, updateStep) {
-          const n = values.length;
-          const dp = Array.from({ length: n + 1 }, () => Array(capacity + 1).fill(0));
-          updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
-
-          for (let i = 1; i <= n; i++) {
-            for (let w = 1; w <= capacity; w++) {
-              if (weights[i - 1] <= w) {
-                dp[i][w] = Math.max(values[i - 1] + dp[i - 1][w - weights[i - 1]], dp[i - 1][w]);
-                updateStep({ arr: dp.flat(), current: [i, w], operation: 'assignment', final: false });
-              } else {
-                dp[i][w] = dp[i - 1][w];
-                updateStep({ arr: dp.flat(), current: [i, w], operation: 'noAssignment', final: false });
+          execute: async function (values, weights, capacity, updateStep) {
+            const n = values.length;
+            const dp = Array.from({ length: n + 1 }, () => Array(capacity + 1).fill(0));
+            updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
+          
+            for (let i = 1; i <= n; i++) {
+              for (let w = 1; w <= capacity; w++) {
+                if (weights[i - 1] <= w) {
+                  dp[i][w] = Math.max(values[i - 1] + dp[i - 1][w - weights[i - 1]], dp[i - 1][w]);
+                  updateStep({ arr: dp, current: [i, w], operation: 'assignment', final: false });
+                } else {
+                  dp[i][w] = dp[i - 1][w];
+                  updateStep({ arr: dp, current: [i, w], operation: 'noAssignment', final: false });
+                }
               }
             }
-          }
-          updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
-          return dp[n][capacity];
-        },
+            updateStep({ arr: dp, current: [], operation: 'final', final: true });
+            console.log("Result : ", dp[n][capacity]);
+            return dp[n][capacity];
+          },
       },
       {
         name: 'Longest Common Subsequence',
@@ -1348,12 +1349,11 @@ export const implementations = {
       {
         name: 'Floyd-Warshall\'s Shortest Path',
         parameters: [
-          { name: 'graph', type: 'array', length: 10, min: 1, max: 100 }, // Expecting an adjacency matrix
-          { name: 'vertices', type: 'integer', min: 2, max: 10 },
+          { name: 'graph', type: 'floydWarshallGraph' }, // Expecting an adjacency matrix
         ],
         outputType: 'array',
         visualization: {
-          stepType: 'matrix',
+          stepType: 'array',
           finalType: 'array',
         },
         code: `
@@ -1373,7 +1373,7 @@ export const implementations = {
             return dist;
         }
         `,
-        execute: async function (graph, vertices, updateStep) {
+        execute: async function (graph, updateStep) {
           if (!Array.isArray(graph) || !graph.every(row => Array.isArray(row))) {
             throw new Error('Invalid graph format.');
           }
@@ -2773,7 +2773,7 @@ export const implementations = {
                 for (let i = 0; i < neighbors.length; i++) {
                   const nRow = neighbors[i][0];
                   const nCol = neighbors[i][1];
-                  
+
                   if (nRow >= 0 && nRow < grid.length && nCol >= 0 && nCol < grid[row].length) {
                     liveNeighbors += grid[nRow][nCol] === 1 ? 1 : 0;
                   }
@@ -2783,26 +2783,26 @@ export const implementations = {
             }
             return newGrid;
           }
-          
+
           function initializeGrid(rows, cols, initialValue = 0) {
             const grid = Array.from({ length: rows }, () => Array(cols).fill(initialValue));
             return grid;
           }
-        
+
           // Initialize the grid based on parameters or defaults
           let grid = initializeGrid(numRows, numCols, initialValue);
-        
+
           const result = [];
-        
+
           // Execute steps with updateStep
           for (let step = 0; step < numSteps; step++) {
             grid = updateGrid(grid);
             updateStep({ arr: grid, step });
             result.push(JSON.parse(JSON.stringify(grid)));
           }
-        
+
           return result;
-        },               
+        },
         code: `
           function updateGrid(grid) {
             const newGrid = JSON.parse(JSON.stringify(grid));
@@ -3066,16 +3066,16 @@ export const implementations = {
         ],
         execute: (graph, start, updateStep) => {
           const visited = new Set();
-        
+
           const dfs = (node) => {
             if (node < 0 || node >= graph.length) {
               console.error(`Node index ${node} is out of bounds.`);
               return;
             }
-        
+
             visited.add(node);
             updateStep({ node, action: 'Visiting' });
-        
+
             for (let i = 0; i < graph[node].length; i++) {
               const neighbor = graph[node][i];
               if (!visited.has(neighbor)) {
@@ -3083,7 +3083,7 @@ export const implementations = {
               }
             }
           };
-        
+
           // Start DFS traversal from the specified start node
           dfs(start);
         },
@@ -3635,6 +3635,7 @@ export const implementations = {
           { name: 'graph', type: 'adjacencyList' },
         ],
         execute: (graph, updateStep) => {
+          // Choose a random graph from the list
           const dist = {};
           for (const node in graph) {
             dist[node] = {};
@@ -3647,7 +3648,7 @@ export const implementations = {
           for (const node in graph) {
             for (const [neighbor, weight] of graph[node]) {
               dist[node][neighbor] = weight;
-              updateStep({ node, neighbor, weight });
+              updateStep({ operation: 'initializeWeight', node, neighbor, weight });
             }
           }
 
@@ -3656,46 +3657,49 @@ export const implementations = {
               for (const j in graph) {
                 if (dist[i][j] > dist[i][k] + dist[k][j]) {
                   dist[i][j] = dist[i][k] + dist[k][j];
-                  updateStep({ i, j, k, distance: dist[i][j] });
+                  updateStep({ operation: 'updateDistance', i, j, k, newDistance: dist[i][j] });
                 }
               }
             }
           }
+
           return dist;
         },
         code: `
-  function floydWarshall(graph, updateStep) {
-    const dist = {};
-    for (const node in graph) {
-      dist[node] = {};
-      for (const neighbor in graph) {
-        dist[node][neighbor] = Infinity;
-      }
-      dist[node][node] = 0;
-    }
-  
-    for (const node in graph) {
-      for (const [neighbor, weight] of graph[node]) {
-        dist[node][neighbor] = weight;
-        updateStep({ node, neighbor, weight });
-      }
-    }
-  
-    for (const k in graph) {
-      for (const i in graph) {
-        for (const j in graph) {
-          if (dist[i][j] > dist[i][k] + dist[k][j]) {
-            dist[i][j] = dist[i][k] + dist[k][j];
-            updateStep({ i, j, k, distance: dist[i][j] });
+          function floydWarshall(graph, updateStep) {
+      
+            const dist = {};
+            for (const node in graph) {
+              dist[node] = {};
+              for (const neighbor in graph) {
+                dist[node][neighbor] = Infinity;
+              }
+              dist[node][node] = 0;
+            }
+      
+            for (const node in graph) {
+              for (const [neighbor, weight] of graph[node]) {
+                dist[node][neighbor] = weight;
+                updateStep({ operation: 'initializeWeight', node, neighbor, weight });
+              }
+            }
+      
+            for (const k in graph) {
+              for (const i in graph) {
+                for (const j in graph) {
+                  if (dist[i][j] > dist[i][k] + dist[k][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                    updateStep({ operation: 'updateDistance', i, j, k, newDistance: dist[i][j] });
+                  }
+                }
+              }
+            }
+      
+            return dist;
           }
-        }
-      }
-    }
-    return dist;
-  }
         `,
-      },
-    ],
+      }
+    ]
   },
   'Searching Algorithms': {
     algorithms: [
@@ -5339,11 +5343,11 @@ function binarySearch(array, target, updateStep) {
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
     updateStep({ mid, value: array[mid] });
-    
+
     if (array[mid] === target) return mid;
     if (array[mid] < target) left = mid + 1;
     else right = mid - 1;
   }
-  
+
   return -1; // Target not found
 }

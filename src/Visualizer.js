@@ -58,36 +58,50 @@ export default function Visualizer({ steps, currentStep, stepType }) {
         <Box display="flex" justifyContent="center" alignItems="flex-start" gap={4}>
           {/* Render each matrix in the matrices array or just the arr */}
           {matrixItems.map((matrix, matrixIndex) => {
-            const numCols = matrix[0]?.length || 1;
+            // Ensure matrix is a 2D array
+            if (!Array.isArray(matrix) || !Array.isArray(matrix[0])) {
+              console.error(`Matrix at index ${matrixIndex} is not a 2D array:`, matrix);
+              return null; // Skip rendering if not a 2D array
+            }
+  
+            const numCols = matrix[0].length || 1;
             const squareWidth = `${100 / numCols}%`;
   
             return (
               <Box key={matrixIndex} mb={2}>
-                {matrix.map((row, rowIndex) => (
-                  <Box key={rowIndex} display="flex" justifyContent="center">
-                    {row.map((value, colIndex) => (
-                      <Box
-                        key={colIndex}
-                        sx={{
-                          width: squareWidth,
-                          height: '50px',
-                          lineHeight: '50px',
-                          textAlign: 'center',
-                          backgroundColor:
-                            current &&
-                            current[0] === rowIndex &&
-                            current[1] === colIndex
-                              ? operationColors[action || operation] || '#4682B4'
-                              : '#2C2C54',
-                          color: 'white',
-                          border: '1px solid #1e1e1e',
-                        }}
-                      >
-                        {value}
-                      </Box>
-                    ))}
-                  </Box>
-                ))}
+                {matrix.map((row, rowIndex) => {
+                  // Ensure row is an array
+                  if (!Array.isArray(row)) {
+                    console.error(`Row at index ${rowIndex} in matrix ${matrixIndex} is not an array:`, row);
+                    return null; // Skip rendering if not an array
+                  }
+  
+                  return (
+                    <Box key={rowIndex} display="flex" justifyContent="center">
+                      {row.map((value, colIndex) => (
+                        <Box
+                          key={colIndex}
+                          sx={{
+                            width: squareWidth,
+                            height: '50px',
+                            lineHeight: '50px',
+                            textAlign: 'center',
+                            backgroundColor:
+                              current &&
+                              current[0] === rowIndex &&
+                              current[1] === colIndex
+                                ? operationColors[action || operation] || '#4682B4'
+                                : '#2C2C54',
+                            color: 'white',
+                            border: '1px solid #1e1e1e',
+                          }}
+                        >
+                          {value}
+                        </Box>
+                      ))}
+                    </Box>
+                  );
+                })}
               </Box>
             );
           })}
@@ -97,26 +111,34 @@ export default function Visualizer({ steps, currentStep, stepType }) {
         {displayResult.length > 0 && (
           <Box mt={2} display="flex" justifyContent="center" alignItems="flex-start">
             <Box>
-              {displayResult.map((row, rowIndex) => (
-                <Box key={rowIndex} display="flex" justifyContent="center">
-                  {row.map((value, colIndex) => (
-                    <Box
-                      key={colIndex}
-                      sx={{
-                        width: `${100 / row.length}%`,
-                        height: '50px',
-                        lineHeight: '50px',
-                        textAlign: 'center',
-                        backgroundColor: '#2C2C54',
-                        color: 'white',
-                        border: '1px solid #1e1e1e',
-                      }}
-                    >
-                      {value}
-                    </Box>
-                  ))}
-                </Box>
-              ))}
+              {displayResult.map((row, rowIndex) => {
+                // Ensure row is an array
+                if (!Array.isArray(row)) {
+                  console.error(`Row at index ${rowIndex} in result is not an array:`, row);
+                  return null; // Skip rendering if not an array
+                }
+  
+                return (
+                  <Box key={rowIndex} display="flex" justifyContent="center">
+                    {row.map((value, colIndex) => (
+                      <Box
+                        key={colIndex}
+                        sx={{
+                          width: `${100 / row.length}%`,
+                          height: '50px',
+                          lineHeight: '50px',
+                          textAlign: 'center',
+                          backgroundColor: '#2C2C54',
+                          color: 'white',
+                          border: '1px solid #1e1e1e',
+                        }}
+                      >
+                        {value}
+                      </Box>
+                    ))}
+                  </Box>
+                );
+              })}
             </Box>
           </Box>
         )}

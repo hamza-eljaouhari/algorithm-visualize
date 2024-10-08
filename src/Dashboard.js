@@ -172,7 +172,6 @@ export default function Dashboard() {
     setIsPlaying(true);
     setCurrentStep(0);
   };
-
   const generateParameters = (parameters) => {
     return parameters.map(param => {
       if (!param) return null;
@@ -197,7 +196,6 @@ export default function Dashboard() {
       } else if (type === 'sortedArray') {
         return Array.from({ length }, () => Math.floor(Math.random() * (max - min + 1)) + min).sort((a, b) => a - b);
       } else if (type === 'matrix') {
-        // Generate a 3D matrix if `depth` is provided
         if (depth) {
           return Array.from({ length: depth }, () => 
             Array.from({ length: numRows }, () => 
@@ -205,7 +203,6 @@ export default function Dashboard() {
             )
           );
         } else {
-          // Default to generating a 2D matrix
           return Array.from({ length: numRows }, () => 
             Array.from({ length: numCols }, () => Math.floor(Math.random() * (max - min + 1)) + min)
           );
@@ -227,16 +224,42 @@ export default function Dashboard() {
           return { char, freq };
         });
       } else if (type === 'adjacencyList' || type === 'graph') {
-        // Choose a random graph from the predefined list
         const randomGraph = predefinedGraphs[Math.floor(Math.random() * predefinedGraphs.length)];
         return randomGraph;
+      } else if (type === 'floydWarshallGraph') {
+        // Define three example graph matrices for the Floyd-Warshall algorithm
+        const predefinedInputs = [
+          [
+            [0, 3, Infinity, 5],
+            [2, 0, Infinity, 4],
+            [Infinity, 1, 0, Infinity],
+            [Infinity, Infinity, 2, 0]
+          ],
+          [
+            [0, 1, 4, Infinity],
+            [Infinity, 0, 2, 3],
+            [Infinity, Infinity, 0, 5],
+            [Infinity, Infinity, Infinity, 0]
+          ],
+          [
+            [0, 10, Infinity, Infinity, 3],
+            [Infinity, 0, 5, Infinity, Infinity],
+            [Infinity, Infinity, 0, 7, 1],
+            [Infinity, Infinity, Infinity, 0, 2],
+            [Infinity, Infinity, Infinity, Infinity, 0]
+          ]
+        ];
+        
+        // Choose a random input from the predefined examples
+        const chosenInput = predefinedInputs[Math.floor(Math.random() * predefinedInputs.length)];
+        return chosenInput;
       } else {
         console.error(`Unknown parameter type: ${type}`);
         return null;
       }
     });
   };
-
+  
   const handleAlgorithmSelection = async (categoryName, algorithmName) => {
     setSelectedAlgorithm(algorithmName);
     setSelectedCategory(categoryName);
