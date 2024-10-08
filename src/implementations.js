@@ -401,8 +401,8 @@ export const implementations = {
       {
         name: "Strassen's Matrix Multiplication",
         parameters: [
-          { name: 'A', type: 'matrix', size: [2, 2], min: 1, max: 100 },
-          { name: 'B', type: 'matrix', size: [2, 2], min: 1, max: 100 },
+          { name: 'A', type: 'matrix', size: [2, 5], min: 1, max: 100, depth: 0, numCols: 5 },
+          { name: 'B', type: 'matrix', size: [2, 5], min: 1, max: 100, depth: 0, numCols: 5},
         ],
         outputType: 'matrix',
         visualization: {
@@ -483,10 +483,9 @@ export const implementations = {
           }
         `,
         execute: async function (A, B, updateStep) {
-
           console.log("A ", A);
           console.log("B ", B);
-
+        
           function addMatrices(A, B) {
             const result = [];
             for (let i = 0; i < A.length; i++) {
@@ -495,9 +494,10 @@ export const implementations = {
                 result[i][j] = A[i][j] + B[i][j];
               }
             }
+            updateStep({ operation: 'add', matrices: [A, B], result });
             return result;
           }
-
+        
           function subtractMatrices(A, B) {
             const result = [];
             for (let i = 0; i < A.length; i++) {
@@ -506,30 +506,39 @@ export const implementations = {
                 result[i][j] = A[i][j] - B[i][j];
               }
             }
+            updateStep({ operation: 'subtract', matrices: [A, B], result });
             return result;
           }
-
+        
           function strassen(A, B) {
             const n = A.length;
-
+        
             // Base case
             if (n === 1) {
-              return [[A[0][0] * B[0][0]]];
+              const result = [[A[0][0] * B[0][0]]];
+              updateStep({ operation: 'baseMultiply', matrices: [A, B], result });
+              return result;
             }
-
+        
             const mid = Math.floor(n / 2);
-
+        
             // Divide the matrices into quadrants
             const A11 = A.slice(0, mid).map(row => row.slice(0, mid));
             const A12 = A.slice(0, mid).map(row => row.slice(mid));
             const A21 = A.slice(mid).map(row => row.slice(0, mid));
             const A22 = A.slice(mid).map(row => row.slice(mid));
-
+        
             const B11 = B.slice(0, mid).map(row => row.slice(0, mid));
             const B12 = B.slice(0, mid).map(row => row.slice(mid));
             const B21 = B.slice(mid).map(row => row.slice(0, mid));
             const B22 = B.slice(mid).map(row => row.slice(mid));
-
+        
+            updateStep({
+              operation: 'split',
+              matrices: { A, B },
+              quadrants: { A11, A12, A21, A22, B11, B12, B21, B22 }
+            });
+        
             // Calculate the 7 products using the Strassen algorithm
             const M1 = strassen(addMatrices(A11, A22), addMatrices(B11, B22));
             const M2 = strassen(addMatrices(A21, A22), B11);
@@ -538,14 +547,18 @@ export const implementations = {
             const M5 = strassen(addMatrices(A11, A12), B22);
             const M6 = strassen(subtractMatrices(A21, A11), addMatrices(B11, B12));
             const M7 = strassen(subtractMatrices(A12, A22), addMatrices(B21, B22));
-
+        
+            updateStep({
+              operation: 'intermediateProducts',
+              products: { M1, M2, M3, M4, M5, M6, M7 }
+            });
+        
             // Combine the results into a single matrix
             const C11 = addMatrices(subtractMatrices(addMatrices(M1, M4), M5), M7);
             const C12 = addMatrices(M3, M5);
             const C21 = addMatrices(M2, M4);
             const C22 = addMatrices(addMatrices(subtractMatrices(M1, M2), M3), M6);
-
-            // Construct the resulting matrix
+        
             const C = [];
             for (let i = 0; i < mid; i++) {
               C[i] = C11[i].concat(C12[i]);
@@ -553,10 +566,21 @@ export const implementations = {
             for (let i = 0; i < mid; i++) {
               C.push(C21[i].concat(C22[i]));
             }
-
+        
+            updateStep({
+              operation: 'combine',
+              submatrices: { C11, C12, C21, C22 },
+              result: C
+            });
+        
             return C;
           }
-        }
+        
+          // Call the strassen function and start recording steps
+          const result = strassen(A, B);
+          updateStep({ operation: 'finalResult', result });
+          return result;
+        }        
       },
       {
         name: 'Closest Pair of Points',
@@ -565,7 +589,7 @@ export const implementations = {
         ],
         outputType: 'array',
         visualization: {
-          stepType: 'points',
+          stepType: 'array',
           finalType: 'points',
         },
         code: `
@@ -635,7 +659,7 @@ export const implementations = {
         ],
         outputType: 'array',
         visualization: {
-          stepType: 'points',
+          stepType: 'array',
           finalType: 'points',
         },
         code: `
@@ -3038,20 +3062,29 @@ export const implementations = {
         description: 'Performs a depth-first traversal of a graph.',
         parameters: [
           { name: 'graph', type: 'adjacencyList' },
-          { name: 'start', type: 'integer' },
+          { name: 'start', type: 'integer', max: 5, min: 0 },
         ],
         execute: (graph, start, updateStep) => {
           const visited = new Set();
-
+        
           const dfs = (node) => {
+            if (node < 0 || node >= graph.length) {
+              console.error(`Node index ${node} is out of bounds.`);
+              return;
+            }
+        
             visited.add(node);
             updateStep({ node, action: 'Visiting' });
-            for (const neighbor of graph[node]) {
+        
+            for (let i = 0; i < graph[node].length; i++) {
+              const neighbor = graph[node][i];
               if (!visited.has(neighbor)) {
                 dfs(neighbor);
               }
             }
           };
+        
+          // Start DFS traversal from the specified start node
           dfs(start);
         },
         code: `

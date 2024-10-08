@@ -32,6 +32,39 @@ import Visualizer from './Visualizer';
 
 const drawerWidth = 240;
 
+const predefinedGraphs = [
+  [
+    [1, 2],     // Graph 1 - Node 0 connects to Node 1 and Node 2
+    [0, 3, 4],  // Node 1 connects to Node 0, Node 3, and Node 4
+    [0, 5],     // Node 2 connects to Node 0 and Node 5
+    [1, 6],     // Node 3 connects to Node 1 and Node 6
+    [1, 5, 7],  // Node 4 connects to Node 1, Node 5, and Node 7
+    [2, 4, 7],  // Node 5 connects to Node 2, Node 4, and Node 7
+    [3, 7],     // Node 6 connects to Node 3 and Node 7
+    [4, 5, 6]   // Node 7 connects to Node 4, Node 5, and Node 6
+  ],
+  [
+    [1],        // Graph 2 - Node 0 connects to Node 1
+    [0, 2, 3],  // Node 1 connects to Node 0, Node 2, and Node 3
+    [1, 4],     // Node 2 connects to Node 1 and Node 4
+    [1, 4, 5],  // Node 3 connects to Node 1, Node 4, and Node 5
+    [2, 3, 6],  // Node 4 connects to Node 2, Node 3, and Node 6
+    [3, 6],     // Node 5 connects to Node 3 and Node 6
+    [4, 5, 7],  // Node 6 connects to Node 4, Node 5, and Node 7
+    [6]         // Node 7 connects to Node 6
+  ],
+  [
+    [1, 2, 3],  // Graph 3 - Node 0 connects to Node 1, Node 2, and Node 3
+    [0, 4],     // Node 1 connects to Node 0 and Node 4
+    [0, 5],     // Node 2 connects to Node 0 and Node 5
+    [0, 6],     // Node 3 connects to Node 0 and Node 6
+    [1, 7],     // Node 4 connects to Node 1 and Node 7
+    [2, 7],     // Node 5 connects to Node 2 and Node 7
+    [3, 7],     // Node 6 connects to Node 3 and Node 7
+    [4, 5, 6]   // Node 7 connects to Node 4, Node 5, and Node 6
+  ]
+];
+
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
   flexGrow: 1,
   height: '100vh',
@@ -109,6 +142,8 @@ export default function Dashboard() {
   const [autoPlay, setAutoPlay] = useState(false);
   const [currentImplementation, setAlgorithmImplementation] = useState(null);
 
+  console.log("Algorithm Steps : ", algorithmSteps);
+
   const handleDrawerOpen = () => setOpen(true);
   const handleDrawerClose = () => setOpen(false);
 
@@ -142,16 +177,39 @@ export default function Dashboard() {
     return parameters.map(param => {
       if (!param) return null;
   
-      const { type, length = 5, min = 1, max = 10, numRows = 1, numCols = 1, minLength = 1, maxLength = 10, maxFreq = 10, minFreq = 1 } = param;
-      
+      const {
+        type,
+        length = 5,
+        min = 1,
+        max = 10,
+        numRows = 1,
+        numCols = 1,
+        depth = null, // New option for 3D matrices
+        minLength = 1,
+        maxLength = 10,
+        maxFreq = 10,
+        minFreq = 1,
+        numVertices = 5
+      } = param;
+  
       if (type === 'array') {
         return Array.from({ length }, () => Math.floor(Math.random() * (max - min + 1)) + min);
       } else if (type === 'sortedArray') {
         return Array.from({ length }, () => Math.floor(Math.random() * (max - min + 1)) + min).sort((a, b) => a - b);
       } else if (type === 'matrix') {
-        return Array.from({ length: numRows }, () => 
-          Array.from({ length: numCols }, () => Math.floor(Math.random() * (max - min + 1)) + min)
-        );
+        // Generate a 3D matrix if `depth` is provided
+        if (depth) {
+          return Array.from({ length: depth }, () => 
+            Array.from({ length: numRows }, () => 
+              Array.from({ length: numCols }, () => Math.floor(Math.random() * (max - min + 1)) + min)
+            )
+          );
+        } else {
+          // Default to generating a 2D matrix
+          return Array.from({ length: numRows }, () => 
+            Array.from({ length: numCols }, () => Math.floor(Math.random() * (max - min + 1)) + min)
+          );
+        }
       } else if (type === 'integer' || type === 'number') {
         return Math.floor(Math.random() * (max - min + 1)) + min;
       } else if (type === 'points') {
@@ -168,22 +226,10 @@ export default function Dashboard() {
           const freq = Math.floor(Math.random() * (maxFreq - minFreq + 1)) + minFreq;
           return { char, freq };
         });
-      } else if (type === 'adjacencyList') {
-        const numVertices = param.numVertices || 5;
-        const edges = Array.from({ length: numVertices }, () => []);
-        for (let i = 0; i < numVertices; i++) {
-          const numEdges = Math.floor(Math.random() * (numVertices - 1)) + 1;
-          const connectedVertices = new Set();
-          while (connectedVertices.size < numEdges) {
-            const neighbor = Math.floor(Math.random() * numVertices);
-            if (neighbor !== i && !connectedVertices.has(neighbor)) {
-              const weight = Math.floor(Math.random() * 10) + 1;
-              edges[i].push([neighbor, weight]);
-              connectedVertices.add(neighbor);
-            }
-          }
-        }
-        return edges;
+      } else if (type === 'adjacencyList' || type === 'graph') {
+        // Choose a random graph from the predefined list
+        const randomGraph = predefinedGraphs[Math.floor(Math.random() * predefinedGraphs.length)];
+        return randomGraph;
       } else {
         console.error(`Unknown parameter type: ${type}`);
         return null;
