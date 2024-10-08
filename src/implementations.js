@@ -5341,6 +5341,15 @@ function kmp(text, pattern, updateStep) {
           { name: 'a', type: 'integer' },
           { name: 'b', type: 'integer' },
         ],
+        outputType: 'string',
+        visualization: {
+          description: 'Visualization of the Affine Cipher algorithm.',
+          details: {
+            type: 'encryption',
+            additionalInfo: 'Each step shows the character being encrypted.',
+          },
+          stepType: 'stepwise',
+        },
         execute: (text, a, b, updateStep) => {
           let result = '';
           for (let i = 0; i < text.length; i++) {
@@ -5365,6 +5374,15 @@ function kmp(text, pattern, updateStep) {
           { name: 'text', type: 'string' },
           { name: 'shift', type: 'integer' },
         ],
+        outputType: 'string',
+        visualization: {
+          description: 'Visualization of the Caesar Cipher algorithm.',
+          details: {
+            type: 'encryption',
+            additionalInfo: 'Each step shows the character being shifted.',
+          },
+          stepType: 'stepwise',
+        },
         execute: (text, shift, updateStep) => {
           let result = '';
           for (let i = 0; i < text.length; i++) {
@@ -5390,6 +5408,15 @@ function kmp(text, pattern, updateStep) {
           { name: 'matrixB', type: 'matrix', numRows: 3, numCols: 3 },
           { name: 'resultMatrix', type: 'matrix', numRows: 3, numCols: 3 },
         ],
+        outputType: 'boolean',
+        visualization: {
+          description: 'Visualization of Freivalds\' verification algorithm.',
+          details: {
+            type: 'verification',
+            additionalInfo: 'Each step shows the verification of the matrix multiplication.',
+          },
+          stepType: 'stepwise',
+        },
         execute: (matrixA, matrixB, resultMatrix, updateStep) => {
           const rows = matrixA.length;
           const cols = matrixB[0].length;
@@ -5415,29 +5442,31 @@ function kmp(text, pattern, updateStep) {
           { name: 'data', type: 'array', length: 10, min: 1, max: 100 }, // Array of numbers for clustering
           { name: 'k', type: 'integer', min: 1, max: 10 } // Number of clusters
         ],
+        outputType: 'object',
+        visualization: {
+          description: 'Visualization of the K-Means Clustering algorithm.',
+          details: {
+            type: 'clustering',
+            additionalInfo: 'Each step shows the current centroids and clusters.',
+          },
+          stepType: 'stepwise',
+        },
         execute: (data, k, updateStep) => {
-          // Step 1: Initialize centroids by selecting the first k points as initial centroids
           let centroids = data.slice(0, k);
-
           let clusters = Array.from({ length: k }, () => []);
           let changed = true; // Track if any points moved clusters
 
-          // Iterate until clusters stabilize or max iterations
           const maxIterations = 10;
           let iteration = 0;
 
           while (changed && iteration < maxIterations) {
-            // Clear clusters
             clusters = Array.from({ length: k }, () => []);
-
-            // Step 2: Assign points to nearest centroid
             data.forEach(point => {
               const distances = centroids.map(centroid => Math.abs(point - centroid));
               const nearestCentroidIdx = distances.indexOf(Math.min(...distances));
 
               clusters[nearestCentroidIdx].push(point);
 
-              // Log assignment step
               updateStep({
                 point,
                 nearestCentroid: centroids[nearestCentroidIdx],
@@ -5447,16 +5476,12 @@ function kmp(text, pattern, updateStep) {
               });
             });
 
-            // Step 3: Recalculate centroids
             const newCentroids = clusters.map(cluster => {
               if (cluster.length === 0) return null;
               return cluster.reduce((sum, point) => sum + point, 0) / cluster.length;
             });
 
-            // Check if any centroids have changed
             changed = newCentroids.some((newCentroid, i) => newCentroid !== centroids[i]);
-
-            // Update centroids
             centroids = newCentroids.map((centroid, i) => (centroid !== null ? centroid : centroids[i]));
 
             iteration++;
@@ -5513,40 +5538,41 @@ function kmp(text, pattern, updateStep) {
         parameters: [
           { name: 'n', type: 'integer', min: 3, max: 15 } // Typically, n is an odd integer for this method
         ],
+        outputType: 'matrix',
+        visualization: {
+          description: 'Visualization of the Magic Square generation algorithm.',
+          details: {
+            type: 'generation',
+            additionalInfo: 'Each step shows the current number being placed in the magic square.',
+          },
+          stepType: 'stepwise',
+        },
         execute: (n, updateStep) => {
-          // Ensure n is an odd integer to create a standard magic square
           if (n % 2 === 0 || n < 3) throw new Error("n must be an odd integer greater than or equal to 3");
-
-          // Initialize the magic square with zeros
           const magicSquare = Array.from({ length: n }, () => Array(n).fill(0));
 
-          // Starting position in the middle of the top row
           let num = 1;
           let i = 0;
           let j = Math.floor(n / 2);
 
-          // Fill the magic square
           while (num <= n * n) {
             magicSquare[i][j] = num;
-
-            // Log each step with the current number, position, and a snapshot of the magic square
             updateStep({
               currentNumber: num,
               position: { row: i, col: j },
-              magicSquare: magicSquare.map(row => [...row]) // Creating a copy for each step visualization
+              magicSquare: magicSquare.map(row => [...row])
             });
 
             num++;
-            i--; // Move up
-            j++; // Move right
+            i--;
+            j++;
 
-            // Wrap around if going out of bounds or if the cell is already filled
             if (num % n === 1) {
               i += 2;
               j--;
             } else {
-              if (j === n) j -= n; // Wrap around horizontally
-              if (i < 0) i += n;   // Wrap around vertically
+              if (j === n) j -= n;
+              if (i < 0) i += n;
             }
           }
 
@@ -5578,8 +5604,8 @@ function kmp(text, pattern, updateStep) {
             i += 2;
             j--;
           } else {
-            if (j === n) j -= n; // Wrap horizontally
-            if (i < 0) i += n;   // Wrap vertically
+            if (j === n) j -= n; 
+            if (i < 0) i += n;   
           }
         }
       
@@ -5594,26 +5620,29 @@ function kmp(text, pattern, updateStep) {
           { name: 'width', type: 'integer', min: 5, max: 50 },
           { name: 'height', type: 'integer', min: 5, max: 50 }
         ],
+        outputType: 'matrix',
+        visualization: {
+          description: 'Visualization of the Maze Generation algorithm.',
+          details: {
+            type: 'generation',
+            additionalInfo: 'Each step shows the current state of the maze.',
+          },
+          stepType: 'stepwise',
+        },
         execute: (width, height, updateStep) => {
-          // Ensure the grid has odd dimensions for a maze with a perfect path
           if (width % 2 === 0) width += 1;
           if (height % 2 === 0) height += 1;
 
-          // Initialize grid: all walls
           const maze = Array.from({ length: height }, () => Array(width).fill(1));
-
-          // Start Prim's algorithm from a random cell in the grid
           const startRow = Math.floor(Math.random() * (height / 2)) * 2 + 1;
           const startCol = Math.floor(Math.random() * (width / 2)) * 2 + 1;
           maze[startRow][startCol] = 0;
 
-          // Walls list for the maze generation process
           const walls = [];
           const directions = [
-            [-2, 0], [2, 0], [0, -2], [0, 2] // Up, Down, Left, Right
+            [-2, 0], [2, 0], [0, -2], [0, 2]
           ];
 
-          // Add initial walls of the starting cell
           directions.forEach(([dr, dc]) => {
             const newRow = startRow + dr;
             const newCol = startCol + dc;
@@ -5622,7 +5651,6 @@ function kmp(text, pattern, updateStep) {
             }
           });
 
-          // Generate the maze
           while (walls.length > 0) {
             const randomIndex = Math.floor(Math.random() * walls.length);
             const [wallRow, wallCol, passageRow, passageCol] = walls.splice(randomIndex, 1)[0];
@@ -5631,14 +5659,12 @@ function kmp(text, pattern, updateStep) {
               maze[wallRow][wallCol] = 0;
               maze[passageRow][passageCol] = 0;
 
-              // Log the step for visualization
               updateStep({
                 wallRemoved: { row: wallRow, col: wallCol },
                 passageCreated: { row: passageRow, col: passageCol },
-                maze: maze.map(row => [...row]) // Create a snapshot of the maze
+                maze: maze.map(row => [...row])
               });
 
-              // Add the neighboring walls of the current cell to the list
               directions.forEach(([dr, dc]) => {
                 const newRow = wallRow + dr;
                 const newCol = wallCol + dc;
@@ -5713,11 +5739,19 @@ function kmp(text, pattern, updateStep) {
           { name: 'n', type: 'integer', min: 2 },
           { name: 'k', type: 'integer', min: 1, max: 10 } // Number of rounds for accuracy
         ],
+        outputType: 'boolean',
+        visualization: {
+          description: 'Visualization of Miller-Rabin\'s Primality Test.',
+          details: {
+            type: 'primality test',
+            additionalInfo: 'Each step shows the current base, exponent, and result.',
+          },
+          stepType: 'stepwise',
+        },
         execute: (n, k, updateStep) => {
           if (n <= 1 || n === 4) return false;
           if (n <= 3) return true;
 
-          // Helper function for modular exponentiation
           const powerMod = (base, exp, mod) => {
             let result = 1;
             base = base % mod;
@@ -5731,7 +5765,6 @@ function kmp(text, pattern, updateStep) {
             return result;
           };
 
-          // Write n-1 as d * 2^r
           let d = n - 1;
           let r = 0;
           while (d % 2 === 0) {
@@ -5739,12 +5772,10 @@ function kmp(text, pattern, updateStep) {
             r += 1;
           }
 
-          // Miller-Rabin Test
           const millerTest = (d, n) => {
             const a = 2 + Math.floor(Math.random() * (n - 4));
             let x = powerMod(a, d, n);
 
-            // Log the initial test step
             updateStep({
               base: a,
               exponent: d,
@@ -5761,7 +5792,6 @@ function kmp(text, pattern, updateStep) {
             for (let i = 1; i < r; i++) {
               x = (x * x) % n;
 
-              // Log each squaring step
               updateStep({
                 base: a,
                 exponent: d * Math.pow(2, i),
@@ -5863,18 +5893,25 @@ function kmp(text, pattern, updateStep) {
         parameters: [
           { name: 'array', type: 'array', length: 10, min: 1, max: 100 }
         ],
+        outputType: 'integer',
+        visualization: {
+          description: 'Visualization of the Shortest Unsorted Continuous Subarray algorithm.',
+          details: {
+            type: 'sorting',
+            additionalInfo: 'Each step shows the current state of the array and the identified indices.',
+          },
+          stepType: 'stepwise',
+        },
         execute: (array, updateStep) => {
           let start = -1, end = -1;
           let maxSeen = -Infinity, minSeen = Infinity;
 
-          // Step 1: Identify the end of the needed subarray
           for (let i = 0; i < array.length; i++) {
             maxSeen = Math.max(maxSeen, array[i]);
             if (array[i] < maxSeen) {
               end = i;
             }
 
-            // Log each step of the first pass
             updateStep({
               index: i,
               maxSeen,
@@ -5885,14 +5922,12 @@ function kmp(text, pattern, updateStep) {
             });
           }
 
-          // Step 2: Identify the start of the needed subarray
           for (let i = array.length - 1; i >= 0; i--) {
             minSeen = Math.min(minSeen, array[i]);
             if (array[i] > minSeen) {
               start = i;
             }
 
-            // Log each step of the second pass
             updateStep({
               index: i,
               minSeen,
@@ -5905,7 +5940,6 @@ function kmp(text, pattern, updateStep) {
 
           const length = end - start + 1;
 
-          // Log the result
           updateStep({
             startIndex: start,
             endIndex: end,
@@ -5920,14 +5954,13 @@ function kmp(text, pattern, updateStep) {
       function shortestUnsortedSubarray(array, updateStep) {
         let start = -1, end = -1;
         let maxSeen = -Infinity, minSeen = Infinity;
-      
-        // Step 1: Find the end of the subarray that needs sorting
+
         for (let i = 0; i < array.length; i++) {
           maxSeen = Math.max(maxSeen, array[i]);
           if (array[i] < maxSeen) {
             end = i;
           }
-      
+
           updateStep({
             index: i,
             maxSeen,
@@ -5937,14 +5970,13 @@ function kmp(text, pattern, updateStep) {
             array: [...array]
           });
         }
-      
-        // Step 2: Find the start of the subarray that needs sorting
+
         for (let i = array.length - 1; i >= 0; i--) {
           minSeen = Math.min(minSeen, array[i]);
           if (array[i] > minSeen) {
             start = i;
           }
-      
+
           updateStep({
             index: i,
             minSeen,
@@ -5954,9 +5986,9 @@ function kmp(text, pattern, updateStep) {
             array: [...array]
           });
         }
-      
+
         const length = end - start + 1;
-        
+
         updateStep({
           startIndex: start,
           endIndex: end,
@@ -5964,7 +5996,7 @@ function kmp(text, pattern, updateStep) {
           type: 'result',
           array: [...array]
         });
-      
+
         return length > 0 ? length : 0;
       }
       `
@@ -5976,11 +6008,19 @@ function kmp(text, pattern, updateStep) {
           { name: 'grid', type: 'matrix', numRows: 10, numCols: 10 }, // Default 10x10 grid size for simulation
           { name: 'steps', type: 'integer', min: 1, max: 100 } // Number of steps to simulate
         ],
+        outputType: 'matrix',
+        visualization: {
+          description: 'Visualization of Conway\'s Game of Life simulation.',
+          details: {
+            type: 'simulation',
+            additionalInfo: 'Each step shows the current state of the grid.',
+          },
+          stepType: 'stepwise',
+        },
         execute: (grid, steps, updateStep) => {
           const numRows = grid.length;
           const numCols = grid[0].length;
 
-          // Helper function to count live neighbors
           const countLiveNeighbors = (row, col) => {
             let liveNeighbors = 0;
             const directions = [
@@ -6000,33 +6040,29 @@ function kmp(text, pattern, updateStep) {
             return liveNeighbors;
           };
 
-          // Run the simulation for the specified number of steps
           for (let step = 0; step < steps; step++) {
-            const nextGrid = grid.map(row => [...row]); // Copy of the grid for the next generation
+            const nextGrid = grid.map(row => [...row]);
 
             for (let row = 0; row < numRows; row++) {
               for (let col = 0; col < numCols; col++) {
                 const liveNeighbors = countLiveNeighbors(row, col);
                 const cellState = grid[row][col];
 
-                // Apply Conway's rules
                 if (cellState === 1 && (liveNeighbors < 2 || liveNeighbors > 3)) {
-                  nextGrid[row][col] = 0; // Cell dies
+                  nextGrid[row][col] = 0;
                 } else if (cellState === 0 && liveNeighbors === 3) {
-                  nextGrid[row][col] = 1; // Cell becomes alive
+                  nextGrid[row][col] = 1;
                 } else {
-                  nextGrid[row][col] = cellState; // Cell state remains the same
+                  nextGrid[row][col] = cellState;
                 }
               }
             }
 
-            // Log the state of the grid after each step
             updateStep({
               step,
-              grid: nextGrid.map(row => [...row]) // Snapshot of the current state
+              grid: nextGrid.map(row => [...row])
             });
 
-            // Update the grid to the next generation
             grid = nextGrid;
           }
 
