@@ -175,10 +175,11 @@ export default function Dashboard() {
     setIsPlaying(true);
     setCurrentStep(0);
   };
-  const generateParameters = (parameters) => {
+
+  const generateParameters = (parameters, algorithmName) => {
     return parameters.map(param => {
       if (!param) return null;
-  
+
       const {
         type,
         length = 5,
@@ -193,20 +194,60 @@ export default function Dashboard() {
         minFreq = 1,
         numVertices = 5
       } = param;
-  
+
+      // Special condition for Simulated Annealing algorithm
+      if (algorithmName === 'Simulated Annealing') {
+        switch (type) {
+          case 'object':
+            // Generate an initial state (e.g., an array of random floats)
+            return Array.from({ length: 5 }, () => Math.random() * 100); // Example for a state with 5 variables
+          case 'float':
+            if (param.name === 'temperature') {
+              return Math.random() * 99 + 1; // Random float between 1 and 100
+            } else if (param.name === 'coolingRate') {
+              return Math.random() * 0.99 + 0.01; // Random float between 0.01 and 1
+            }
+            break;
+          // Add any other necessary types for Simulated Annealing here
+        }
+      }
+
+      // Special condition for Genetic Algorithms
+      if (algorithmName === 'Genetic Algorithms') {
+        switch (type) {
+          case 'array':
+            // Generate an array of random individuals
+            return Array.from({ length }, () =>
+              Array.from({ length: 5 }, () => Math.random()) // Example for an individual with 5 genes
+            );
+          case 'integer':
+            return Math.floor(Math.random() * (max - min + 1)) + min; // Random integer
+          case 'float':
+            return Math.random(); // Random float between 0 and 1
+          case 'population':
+            return Array.from({ length: 10 }, () =>
+              Array.from({ length: 5 }, () => Math.random()) // Example population of individuals
+            );
+          case 'mutationRate':
+            return Math.random(); // Random mutation rate between 0 and 1
+          case 'generations':
+            return Math.floor(Math.random() * (max - min + 1)) + min; // Random number of generations
+        }
+      }
+      // Existing logic for other parameter types
       if (type === 'array') {
         return Array.from({ length }, () => Math.floor(Math.random() * (max - min + 1)) + min);
       } else if (type === 'sortedArray') {
         return Array.from({ length }, () => Math.floor(Math.random() * (max - min + 1)) + min).sort((a, b) => a - b);
       } else if (type === 'matrix') {
         if (depth) {
-          return Array.from({ length: depth }, () => 
-            Array.from({ length: numRows }, () => 
+          return Array.from({ length: depth }, () =>
+            Array.from({ length: numRows }, () =>
               Array.from({ length: numCols }, () => Math.floor(Math.random() * (max - min + 1)) + min)
             )
           );
         } else {
-          return Array.from({ length: numRows }, () => 
+          return Array.from({ length: numRows }, () =>
             Array.from({ length: numCols }, () => Math.floor(Math.random() * (max - min + 1)) + min)
           );
         }
@@ -230,7 +271,6 @@ export default function Dashboard() {
         const randomGraph = predefinedGraphs[Math.floor(Math.random() * predefinedGraphs.length)];
         return randomGraph;
       } else if (type === 'floydWarshallGraph') {
-        // Define three example graph matrices for the Floyd-Warshall algorithm
         const predefinedInputs = [
           [
             [0, 3, Infinity, 5],
@@ -252,8 +292,7 @@ export default function Dashboard() {
             [Infinity, Infinity, Infinity, Infinity, 0]
           ]
         ];
-        
-        // Choose a random input from the predefined examples
+
         const chosenInput = predefinedInputs[Math.floor(Math.random() * predefinedInputs.length)];
         return chosenInput;
       } else {
@@ -262,7 +301,7 @@ export default function Dashboard() {
       }
     });
   };
-  
+
   const handleAlgorithmSelection = async (categoryName, algorithmName) => {
     // Clear the steps when changing algorithms
     setAlgorithmSteps([]);  // Clear previous algorithm steps
@@ -277,9 +316,9 @@ export default function Dashboard() {
     setAlgorithmImplementation(algorithmImplementation);
 
     if (algorithmImplementation) {
-        const params = generateParameters(algorithmImplementation.parameters);
-        setGeneratedParams(params);
-        setCode(algorithmImplementation.code || '');
+      const params = generateParameters(algorithmImplementation.parameters, algorithmName);
+      setGeneratedParams(params);
+      setCode(algorithmImplementation.code || '');
     }
   };
 
@@ -307,7 +346,7 @@ export default function Dashboard() {
 
     let result = [];
 
-    if(params.length > 0){
+    if (params.length > 0) {
       result = await algorithmImplementation.execute(...params, (stepData) => {
         updateStep({
           ...stepData

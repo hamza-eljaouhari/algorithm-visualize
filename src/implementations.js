@@ -4001,22 +4001,22 @@ export const implementations = {
           let fibM2 = 0;  // (n-2)'th Fibonacci number
           let fibM1 = 1;  // (n-1)'th Fibonacci number
           let fibM = fibM2 + fibM1; // nth Fibonacci number
-      
+
           // Find the largest Fibonacci number less than or equal to the length of the array
           while (fibM < array.length) {
             fibM2 = fibM1;
             fibM1 = fibM;
             fibM = fibM1 + fibM2;
           }
-      
+
           let offset = -1; // Marks the eliminated range from the front
-      
+
           // While there are elements to be inspected
           while (fibM > 1) {
             // Calculate the index to be compared
             const i = Math.min(offset + fibM2, array.length - 1);
             updateStep({ arr: array, index: i, action: 'visiting' });
-      
+
             // If target is greater than the value at index i, cut the subarray after i
             if (array[i] < target) {
               fibM = fibM1;
@@ -4033,10 +4033,10 @@ export const implementations = {
             // Element found
             else return i;
           }
-      
+
           // Comparing the last element with target
           if (fibM1 && array[offset + 1] === target) return offset + 1;
-      
+
           // Element not found
           return -1;
         },
@@ -4074,7 +4074,7 @@ export const implementations = {
         return -1;
       }
         `,
-      }      
+      }
     ],
   },
   'Sorting Algorithms': {
@@ -4082,6 +4082,15 @@ export const implementations = {
       {
         name: 'Bubble Sort',
         description: 'Sorts an array using the bubble sort algorithm.',
+        outputType: 'array',
+        visualization: {
+          description: 'Visualization of the Bubble Sort algorithm.',
+          details: {
+            type: 'sorting',
+            additionalInfo: 'Each step shows the current state of the array as elements are compared and swapped.',
+          },
+          stepType: 'array',
+        },
         parameters: [
           { name: 'array', type: 'array' },
         ],
@@ -4089,8 +4098,9 @@ export const implementations = {
           const n = array.length;
           for (let i = 0; i < n - 1; i++) {
             for (let j = 0; j < n - i - 1; j++) {
-              updateStep({ j, swapped: array[j] > array[j + 1] });
+              updateStep({ arr: [...array], currentIndex: j, action: 'comparing' });
               if (array[j] > array[j + 1]) {
+                updateStep({ arr: [...array], currentIndex: j, action: 'swapping' });
                 [array[j], array[j + 1]] = [array[j + 1], array[j]];
               }
             }
@@ -4098,23 +4108,33 @@ export const implementations = {
           return array;
         },
         code: `
-  function bubbleSort(array, updateStep) {
-    const n = array.length;
-    for (let i = 0; i < n - 1; i++) {
-      for (let j = 0; j < n - i - 1; j++) {
-        updateStep({ j, swapped: array[j] > array[j + 1] });
-        if (array[j] > array[j + 1]) {
-          [array[j], array[j + 1]] = [array[j + 1], array[j]];
-        }
+function bubbleSort(array, updateStep) {
+  const n = array.length;
+  for (let i = 0; i < n - 1; i++) {
+    for (let j = 0; j < n - i - 1; j++) {
+      updateStep({ arr: [...array], currentIndex: j, action: 'comparing' });
+      if (array[j] > array[j + 1]) {
+        updateStep({ arr: [...array], currentIndex: j, action: 'swapping' });
+        [array[j], array[j + 1]] = [array[j + 1], array[j]];
       }
     }
-    return array;
   }
-        `,
+  return array;
+}
+      `,
       },
       {
         name: 'Insertion Sort',
         description: 'Sorts an array using the insertion sort algorithm.',
+        outputType: 'array',
+        visualization: {
+          description: 'Visualization of the Insertion Sort algorithm.',
+          details: {
+            type: 'sorting',
+            additionalInfo: 'Each step shows the current state of the array as elements are inserted into the sorted portion.',
+          },
+          stepType: 'array',
+        },
         parameters: [
           { name: 'array', type: 'array' },
         ],
@@ -4124,34 +4144,45 @@ export const implementations = {
             let key = array[i];
             let j = i - 1;
             while (j >= 0 && array[j] > key) {
-              updateStep({ j, shifted: true });
+              updateStep({ arr: [...array], currentIndex: j, action: 'shifting' });
               array[j + 1] = array[j];
               j--;
             }
             array[j + 1] = key;
+            updateStep({ arr: [...array], currentIndex: j + 1, action: 'inserting' });
           }
           return array;
         },
         code: `
-  function insertionSort(array, updateStep) {
-    const n = array.length;
-    for (let i = 1; i < n; i++) {
-      let key = array[i];
-      let j = i - 1;
-      while (j >= 0 && array[j] > key) {
-        updateStep({ j, shifted: true });
-        array[j + 1] = array[j];
-        j--;
-      }
-      array[j + 1] = key;
+function insertionSort(array, updateStep) {
+  const n = array.length;
+  for (let i = 1; i < n; i++) {
+    let key = array[i];
+    let j = i - 1;
+    while (j >= 0 && array[j] > key) {
+      updateStep({ arr: [...array], currentIndex: j, action: 'shifting' });
+      array[j + 1] = array[j];
+      j--;
     }
-    return array;
+    array[j + 1] = key;
+    updateStep({ arr: [...array], currentIndex: j + 1, action: 'inserting' });
   }
-        `,
+  return array;
+}
+      `,
       },
       {
         name: 'Selection Sort',
         description: 'Sorts an array using the selection sort algorithm.',
+        outputType: 'array',
+        visualization: {
+          description: 'Visualization of the Selection Sort algorithm.',
+          details: {
+            type: 'sorting',
+            additionalInfo: 'Each step shows the current state of the array as elements are selected and swapped.',
+          },
+          stepType: 'array',
+        },
         parameters: [
           { name: 'array', type: 'array' },
         ],
@@ -4160,39 +4191,50 @@ export const implementations = {
           for (let i = 0; i < n - 1; i++) {
             let minIndex = i;
             for (let j = i + 1; j < n; j++) {
-              updateStep({ j, isMinimum: array[j] < array[minIndex] });
+              updateStep({ arr: [...array], currentIndex: j, action: 'checking' });
               if (array[j] < array[minIndex]) {
                 minIndex = j;
               }
             }
             if (minIndex !== i) {
+              updateStep({ arr: [...array], currentIndex: i, action: 'swapping' });
               [array[i], array[minIndex]] = [array[minIndex], array[i]];
             }
           }
           return array;
         },
         code: `
-  function selectionSort(array, updateStep) {
-    const n = array.length;
-    for (let i = 0; i < n - 1; i++) {
-      let minIndex = i;
-      for (let j = i + 1; j < n; j++) {
-        updateStep({ j, isMinimum: array[j] < array[minIndex] });
-        if (array[j] < array[minIndex]) {
-          minIndex = j;
-        }
-      }
-      if (minIndex !== i) {
-        [array[i], array[minIndex]] = [array[minIndex], array[i]];
+function selectionSort(array, updateStep) {
+  const n = array.length;
+  for (let i = 0; i < n - 1; i++) {
+    let minIndex = i;
+    for (let j = i + 1; j < n; j++) {
+      updateStep({ arr: [...array], currentIndex: j, action: 'checking' });
+      if (array[j] < array[minIndex]) {
+        minIndex = j;
       }
     }
-    return array;
+    if (minIndex !== i) {
+      updateStep({ arr: [...array], currentIndex: i, action: 'swapping' });
+      [array[i], array[minIndex]] = [array[minIndex], array[i]];
+    }
   }
-        `,
+  return array;
+}
+      `,
       },
       {
         name: 'Shell Sort',
         description: 'Sorts an array using the shell sort algorithm.',
+        outputType: 'array',
+        visualization: {
+          description: 'Visualization of the Shell Sort algorithm.',
+          details: {
+            type: 'sorting',
+            additionalInfo: 'Each step shows the current state of the array as elements are sorted based on gaps.',
+          },
+          stepType: 'array',
+        },
         parameters: [
           { name: 'array', type: 'array' },
         ],
@@ -4204,38 +4246,49 @@ export const implementations = {
               const temp = array[i];
               let j;
               for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
-                updateStep({ j, swapped: true });
+                updateStep({ arr: [...array], currentIndex: j, action: 'shifting' });
                 array[j] = array[j - gap];
               }
               array[j] = temp;
+              updateStep({ arr: [...array], currentIndex: j, action: 'inserting' });
             }
             gap = Math.floor(gap / 2);
           }
           return array;
         },
         code: `
-  function shellSort(array, updateStep) {
-    const n = array.length;
-    let gap = Math.floor(n / 2);
-    while (gap > 0) {
-      for (let i = gap; i < n; i++) {
-        const temp = array[i];
-        let j;
-        for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
-          updateStep({ j, swapped: true });
-          array[j] = array[j - gap];
-        }
-        array[j] = temp;
+function shellSort(array, updateStep) {
+  const n = array.length;
+  let gap = Math.floor(n / 2);
+  while (gap > 0) {
+    for (let i = gap; i < n; i++) {
+      const temp = array[i];
+      let j;
+      for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
+        updateStep({ arr: [...array], currentIndex: j, action: 'shifting' });
+        array[j] = array[j - gap];
       }
-      gap = Math.floor(gap / 2);
+      array[j] = temp;
+      updateStep({ arr: [...array], currentIndex: j, action: 'inserting' });
     }
-    return array;
+    gap = Math.floor(gap / 2);
   }
-        `,
+  return array;
+}
+      `,
       },
       {
         name: 'Heap Sort',
         description: 'Sorts an array using the heap sort algorithm.',
+        outputType: 'array',
+        visualization: {
+          description: 'Visualization of the Heap Sort algorithm.',
+          details: {
+            type: 'sorting',
+            additionalInfo: 'Each step shows the current state of the array as elements are heapified and sorted.',
+          },
+          stepType: 'array',
+        },
         parameters: [
           { name: 'array', type: 'array' },
         ],
@@ -4252,42 +4305,269 @@ export const implementations = {
 
             if (largest !== i) {
               [arr[i], arr[largest]] = [arr[largest], arr[i]];
+              updateStep({ arr: [...arr], currentIndex: i, action: 'heapifying' });
               heapify(arr, n, largest);
             }
           };
 
           for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(array, n, i);
           for (let i = n - 1; i > 0; i--) {
-            updateStep({ i });
+            updateStep({ arr: [...array], currentIndex: 0, action: 'swapping' });
             [array[0], array[i]] = [array[i], array[0]];
             heapify(array, i, 0);
           }
           return array;
         },
         code: `
-  function heapSort(array, updateStep) {
+function heapSort(array, updateStep) {
+  const n = array.length;
+
+  const heapify = (arr, n, i) => {
+    let largest = i;
+    const left = 2 * i + 1;
+    const right = 2 * i + 2;
+
+    if (left < n && arr[left] > arr[largest]) largest = left;
+    if (right < n && arr[right] > arr[largest]) largest = right;
+
+    if (largest !== i) {
+      [arr[i], arr[largest]] = [arr[largest], arr[i]];
+      updateStep({ arr: [...arr], currentIndex: i, action: 'heapifying' });
+      heapify(arr, n, largest);
+    }
+  };
+
+  for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(array, n, i);
+  for (let i = n - 1; i > 0; i--) {
+    updateStep({ arr: [...array], currentIndex: 0, action: 'swapping' });
+    [array[0], array[i]] = [array[i], array[0]];
+    heapify(array, i, 0);
+  }
+  return array;
+}
+      `,
+      },
+
+      {
+        name: 'Bubble Sort',
+        description: 'Sorts an array using the bubble sort algorithm.',
+        outputType: 'array',
+        visualization: {
+          description: 'Visualization of the Bubble Sort algorithm.',
+          details: {
+            type: 'sorting',
+            additionalInfo: 'Each step shows the current state of the array and highlights the indices being compared.',
+          },
+          stepType: 'array',
+        },
+        parameters: [
+          { name: 'array', type: 'array' },
+        ],
+        execute: (array, updateStep) => {
+          const n = array.length;
+          for (let i = 0; i < n - 1; i++) {
+            for (let j = 0; j < n - i - 1; j++) {
+              updateStep({ arr: [...array], j, swapped: array[j] > array[j + 1] });
+              if (array[j] > array[j + 1]) {
+                [array[j], array[j + 1]] = [array[j + 1], array[j]];
+              }
+            }
+          }
+          return array;
+        },
+        code: `
+  function bubbleSort(array, updateStep) {
     const n = array.length;
+    for (let i = 0; i < n - 1; i++) {
+      for (let j = 0; j < n - i - 1; j++) {
+        updateStep({ array: [...array], j, swapped: array[j] > array[j + 1] });
+        if (array[j] > array[j + 1]) {
+          [array[j], array[j + 1]] = [array[j + 1], array[j]];
+        }
+      }
+    }
+    return array;
+  }
+        `,
+      },
+      {
+        name: 'Comb Sort',
+        description: 'Sorts an array using the Comb Sort algorithm, an improvement over bubble sort.',
+        outputType: 'array',
+        visualization: {
+          description: 'Visualization of the Comb Sort algorithm.',
+          details: {
+            type: 'sorting',
+            additionalInfo: 'Each step shows the current state of the array and highlights the indices being compared.',
+          },
+          stepType: 'array',
+        },
+        parameters: [
+          { name: 'array', type: 'array' },
+        ],
+        execute: (array, updateStep) => {
+          const n = array.length;
+          let gap = n;
+          let swapped = true;
 
-    const heapify = (arr, n, i) => {
-      let largest = i;
-      const left = 2 * i + 1;
-      const right = 2 * i + 2;
+          while (gap > 1 || swapped) {
+            gap = Math.max(1, Math.floor(gap / 1.3)); // Shrink the gap
+            swapped = false;
 
-      if (left < n && arr[left] > arr[largest]) largest = left;
-      if (right < n && arr[right] > arr[largest]) largest = right;
+            for (let i = 0; i + gap < n; i++) {
+              updateStep({ arr: [...array], i, gap });
+              if (array[i] > array[i + gap]) {
+                [array[i], array[i + gap]] = [array[i + gap], array[i]];
+                swapped = true;
+                updateStep({ arr: [...array], i, swapped: true });
+              }
+            }
+          }
+          return array;
+        },
+        code: `
+  function combSort(array, updateStep) {
+    const n = array.length;
+    let gap = n;
+    let swapped = true;
+  
+    while (gap > 1 || swapped) {
+      gap = Math.max(1, Math.floor(gap / 1.3)); // Shrink the gap
+      swapped = false;
+  
+      for (let i = 0; i + gap < n; i++) {
+        updateStep({ array: [...array], i, gap });
+        if (array[i] > array[i + gap]) {
+          [array[i], array[i + gap]] = [array[i + gap], array[i]];
+          swapped = true;
+          updateStep({ array: [...array], i, swapped: true });
+        }
+      }
+    }
+    return array;
+  }
+        `,
+      },
+      {
+        name: 'Tim Sort',
+        description: 'Sorts an array using Tim Sort, a hybrid sorting algorithm derived from merge sort and insertion sort.',
+        outputType: 'array',
+        visualization: {
+          description: 'Visualization of the Tim Sort algorithm.',
+          details: {
+            type: 'sorting',
+            additionalInfo: 'Each step shows the current state of the array and highlights the merged sections.',
+          },
+          stepType: 'array',
+        },
+        parameters: [
+          { name: 'array', type: 'array' },
+        ],
+        execute: (array, updateStep) => {
+          const minRun = 32;
 
-      if (largest !== i) {
-        [arr[i], arr[largest]] = [arr[largest], arr[i]];
-        heapify(arr, n, largest);
+          const insertionSort = (arr, left, right) => {
+            for (let i = left + 1; i <= right; i++) {
+              const temp = arr[i];
+              let j = i - 1;
+              while (j >= left && arr[j] > temp) {
+                arr[j + 1] = arr[j];
+                j--;
+              }
+              arr[j + 1] = temp;
+              updateStep({ arr: [...arr], action: 'Insertion Sort' });
+            }
+          };
+
+          const merge = (arr, left, mid, right) => {
+            const leftArray = arr.slice(left, mid + 1);
+            const rightArray = arr.slice(mid + 1, right + 1);
+            let i = 0, j = 0, k = left;
+
+            while (i < leftArray.length && j < rightArray.length) {
+              if (leftArray[i] <= rightArray[j]) {
+                arr[k++] = leftArray[i++];
+              } else {
+                arr[k++] = rightArray[j++];
+              }
+              updateStep({ arr: [...arr], action: 'Merging' });
+            }
+
+            while (i < leftArray.length) arr[k++] = leftArray[i++];
+            while (j < rightArray.length) arr[k++] = rightArray[j++];
+            updateStep({ arr: [...arr], action: 'Final Merging' });
+          };
+
+          const timSort = (arr) => {
+            for (let start = 0; start < arr.length; start += minRun) {
+              const end = Math.min(start + minRun - 1, arr.length - 1);
+              insertionSort(arr, start, end);
+            }
+
+            for (let size = minRun; size < arr.length; size *= 2) {
+              for (let left = 0; left < arr.length; left += size * 2) {
+                const mid = Math.min(left + size - 1, arr.length - 1);
+                const right = Math.min((left + 2 * size - 1), (arr.length - 1));
+                if (mid < right) merge(arr, left, mid, right);
+              }
+            }
+          };
+
+          timSort(array);
+          return array;
+        },
+        code: `
+  function timSort(array, updateStep) {
+    const minRun = 32;
+  
+    const insertionSort = (arr, left, right) => {
+      for (let i = left + 1; i <= right; i++) {
+        const temp = arr[i];
+        let j = i - 1;
+        while (j >= left && arr[j] > temp) {
+          arr[j + 1] = arr[j];
+          j--;
+        }
+        arr[j + 1] = temp;
+        updateStep({ array: [...arr], action: 'Insertion Sort' });
       }
     };
-
-    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(array, n, i);
-    for (let i = n - 1; i > 0; i--) {
-      updateStep({ i });
-      [array[0], array[i]] = [array[i], array[0]];
-      heapify(array, i, 0);
-    }
+  
+    const merge = (arr, left, mid, right) => {
+      const leftArray = arr.slice(left, mid + 1);
+      const rightArray = arr.slice(mid + 1, right + 1);
+      let i = 0, j = 0, k = left;
+  
+      while (i < leftArray.length && j < rightArray.length) {
+        if (leftArray[i] <= rightArray[j]) {
+          arr[k++] = leftArray[i++];
+        } else {
+          arr[k++] = rightArray[j++];
+        }
+        updateStep({ array: [...arr], action: 'Merging' });
+      }
+  
+      while (i < leftArray.length) arr[k++] = leftArray[i++];
+      while (j < rightArray.length) arr[k++] = rightArray[j++];
+      updateStep({ array: [...arr], action: 'Final Merging' });
+    };
+  
+    const timSort = (arr) => {
+      for (let start = 0; start < arr.length; start += minRun) {
+        const end = Math.min(start + minRun - 1, arr.length - 1);
+        insertionSort(arr, start, end);
+      }
+  
+      for (let size = minRun; size < arr.length; size *= 2) {
+        for (let left = 0; left < arr.length; left += size * 2) {
+          const mid = Math.min(left + size - 1, arr.length - 1);
+          const right = Math.min((left + 2 * size - 1), (arr.length - 1));
+          if (mid < right) merge(arr, left, mid, right);
+        }
+      }
+    };
+  
+    timSort(array);
     return array;
   }
         `,
@@ -4299,6 +4579,15 @@ export const implementations = {
       {
         name: 'Rabin-Karp Algorithm',
         description: 'Searches for a pattern in a text using hashing.',
+        outputType: 'integer',
+        visualization: {
+          description: 'Visualization of the Rabin-Karp algorithm.',
+          details: {
+            type: 'searching',
+            additionalInfo: 'Each step shows the current hash values and indexes being compared.',
+          },
+          stepType: 'array',
+        },
         parameters: [
           { name: 'text', type: 'string' },
           { name: 'pattern', type: 'string' },
@@ -4322,7 +4611,7 @@ export const implementations = {
               for (j = 0; j < m; j++) {
                 if (text[i + j] !== pattern[j]) break;
               }
-              if (j === m) updateStep({ index: i, found: true });
+              if (j === m) updateStep({ index: i, found: true, action: 'Pattern found' });
             }
             if (i < n - m) {
               t = (256 * (t - text.charCodeAt(i) * h) + text.charCodeAt(i + m)) % prime;
@@ -4332,39 +4621,48 @@ export const implementations = {
           }
         },
         code: `
-  function rabinKarp(text, pattern, updateStep) {
-    const m = pattern.length;
-    const n = text.length;
-    const prime = 101;
-    let p = 0;
-    let t = 0;
-    const h = Math.pow(256, m - 1) % prime;
+function rabinKarp(text, pattern, updateStep) {
+  const m = pattern.length;
+  const n = text.length;
+  const prime = 101;
+  let p = 0;
+  let t = 0;
+  const h = Math.pow(256, m - 1) % prime;
 
-    for (let i = 0; i < m; i++) {
-      p = (256 * p + pattern.charCodeAt(i)) % prime;
-      t = (256 * t + text.charCodeAt(i)) % prime;
-    }
-
-    for (let i = 0; i <= n - m; i++) {
-      if (p === t) {
-        let j;
-        for (j = 0; j < m; j++) {
-          if (text[i + j] !== pattern[j]) break;
-        }
-        if (j === m) updateStep({ index: i, found: true });
-      }
-      if (i < n - m) {
-        t = (256 * (t - text.charCodeAt(i) * h) + text.charCodeAt(i + m)) % prime;
-        if (t < 0) t += prime;
-      }
-      updateStep({ index: i, action: 'Hash updated', currentHash: t });
-    }
+  for (let i = 0; i < m; i++) {
+    p = (256 * p + pattern.charCodeAt(i)) % prime;
+    t = (256 * t + text.charCodeAt(i)) % prime;
   }
-        `,
+
+  for (let i = 0; i <= n - m; i++) {
+    if (p === t) {
+      let j;
+      for (j = 0; j < m; j++) {
+        if (text[i + j] !== pattern[j]) break;
+      }
+      if (j === m) updateStep({ index: i, found: true });
+    }
+    if (i < n - m) {
+      t = (256 * (t - text.charCodeAt(i) * h) + text.charCodeAt(i + m)) % prime;
+      if (t < 0) t += prime;
+    }
+    updateStep({ index: i, action: 'Hash updated', currentHash: t });
+  }
+}
+      `,
       },
       {
         name: 'KMP Algorithm',
         description: 'Searches for a pattern in a text using the Knuth-Morris-Pratt algorithm.',
+        outputType: 'integer',
+        visualization: {
+          description: 'Visualization of the KMP algorithm.',
+          details: {
+            type: 'searching',
+            additionalInfo: 'Each step shows the current state of the pattern and text indexes being compared.',
+          },
+          stepType: 'array',
+        },
         parameters: [
           { name: 'text', type: 'string' },
           { name: 'pattern', type: 'string' },
@@ -4397,14 +4695,14 @@ export const implementations = {
           let j = 0;
 
           while (i < text.length) {
+            updateStep({ currentTextIndex: i, currentPatternIndex: j });
             if (pattern[j] === text[i]) {
-              updateStep({ i, j });
               i++;
               j++;
             }
 
             if (j === pattern.length) {
-              updateStep({ index: i - j, found: true });
+              updateStep({ index: i - j, found: true, action: 'Pattern found' });
               j = lpsArray[j - 1];
             } else if (i < text.length && pattern[j] !== text[i]) {
               if (j !== 0) {
@@ -4416,61 +4714,70 @@ export const implementations = {
           }
         },
         code: `
-  function kmp(text, pattern, updateStep) {
-    const lps = (pattern) => {
-      const lpsArray = Array(pattern.length).fill(0);
-      let len = 0;
-      let i = 1;
+function kmp(text, pattern, updateStep) {
+  const lps = (pattern) => {
+    const lpsArray = Array(pattern.length).fill(0);
+    let len = 0;
+    let i = 1;
 
-      while (i < pattern.length) {
-        if (pattern[i] === pattern[len]) {
-          len++;
-          lpsArray[i] = len;
-          i++;
-        } else {
-          if (len !== 0) {
-            len = lpsArray[len - 1];
-          } else {
-            lpsArray[i] = 0;
-            i++;
-          }
-        }
-      }
-      return lpsArray;
-    };
-
-    const lpsArray = lps(pattern);
-    let i = 0;
-    let j = 0;
-
-    while (i < text.length) {
-      if (pattern[j] === text[i]) {
-        updateStep({ i, j });
+    while (i < pattern.length) {
+      if (pattern[i] === pattern[len]) {
+        len++;
+        lpsArray[i] = len;
         i++;
-        j++;
-      }
-
-      if (j === pattern.length) {
-        updateStep({ index: i - j, found: true });
-        j = lpsArray[j - 1];
-      } else if (i < text.length && pattern[j] !== text[i]) {
-        if (j !== 0) {
-          j = lpsArray[j - 1];
+      } else {
+        if (len !== 0) {
+          len = lpsArray[len - 1];
         } else {
+          lpsArray[i] = 0;
           i++;
         }
       }
     }
+    return lpsArray;
+  };
+
+  const lpsArray = lps(pattern);
+  let i = 0;
+  let j = 0;
+
+  while (i < text.length) {
+    updateStep({ currentTextIndex: i, currentPatternIndex: j });
+    if (pattern[j] === text[i]) {
+      i++;
+      j++;
+    }
+
+    if (j === pattern.length) {
+      updateStep({ index: i - j, found: true });
+      j = lpsArray[j - 1];
+    } else if (i < text.length && pattern[j] !== text[i]) {
+      if (j !== 0) {
+        j = lpsArray[j - 1];
+      } else {
+        i++;
+      }
+    }
   }
-        `,
+}
+      `,
       },
     ],
   },
   'Miscellaneous Algorithms': {
     algorithms: [
       {
-        name: 'Backtracking (Hamiltonian Cycle)',
+        name: 'Backtracking (e.g., Hamiltonian Cycle)',
         description: 'Finds Hamiltonian cycles in a graph using a backtracking approach.',
+        outputType: 'array',
+        visualization: {
+          description: 'Visualization of the Hamiltonian Cycle algorithm.',
+          details: {
+            type: 'backtracking',
+            additionalInfo: 'Each step shows the current state of the path and the current vertex being explored.',
+          },
+          stepType: 'array',
+        },
         parameters: [
           { name: 'graph', type: 'adjacencyList', numVertices: 5 }
         ],
@@ -4517,53 +4824,62 @@ export const implementations = {
           return path;
         },
         code: `
-  function hamiltonianCycle(graph, updateStep) {
-    const numVertices = graph.length;
-    const path = Array(numVertices).fill(-1);
-    path[0] = 0;
+    function hamiltonianCycle(graph, updateStep) {
+      const numVertices = graph.length;
+      const path = Array(numVertices).fill(-1);
+      path[0] = 0;
 
-    const isSafe = (v, pos) => {
-      if (!graph[path[pos - 1]].some(edge => edge[0] === v)) return false;
-      return !path.includes(v);
-    };
+      const isSafe = (v, pos) => {
+        if (!graph[path[pos - 1]].some(edge => edge[0] === v)) return false;
+        return !path.includes(v);
+      };
 
-    const hamiltonianCycleUtil = (pos) => {
-      if (pos === numVertices) {
-        if (graph[path[pos - 1]].some(edge => edge[0] === path[0])) {
-          updateStep({ path: [...path], cycleComplete: true });
-          return true;
-        } else {
-          return false;
+      const hamiltonianCycleUtil = (pos) => {
+        if (pos === numVertices) {
+          if (graph[path[pos - 1]].some(edge => edge[0] === path[0])) {
+            updateStep({ path: [...path], cycleComplete: true });
+            return true;
+          } else {
+            return false;
+          }
         }
+
+        for (let v = 1; v < numVertices; v++) {
+          if (isSafe(v, pos)) {
+            path[pos] = v;
+            updateStep({ path: [...path], currentVertex: v, step: pos });
+
+            if (hamiltonianCycleUtil(pos + 1)) return true;
+
+            path[pos] = -1;
+            updateStep({ path: [...path], backtracking: true, step: pos });
+          }
+        }
+
+        return false;
+      };
+
+      if (!hamiltonianCycleUtil(1)) {
+        updateStep({ path: null, cycleComplete: false });
+        return false;
       }
 
-      for (let v = 1; v < numVertices; v++) {
-        if (isSafe(v, pos)) {
-          path[pos] = v;
-          updateStep({ path: [...path], currentVertex: v, step: pos });
-
-          if (hamiltonianCycleUtil(pos + 1)) return true;
-
-          path[pos] = -1;
-          updateStep({ path: [...path], backtracking: true, step: pos });
-        }
-      }
-
-      return false;
-    };
-
-    if (!hamiltonianCycleUtil(1)) {
-      updateStep({ path: null, cycleComplete: false });
-      return false;
+      return path;
     }
-
-    return path;
-  }
-        `
+        `,
       },
       {
-        name: 'Randomized Algorithms (Randomized QuickSort)',
+        name: 'Randomized Algorithms (e.g., Randomized QuickSort)',
         description: 'Sorts an array using randomized quicksort, where the pivot is chosen randomly in each partition step.',
+        outputType: 'array',
+        visualization: {
+          description: 'Visualization of the Randomized QuickSort algorithm.',
+          details: {
+            type: 'sorting',
+            additionalInfo: 'Each step shows the array state and highlights the pivot index and the indices being compared.',
+          },
+          stepType: 'array',
+        },
         parameters: [
           { name: 'array', type: 'array', length: 10, min: 1, max: 100 }
         ],
@@ -4571,7 +4887,7 @@ export const implementations = {
           const randomizedQuickSort = (arr, low, high) => {
             if (low < high) {
               const pivotIndex = partition(arr, low, high);
-              updateStep({ array: [...arr], pivotIndex, low, high, action: 'Partition complete' });
+              updateStep({ arr: [...arr], pivotIndex, low, high, action: 'Partition complete' });
 
               randomizedQuickSort(arr, low, pivotIndex - 1);
               randomizedQuickSort(arr, pivotIndex + 1, high);
@@ -4582,19 +4898,19 @@ export const implementations = {
             const pivotIndex = Math.floor(Math.random() * (high - low + 1)) + low;
             const pivotValue = arr[pivotIndex];
             [arr[pivotIndex], arr[high]] = [arr[high], arr[pivotIndex]];
-            updateStep({ array: [...arr], pivotValue, pivotIndex, action: 'Pivot chosen and moved to end' });
+            updateStep({ arr: [...arr], pivotValue, pivotIndex, action: 'Pivot chosen and moved to end' });
 
             let storeIndex = low;
             for (let i = low; i < high; i++) {
               if (arr[i] < pivotValue) {
                 [arr[storeIndex], arr[i]] = [arr[i], arr[storeIndex]];
-                updateStep({ array: [...arr], i, storeIndex, action: 'Swapping elements' });
+                updateStep({ arr: [...arr], i, storeIndex, action: 'Swapping elements' });
                 storeIndex++;
               }
             }
 
             [arr[storeIndex], arr[high]] = [arr[high], arr[storeIndex]];
-            updateStep({ array: [...arr], pivotFinalIndex: storeIndex, action: 'Placing pivot in final position' });
+            updateStep({ arr: [...arr], pivotFinalIndex: storeIndex, action: 'Placing pivot in final position' });
 
             return storeIndex;
           };
@@ -4603,46 +4919,55 @@ export const implementations = {
           return array;
         },
         code: `
-  function randomizedQuickSort(array, updateStep) {
-    const randomizedQuickSort = (arr, low, high) => {
-      if (low < high) {
-        const pivotIndex = partition(arr, low, high);
-        updateStep({ array: [...arr], pivotIndex, low, high, action: 'Partition complete' });
+    function randomizedQuickSort(array, updateStep) {
+      const randomizedQuickSort = (arr, low, high) => {
+        if (low < high) {
+          const pivotIndex = partition(arr, low, high);
+          updateStep({ array: [...arr], pivotIndex, low, high, action: 'Partition complete' });
 
-        randomizedQuickSort(arr, low, pivotIndex - 1);
-        randomizedQuickSort(arr, pivotIndex + 1, high);
-      }
-    };
-
-    const partition = (arr, low, high) => {
-      const pivotIndex = Math.floor(Math.random() * (high - low + 1)) + low;
-      const pivotValue = arr[pivotIndex];
-      [arr[pivotIndex], arr[high]] = [arr[high], arr[pivotIndex]];
-      updateStep({ array: [...arr], pivotValue, pivotIndex, action: 'Pivot chosen and moved to end' });
-
-      let storeIndex = low;
-      for (let i = low; i < high; i++) {
-        if (arr[i] < pivotValue) {
-          [arr[storeIndex], arr[i]] = [arr[i], arr[storeIndex]];
-          updateStep({ array: [...arr], i, storeIndex, action: 'Swapping elements' });
-          storeIndex++;
+          randomizedQuickSort(arr, low, pivotIndex - 1);
+          randomizedQuickSort(arr, pivotIndex + 1, high);
         }
-      }
+      };
 
-      [arr[storeIndex], arr[high]] = [arr[high], arr[storeIndex]];
-      updateStep({ array: [...arr], pivotFinalIndex: storeIndex, action: 'Placing pivot in final position' });
+      const partition = (arr, low, high) => {
+        const pivotIndex = Math.floor(Math.random() * (high - low + 1)) + low;
+        const pivotValue = arr[pivotIndex];
+        [arr[pivotIndex], arr[high]] = [arr[high], arr[pivotIndex]];
+        updateStep({ array: [...arr], pivotValue, pivotIndex, action: 'Pivot chosen and moved to end' });
 
-      return storeIndex;
-    };
+        let storeIndex = low;
+        for (let i = low; i < high; i++) {
+          if (arr[i] < pivotValue) {
+            [arr[storeIndex], arr[i]] = [arr[i], arr[storeIndex]];
+            updateStep({ array: [...arr], i, storeIndex, action: 'Swapping elements' });
+            storeIndex++;
+          }
+        }
 
-    randomizedQuickSort(array, 0, array.length - 1);
-    return array;
-  }
-        `
+        [arr[storeIndex], arr[high]] = [arr[high], arr[storeIndex]];
+        updateStep({ array: [...arr], pivotFinalIndex: storeIndex, action: 'Placing pivot in final position' });
+
+        return storeIndex;
+      };
+
+      randomizedQuickSort(array, 0, array.length - 1);
+      return array;
+    }
+        `,
       },
       {
-        name: 'Monte Carlo Algorithms (Estimating π)',
+        name: 'Monte Carlo Algorithms',
         description: 'Uses random sampling to estimate the value of π by calculating points inside a unit circle.',
+        outputType: 'float',
+        visualization: {
+          description: 'Visualization of the Monte Carlo estimation of π.',
+          details: {
+            type: 'sampling',
+            additionalInfo: 'Each step shows the coordinates sampled and the estimated value of π.',
+          },
+          stepType: 'stepwise',
+        },
         parameters: [
           { name: 'numPoints', type: 'integer', min: 100, max: 100000 }
         ],
@@ -4655,54 +4980,355 @@ export const implementations = {
             const distance = Math.sqrt(x * x + y * y);
             if (distance <= 1) insideCircle++;
 
-            updateStep({
-              x,
-              y,
-              insideCircle,
-              totalPoints: i + 1,
-              estimatedPi: (4 * insideCircle) / (i + 1),
-              action: 'Sampling'
-            });
+            // Only update every 100 iterations to reduce UI calls
+            if (i % 100 === 0) {
+              updateStep({
+                x,
+                y,
+                insideCircle,
+                totalPoints: i + 1,
+                estimatedPi: (4 * insideCircle) / (i + 1),
+                action: 'Sampling',
+              });
+            }
           }
 
           const piEstimate = (4 * insideCircle) / numPoints;
           updateStep({
             estimatedPi: piEstimate,
-            action: 'Final Estimate'
+            action: 'Final Estimate',
           });
 
           return piEstimate;
         },
         code: `
-  function monteCarlo(numPoints, updateStep) {
-    let insideCircle = 0;
-
-    for (let i = 0; i < numPoints; i++) {
-      const x = Math.random();
-      const y = Math.random();
-      const distance = Math.sqrt(x * x + y * y);
-      if (distance <= 1) insideCircle++;
-
-      updateStep({
-        x,
-        y,
-        insideCircle,
-        totalPoints: i + 1,
-        estimatedPi: (4 * insideCircle) / (i + 1),
-        action: 'Sampling'
-      });
-    }
-
-    const piEstimate = (4 * insideCircle) / numPoints;
-    updateStep({
-      estimatedPi: piEstimate,
-      action: 'Final Estimate'
-    });
-
-    return piEstimate;
-  }
-        `
+          function monteCarlo(numPoints, updateStep) {
+            let insideCircle = 0;
+      
+            for (let i = 0; i < numPoints; i++) {
+              const x = Math.random();
+              const y = Math.random();
+              const distance = Math.sqrt(x * x + y * y);
+              if (distance <= 1) insideCircle++;
+      
+              // Only update every 100 iterations to reduce UI calls
+              if (i % 100 === 0) {
+                updateStep({
+                  x,
+                  y,
+                  insideCircle,
+                  totalPoints: i + 1,
+                  estimatedPi: (4 * insideCircle) / (i + 1),
+                  action: 'Sampling',
+                });
+              }
+            }
+      
+            const piEstimate = (4 * insideCircle) / numPoints;
+            updateStep({
+              estimatedPi: piEstimate,
+              action: 'Final Estimate',
+            });
+      
+            return piEstimate;
+          }
+        `,
       },
+      {
+        name: 'Simulated Annealing',
+        description: 'An optimization technique inspired by the annealing process in metallurgy, used to find an approximate solution to optimization problems.',
+        outputType: 'float',
+        visualization: {
+          description: 'Visualization of the Simulated Annealing algorithm.',
+          details: {
+            type: 'optimization',
+            additionalInfo: 'Each step shows the current state of the solution and the temperature decay.',
+          },
+          stepType: 'stepwise',
+        },
+        parameters: [
+          { name: 'initialState', type: 'object' },
+          { name: 'temperature', type: 'float', min: 0.01, max: 100 },
+          { name: 'coolingRate', type: 'float', min: 0.01, max: 1 },
+        ],
+        execute: (initialState, temperature, coolingRate, updateStep) => {
+          if (!initialState || !Array.isArray(initialState) || initialState.length === 0) {
+            console.error('Initial state must be a non-empty array.');
+            return null; // or handle as appropriate
+          }
+
+          const calculateCost = (solution) => {
+            if (!solution) {
+              console.error('Received null or undefined solution');
+              return Infinity; // Return a high cost if the solution is invalid
+            }
+            return solution.reduce((acc, val) => acc + val, 0);
+          };
+
+          const generateNeighbor = (solution) => {
+            const neighbor = [...solution];
+            const index = Math.floor(Math.random() * solution.length);
+            neighbor[index] = Math.random(); // Random value
+            return neighbor;
+          };
+
+          let currentSolution = initialState;
+          let bestSolution = initialState;
+          let bestCost = calculateCost(initialState); // Calculate initial cost
+
+          while (temperature > 1) {
+            let newSolution = generateNeighbor(currentSolution); // Generate new solution
+            let newCost = calculateCost(newSolution);
+
+            if (newCost < bestCost) {
+              bestSolution = newSolution;
+              bestCost = newCost;
+            } else {
+              const acceptanceProbability = Math.exp((bestCost - newCost) / temperature);
+              if (Math.random() < acceptanceProbability) {
+                currentSolution = newSolution;
+              }
+            }
+
+            updateStep({
+              currentSolution: currentSolution,
+              temperature: temperature,
+              bestCost: bestCost,
+            });
+
+            temperature *= coolingRate; // Cool down
+          }
+
+          return bestSolution; // Return the best solution found
+        },
+        code: `
+      function simulatedAnnealing(initialState, temperature, coolingRate, updateStep) {
+        if (!initialState || !Array.isArray(initialState) || initialState.length === 0) {
+          console.error('Initial state must be a non-empty array.');
+          return null; // or handle as appropriate
+        }
+      
+        const calculateCost = (solution) => {
+          if (!solution) {
+            console.error('Received null or undefined solution');
+            return Infinity; // Return a high cost if the solution is invalid
+          }
+          return solution.reduce((acc, val) => acc + val, 0);
+        };
+      
+        const generateNeighbor = (solution) => {
+          const neighbor = [...solution];
+          const index = Math.floor(Math.random() * solution.length);
+          neighbor[index] = Math.random(); // Random value
+          return neighbor;
+        };
+      
+        let currentSolution = initialState;
+        let bestSolution = initialState;
+        let bestCost = calculateCost(initialState); // Calculate initial cost
+      
+        while (temperature > 1) {
+          let newSolution = generateNeighbor(currentSolution); // Generate new solution
+          let newCost = calculateCost(newSolution);
+      
+          if (newCost < bestCost) {
+            bestSolution = newSolution;
+            bestCost = newCost;
+          } else {
+            const acceptanceProbability = Math.exp((bestCost - newCost) / temperature);
+            if (Math.random() < acceptanceProbability) {
+              currentSolution = newSolution;
+            }
+          }
+      
+          updateStep({
+            currentSolution: currentSolution,
+            temperature: temperature,
+            bestCost: bestCost,
+          });
+      
+          temperature *= coolingRate; // Cool down
+        }
+      
+        return bestSolution; // Return the best solution found
+      }
+        `,
+      },
+      {
+        name: 'Genetic Algorithms',
+        description: 'An optimization algorithm inspired by the process of natural selection that is used to find approximate solutions to optimization and search problems.',
+        outputType: 'object',
+        visualization: {
+          description: 'Visualization of the Genetic Algorithm.',
+          details: {
+            type: 'optimization',
+            additionalInfo: 'Each step shows the current generation, fitness levels, and selected parents for crossover.',
+          },
+          stepType: 'stepwise',
+        },
+        parameters: [
+          { name: 'population', type: 'array', length: 10 }, // Array of individuals
+          { name: 'generations', type: 'integer', min: 1, max: 100 },
+          { name: 'mutationRate', type: 'float', min: 0, max: 1 },
+        ],
+        execute: (population, generations, mutationRate, updateStep) => {
+          const calculateFitness = (individual) => {
+            if (!Array.isArray(individual)) {
+              console.error('Invalid individual for fitness calculation');
+              return 0;
+            }
+            return 1 / (calculateCost(individual) + 1); // Assuming a cost function exists
+          };
+
+          const selectParents = (population, fitness) => {
+            const parents = [];
+            for (let i = 0; i < population.length; i++) {
+              const tournament = [];
+              for (let j = 0; j < 3; j++) { // Size of tournament
+                const randomIndex = Math.floor(Math.random() * population.length);
+                tournament.push({ individual: population[randomIndex], fitness: fitness[randomIndex] });
+              }
+              const best = tournament.reduce((prev, curr) => (prev.fitness > curr.fitness ? prev : curr));
+              parents.push(best.individual);
+            }
+            return parents;
+          };
+
+          const crossover = (parents) => {
+            if (parents.length < 2) {
+              console.error('Not enough parents for crossover');
+              return []; // Return an empty array if not enough parents
+            }
+            const parent1 = parents[Math.floor(Math.random() * parents.length)];
+            const parent2 = parents[Math.floor(Math.random() * parents.length)];
+
+            // Ensure parents are arrays
+            if (!Array.isArray(parent1) || !Array.isArray(parent2)) {
+              console.error('Parents must be arrays');
+              return []; // Return an empty array if parents are invalid
+            }
+
+            const crossoverPoint = Math.floor(Math.random() * parent1.length);
+            return [
+              ...parent1.slice(0, crossoverPoint),
+              ...parent2.slice(crossoverPoint)
+            ];
+          };
+
+          const mutate = (offspring, mutationRate) => {
+            offspring.forEach((gene, index) => {
+              if (Math.random() < mutationRate) {
+                offspring[index] = Math.random(); // Mutate the gene
+              }
+            });
+          };
+
+          for (let generation = 0; generation < generations; generation++) {
+            const fitness = population.map(individual => calculateFitness(individual)); // Calculate fitness
+            const parents = selectParents(population, fitness); // Select parents based on fitness
+
+            const newPopulation = [];
+            for (let i = 0; i < population.length; i++) {
+              const offspring = crossover(parents); // Perform crossover
+              if (offspring.length === 0) {
+                console.error('Crossover failed, skipping to next iteration');
+                continue; // Skip if crossover failed
+              }
+              mutate(offspring, mutationRate); // Mutate offspring
+              newPopulation.push(offspring);
+            }
+
+            population = newPopulation;
+
+            updateStep({
+              generation: generation,
+              population: population,
+              fitness: fitness,
+            });
+          }
+
+          return population; // Return the final population
+        },
+        code: `
+        function geneticAlgorithm(population, generations, mutationRate, updateStep) {
+          const calculateFitness = (individual) => {
+            if (!Array.isArray(individual)) {
+              console.error('Invalid individual for fitness calculation');
+              return 0;
+            }
+            return 1 / (calculateCost(individual) + 1);
+          };
+      
+          const selectParents = (population, fitness) => {
+            const parents = [];
+            for (let i = 0; i < population.length; i++) {
+              const tournament = [];
+              for (let j = 0; j < 3; j++) {
+                const randomIndex = Math.floor(Math.random() * population.length);
+                tournament.push({ individual: population[randomIndex], fitness: fitness[randomIndex] });
+              }
+              const best = tournament.reduce((prev, curr) => (prev.fitness > curr.fitness ? prev : curr));
+              parents.push(best.individual);
+            }
+            return parents;
+          };
+      
+          const crossover = (parents) => {
+            if (parents.length < 2) {
+              console.error('Not enough parents for crossover');
+              return [];
+            }
+            const parent1 = parents[Math.floor(Math.random() * parents.length)];
+            const parent2 = parents[Math.floor(Math.random() * parents.length)];
+            
+            if (!Array.isArray(parent1) || !Array.isArray(parent2)) {
+              console.error('Parents must be arrays');
+              return [];
+            }
+      
+            const crossoverPoint = Math.floor(Math.random() * parent1.length);
+            return [
+              ...parent1.slice(0, crossoverPoint),
+              ...parent2.slice(crossoverPoint)
+            ];
+          };
+      
+          const mutate = (offspring, mutationRate) => {
+            offspring.forEach((gene, index) => {
+              if (Math.random() < mutationRate) {
+                offspring[index] = Math.random();
+              }
+            });
+          };
+      
+          for (let generation = 0; generation < generations; generation++) {
+            const fitness = population.map(individual => calculateFitness(individual));
+            const parents = selectParents(population, fitness);
+      
+            const newPopulation = [];
+            for (let i = 0; i < population.length; i++) {
+              const offspring = crossover(parents);
+              if (offspring.length === 0) {
+                console.error('Crossover failed, skipping to next iteration');
+                continue;
+              }
+              mutate(offspring, mutationRate);
+              newPopulation.push(offspring);
+            }
+      
+            population = newPopulation;
+      
+            updateStep({
+              generation: generation,
+              population: population,
+              fitness: fitness,
+            });
+          }
+      
+          return population;
+        }
+        `,
+      }
     ],
   },
   'Uncategorised': {
@@ -5521,3 +6147,53 @@ function binarySearch(array, target, updateStep) {
 
   return -1; // Target not found
 }
+
+// Simulated Annealing Helper Functions
+const calculateCost = (solution) => {
+  // Example: A simple cost function (to be replaced with actual logic)
+  return solution.reduce((sum, value) => sum + value, 0);
+};
+
+const generateNeighbor = (currentSolution) => {
+  // Example: Modify one element in the solution to create a neighbor
+  const neighbor = [...currentSolution];
+  const index = Math.floor(Math.random() * neighbor.length);
+  neighbor[index] = Math.random() * 100; // Randomly change one element
+  return neighbor;
+};
+
+// Genetic Algorithms Helper Functions
+const calculateFitness = (individual) => {
+  // Example: Fitness function (to be replaced with actual logic)
+  return 1 / (1 + calculateCost(individual)); // Minimize cost
+};
+
+const selectParents = (population, fitness) => {
+  // Example: Select parents using roulette wheel selection
+  const totalFitness = fitness.reduce((a, b) => a + b, 0);
+  const pick = Math.random() * totalFitness;
+  let current = 0;
+
+  for (let i = 0; i < population.length; i++) {
+    current += fitness[i];
+    if (current > pick) return population[i]; // Return selected parent
+  }
+};
+
+const crossover = (parents) => {
+  // Example: Simple one-point crossover
+  const parent1 = parents[0];
+  const parent2 = parents[1];
+  const crossoverPoint = Math.floor(Math.random() * parent1.length);
+
+  return [...parent1.slice(0, crossoverPoint), ...parent2.slice(crossoverPoint)];
+};
+
+const mutate = (individual, mutationRate) => {
+  // Example: Random mutation
+  for (let i = 0; i < individual.length; i++) {
+    if (Math.random() < mutationRate) {
+      individual[i] = Math.random() * 100; // Mutate the individual
+    }
+  }
+};
