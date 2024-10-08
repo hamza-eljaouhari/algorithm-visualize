@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Box, Typography, Dialog, DialogTitle, DialogContent, IconButton } from '@mui/material';
+import { Box, Typography, Dialog, DialogTitle, DialogContent, IconButton, TextField } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-
 
 export default function Visualizer({ steps, currentStep, stepType }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState('');
+  const [searchStep, setSearchStep] = useState('');
+  const [displayedSteps, setDisplayedSteps] = useState(steps.slice(0, 20));
+  const [error, setError] = useState(false);
 
   const operationColors = {
     conditionFail: '#4B0082',
@@ -16,10 +18,6 @@ export default function Visualizer({ steps, currentStep, stepType }) {
     reset: '#708090',
     final: '#FFD700',
   };
-  
-  const shortcut = (subArray) =>  {
-    return subArray.slice(0, Math.floor(subArray.length / 4));
-  };
 
   const handleOpenModal = (content) => {
     setModalContent(JSON.stringify(content, null, 2));
@@ -28,6 +26,40 @@ export default function Visualizer({ steps, currentStep, stepType }) {
 
   const handleCloseModal = () => {
     setModalOpen(false);
+  };
+
+  const handleSearchChange = (event) => {
+    const value = event.target.value;
+    setSearchStep(value);
+
+    if (value === '') {
+      setError(false);
+      setDisplayedSteps(steps.slice(0, 20));
+    } else {
+      const stepNum = parseInt(value, 10);
+      if (!isNaN(stepNum) && stepNum >= 1 && stepNum <= steps.length) {
+        setError(false);
+        const start = Math.max(0, stepNum - 6); // 5 before
+        const end = Math.min(steps.length, stepNum + 4); // 5 after
+        setDisplayedSteps(steps.slice(start, end));
+      } else {
+        setError(true);
+      }
+    }
+  };
+
+  const handleSearchKeyPress = (event) => {
+    if (event.key === 'Enter' || event.type === 'blur') {
+      const stepNum = parseInt(searchStep, 10);
+      if (!isNaN(stepNum) && stepNum >= 1 && stepNum <= steps.length) {
+        const start = Math.max(0, stepNum - 6);
+        const end = Math.min(steps.length, stepNum + 4);
+        setDisplayedSteps(steps.slice(start, end));
+      } else {
+        setDisplayedSteps([]);
+        setError(true);
+      }
+    }
   };
 
   const renderArray = (stepData) => {
@@ -101,7 +133,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
                   border: '1px solid #1e1e1e',
                 }}
               >
-                { Array.isArray(arr[0]) ? JSON.stringify(value) : shortcut(value) }
+                { Array.isArray(arr[0]) ? JSON.stringify(value) : value }
               </Box>
             ))}
           </Box>
@@ -348,13 +380,44 @@ export default function Visualizer({ steps, currentStep, stepType }) {
     );
   };
 
+
   return (
     <Box sx={{ mt: 2 }}>
       <Typography variant="subtitle1" sx={{ textAlign: 'left', mb: 1, ml: 2 }}>Visualization</Typography>
-      {renderSteps()}
-      {currentStep >= steps.length && (
-        <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>No more steps to display</Typography>
+      
+      <TextField
+        variant="outlined"
+        label="Search Step"
+        value={searchStep}
+        onChange={handleSearchChange}
+        onKeyPress={handleSearchKeyPress}
+        onBlur={handleSearchKeyPress}
+        sx={{
+          mb: 2,
+          width: '200px',
+          borderColor: error ? 'red' : 'inherit',
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': {
+              borderColor: error ? 'red' : 'inherit',
+            },
+          },
+        }}
+      />
+
+      {displayedSteps.length > 0 && (
+        <Typography variant="h6" sx={{ textAlign: 'left', mb: 2 }}>
+          {`Step #${steps.indexOf(displayedSteps[0]) + 1} to Step #${steps.indexOf(displayedSteps[displayedSteps.length - 1]) + 1}`}
+        </Typography>
       )}
+
+      {displayedSteps.map((stepData, index) => (
+        <Box key={index}>{renderVisualization(stepData)}</Box>
+      ))}
+
+      {displayedSteps.length === 0 && (
+        <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>No steps to display</Typography>
+      )}
+
       <Dialog open={modalOpen} onClose={handleCloseModal}>
         <DialogTitle>Array Content</DialogTitle>
         <DialogContent>
