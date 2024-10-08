@@ -855,20 +855,24 @@ export const implementations = {
           const m = str1.length;
           const n = str2.length;
           const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-          updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
-      
+        
+          // Initial step with the matrix as a 2D array
+          updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
+        
           for (let i = 1; i <= m; i++) {
             for (let j = 1; j <= n; j++) {
               if (str1[i - 1] === str2[j - 1]) {
                 dp[i][j] = dp[i - 1][j - 1] + 1;
-                updateStep({ arr: dp.flat(), current: [i, j], operation: 'match', final: false });
+                updateStep({ arr: dp, current: [i, j], operation: 'match', final: false });
               } else {
                 dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
-                updateStep({ arr: dp.flat(), current: [i, j], operation: 'noMatch', final: false });
+                updateStep({ arr: dp, current: [i, j], operation: 'noMatch', final: false });
               }
             }
           }
-          updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
+          
+          // Final step to mark completion
+          updateStep({ arr: dp, current: [], operation: 'final', final: true });
           return dp[m][n];
         },
       },      
@@ -942,26 +946,28 @@ export const implementations = {
           const m = matrix.length;
           const n = matrix[0].length;
           const dp = Array.from({ length: m }, () => Array(n).fill(0));
-      
+        
           dp[0][0] = matrix[0][0];
-          updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
-      
+          updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
+        
           for (let i = 1; i < m; i++) {
             dp[i][0] = dp[i - 1][0] + matrix[i][0];
-            updateStep({ arr: dp.flat(), current: [i, 0], operation: 'update', final: false });
+            updateStep({ arr: dp, current: [i, 0], operation: 'update', final: false });
           }
+          
           for (let j = 1; j < n; j++) {
             dp[0][j] = dp[0][j - 1] + matrix[0][j];
-            updateStep({ arr: dp.flat(), current: [0, j], operation: 'update', final: false });
+            updateStep({ arr: dp, current: [0, j], operation: 'update', final: false });
           }
-      
+        
           for (let i = 1; i < m; i++) {
             for (let j = 1; j < n; j++) {
               dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]) + matrix[i][j];
-              updateStep({ arr: dp.flat(), current: [i, j], operation: 'update', final: false });
+              updateStep({ arr: dp, current: [i, j], operation: 'update', final: false });
             }
           }
-          updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
+          
+          updateStep({ arr: dp, current: [], operation: 'final', final: true });
           return dp[m - 1][n - 1];
         },
       },      
@@ -998,13 +1004,17 @@ export const implementations = {
           if (!str1 || !str2) {
             throw new Error('Both strings must be provided.');
           }
-
+        
           const m = str1.length, n = str2.length;
           const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+          
+          // Initialize base cases
           for (let i = 0; i <= m; i++) dp[i][0] = i;
           for (let j = 0; j <= n; j++) dp[0][j] = j;
-          updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
-
+          
+          updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
+        
+          // Fill dp table
           for (let i = 1; i <= m; i++) {
             for (let j = 1; j <= n; j++) {
               if (str1[i - 1] === str2[j - 1]) {
@@ -1012,12 +1022,13 @@ export const implementations = {
               } else {
                 dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
               }
-              updateStep({ arr: dp.flat(), current: [i, j], operation: 'update', final: false });
+              updateStep({ arr: dp, current: [i, j], operation: 'update', final: false });
             }
           }
-          updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
+          
+          updateStep({ arr: dp, current: [], operation: 'final', final: true });
           return dp[m][n];
-        },
+        }        
       },
       {
         name: 'Maximum Subarray',
@@ -1133,30 +1144,31 @@ export const implementations = {
           if (!str) {
             throw new Error('String must be provided.');
           }
-
+        
           const n = str.length;
           const dp = Array.from({ length: n }, () => Array(n).fill(0));
-
+        
           for (let i = 0; i < n; i++) {
             dp[i][i] = 1; // Single character palindromes
-            updateStep({ arr: dp.flat(), current: [i, i], operation: 'initialize', final: false });
+            updateStep({ arr: dp, current: [i, i], operation: 'initialize', final: false });
           }
-
+        
           for (let length = 2; length <= n; length++) {
             for (let i = 0; i < n - length + 1; i++) {
               const j = i + length - 1;
               if (str[i] === str[j]) {
                 dp[i][j] = dp[i + 1][j - 1] + 2;
-                updateStep({ arr: dp.flat(), current: [i, j], operation: 'match', final: false });
+                updateStep({ arr: dp, current: [i, j], operation: 'match', final: false });
               } else {
                 dp[i][j] = Math.max(dp[i + 1][j], dp[i][j - 1]);
-                updateStep({ arr: dp.flat(), current: [i, j], operation: 'noMatch', final: false });
+                updateStep({ arr: dp, current: [i, j], operation: 'noMatch', final: false });
               }
             }
           }
-          updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
+          
+          updateStep({ arr: dp, current: [], operation: 'final', final: true });
           return dp[0][n - 1];
-        },
+        }        
       },
       {
         name: 'Catalan Number',
@@ -1287,24 +1299,32 @@ export const implementations = {
         execute: async function (dimensions, updateStep) {
           const n = dimensions.length - 1;
           const dp = Array.from({ length: n }, () => Array(n).fill(0));
-          updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
-      
+          
+          // Update step with the initial state of dp
+          updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
+        
           for (let length = 2; length <= n; length++) {
             for (let i = 0; i < n - length + 1; i++) {
               const j = i + length - 1;
               dp[i][j] = Infinity;
-              updateStep({ arr: dp.flat(), current: [i, j], operation: 'initializeCell', final: false });
-      
+              
+              // Update step when initializing cell (i, j)
+              updateStep({ arr: dp, current: [i, j], operation: 'initializeCell', final: false });
+        
               for (let k = i; k < j; k++) {
                 const cost = dp[i][k] + dp[k + 1][j] + dimensions[i] * dimensions[k + 1] * dimensions[j + 1];
                 if (cost < dp[i][j]) dp[i][j] = cost;
-                updateStep({ arr: dp.flat(), current: [i, j, k], operation: 'calculateCost', final: false });
+                
+                // Update step when calculating cost with k
+                updateStep({ arr: dp, current: [i, j, k], operation: 'calculateCost', final: false });
               }
             }
           }
-          updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
+        
+          // Final step to mark completion
+          updateStep({ arr: dp, current: [], operation: 'final', final: true });
           return dp[0][n - 1];
-        },
+        }
       },      
       {
         name: 'Partition Problem',
@@ -2018,10 +2038,11 @@ export const implementations = {
         execute: async function (set, target, updateStep) {
           const n = set.length;
           const dp = Array.from({ length: n + 1 }, () => Array(target + 1).fill(false));
-      
+        
+          // Initialize the dp table for the base case
           for (let i = 0; i <= n; i++) dp[i][0] = true;
-          updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
-      
+          updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
+        
           for (let i = 1; i <= n; i++) {
             for (let j = 1; j <= target; j++) {
               if (set[i - 1] <= j) {
@@ -2029,12 +2050,13 @@ export const implementations = {
               } else {
                 dp[i][j] = dp[i - 1][j];
               }
-              updateStep({ arr: dp.flat(), current: [i, j], operation: 'update', final: false });
+              // Update step with the current state of dp without flattening
+              updateStep({ arr: dp, current: [i, j], operation: 'update', final: false });
             }
           }
-          updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
+          updateStep({ arr: dp, current: [], operation: 'final', final: true });
           return dp[n][target];
-        },
+        }        
       },      
       {
         name: 'Z String Search',

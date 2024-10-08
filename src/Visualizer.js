@@ -1,7 +1,12 @@
-import React from 'react';
-import { Box, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Typography, Dialog, DialogTitle, DialogContent, IconButton } from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+
 
 export default function Visualizer({ steps, currentStep, stepType }) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState('');
+
   const operationColors = {
     conditionFail: '#4B0082',
     conditionSuccess: '#32CD32',
@@ -11,27 +16,55 @@ export default function Visualizer({ steps, currentStep, stepType }) {
     reset: '#708090',
     final: '#FFD700',
   };
+  
+  const shortcut = (subArray) =>  {
+    return subArray.slice(0, Math.floor(subArray.length / 4));
+  };
+
+  const handleOpenModal = (content) => {
+    setModalContent(JSON.stringify(content, null, 2));
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
 
   const renderArray = (stepData) => {
     const { arr = [], action, current } = stepData;
-    const squareWidth = `${100 / arr.length}%`;
 
     return (
-      <Box display="flex" justifyContent="center">
+      <Box display="flex" whiteSpace="nowrap" overflowX="auto">
         {arr.map((value, idx) => (
           <Box
             key={idx}
             sx={{
-              width: squareWidth,
+              width: '50px',
               height: '50px',
               lineHeight: '50px',
               textAlign: 'center',
               backgroundColor: current === idx ? operationColors[action] || '#4682B4' : '#2C2C54',
               color: 'white',
               border: '1px solid #1e1e1e',
+              position: 'relative'
             }}
           >
-            {value}
+            {Array.isArray(value) ? (
+              <IconButton
+                size="small"
+                color="primary"
+                onClick={() => handleOpenModal(value)}
+                sx={{
+                  position: 'absolute',
+                  top: '0',
+                  right: '0',
+                  transform: 'translate(50%, -50%)'
+                }}
+              >
+                <VisibilityIcon fontSize="small" />
+              </IconButton>
+            ) : null}
+            {value !== undefined && value !== null ? JSON.stringify(value) : ''}
           </Box>
         ))}
       </Box>
@@ -39,109 +72,40 @@ export default function Visualizer({ steps, currentStep, stepType }) {
   };
 
   const renderMatrix = (stepData) => {
-    const {
-      matrices = [],
-      result = [],
-      operation,
-      arr = [[]],
-      action,
-      current,
-    } = stepData;
+    const { arr = [[]], action, current } = stepData;
   
-    // Use matrices if available; otherwise, fall back on arr
-    const matrixItems = matrices.length ? matrices : [arr];
-    const displayResult = matrices.length ? result : [];
+    if (!Array.isArray(arr)) {
+      console.error("arr is not a 2D array:", arr);
+      return null;
+    }
   
     return (
       <Box mt={2}>
-        {/* Display Operation Heading if available */}
-        <Box display="flex" justifyContent="center" alignItems="flex-start" gap={4}>
-          {/* Render each matrix in the matrices array or just the arr */}
-          {matrixItems.map((matrix, matrixIndex) => {
-            // Ensure matrix is a 2D array
-            if (!Array.isArray(matrix) || !Array.isArray(matrix[0])) {
-              console.error(`Matrix at index ${matrixIndex} is not a 2D array:`, matrix);
-              return null; // Skip rendering if not a 2D array
-            }
-  
-            const numCols = matrix[0].length || 1;
-            const squareWidth = `${100 / numCols}%`;
-  
-            return (
-              <Box key={matrixIndex} mb={2}>
-                {matrix.map((row, rowIndex) => {
-                  // Ensure row is an array
-                  if (!Array.isArray(row)) {
-                    console.error(`Row at index ${rowIndex} in matrix ${matrixIndex} is not an array:`, row);
-                    return null; // Skip rendering if not an array
-                  }
-  
-                  return (
-                    <Box key={rowIndex} display="flex" justifyContent="center">
-                      {row.map((value, colIndex) => (
-                        <Box
-                          key={colIndex}
-                          sx={{
-                            width: squareWidth,
-                            height: '50px',
-                            lineHeight: '50px',
-                            textAlign: 'center',
-                            backgroundColor:
-                              current &&
-                              current[0] === rowIndex &&
-                              current[1] === colIndex
-                                ? operationColors[action || operation] || '#4682B4'
-                                : '#2C2C54',
-                            color: 'white',
-                            border: '1px solid #1e1e1e',
-                          }}
-                        >
-                          {value}
-                        </Box>
-                      ))}
-                    </Box>
-                  );
-                })}
+        {arr.map((row, rowIndex) => (
+          <Box key={rowIndex} display="flex" whiteSpace="nowrap">
+            {row.map((value, colIndex) => (
+              <Box
+                key={colIndex}
+                sx={{
+                  width: '50px', // Fixed width for each cell
+                  height: '50px',
+                  lineHeight: '50px',
+                  textAlign: 'center',
+                  backgroundColor:
+                    current &&
+                    current[0] === rowIndex &&
+                    current[1] === colIndex
+                      ? operationColors[action] || '#4682B4'
+                      : '#2C2C54',
+                  color: 'white',
+                  border: '1px solid #1e1e1e',
+                }}
+              >
+                { Array.isArray(arr[0]) ? JSON.stringify(value) : shortcut(value) }
               </Box>
-            );
-          })}
-        </Box>
-  
-        {/* Display the result matrix if present */}
-        {displayResult.length > 0 && (
-          <Box mt={2} display="flex" justifyContent="center" alignItems="flex-start">
-            <Box>
-              {displayResult.map((row, rowIndex) => {
-                // Ensure row is an array
-                if (!Array.isArray(row)) {
-                  console.error(`Row at index ${rowIndex} in result is not an array:`, row);
-                  return null; // Skip rendering if not an array
-                }
-  
-                return (
-                  <Box key={rowIndex} display="flex" justifyContent="center">
-                    {row.map((value, colIndex) => (
-                      <Box
-                        key={colIndex}
-                        sx={{
-                          width: `${100 / row.length}%`,
-                          height: '50px',
-                          lineHeight: '50px',
-                          textAlign: 'center',
-                          backgroundColor: '#2C2C54',
-                          color: 'white',
-                          border: '1px solid #1e1e1e',
-                        }}
-                      >
-                        {value}
-                      </Box>
-                    ))}
-                  </Box>
-                );
-              })}
-            </Box>
+            ))}
           </Box>
-        )}
+        ))}
       </Box>
     );
   };
@@ -360,15 +324,43 @@ export default function Visualizer({ steps, currentStep, stepType }) {
     }
   };
 
+  const renderSteps = () => {
+    if (!steps || steps.length === 0) return null;
+
+    const totalSteps = steps.length;
+    const firstSteps = steps.slice(0, 20);
+    const lastSteps = steps.slice(-20);
+
+    return (
+      <>
+        {firstSteps.map((stepData, index) => (
+          <Box key={index}>{renderVisualization(stepData)}</Box>
+        ))}
+        
+        {totalSteps > 40 && (
+          <Typography variant="body2" sx={{ textAlign: 'center', my: 2 }}>...</Typography>
+        )}
+        
+        {lastSteps.map((stepData, index) => (
+          <Box key={totalSteps - 20 + index}>{renderVisualization(stepData)}</Box>
+        ))}
+      </>
+    );
+  };
+
   return (
-    <Box sx={{ mt: 2, overflow: 'hidden' }}>
+    <Box sx={{ mt: 2 }}>
       <Typography variant="subtitle1" sx={{ textAlign: 'left', mb: 1, ml: 2 }}>Visualization</Typography>
-      {steps.slice(0, currentStep + 1).map((stepData, index) => (
-        <Box key={index}>{renderVisualization(stepData)}</Box>
-      ))}
+      {renderSteps()}
       {currentStep >= steps.length && (
         <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>No more steps to display</Typography>
       )}
+      <Dialog open={modalOpen} onClose={handleCloseModal}>
+        <DialogTitle>Array Content</DialogTitle>
+        <DialogContent>
+          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{modalContent}</pre>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 }
