@@ -321,9 +321,7 @@ export default function Dashboard() {
       })
     }
 
-    if (result) {
-      setFinalResult(result);
-    }
+    setFinalResult(result);
   };
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {

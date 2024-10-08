@@ -3813,6 +3813,13 @@ export const implementations = {
       {
         name: 'Linear Search',
         description: 'Searches for an element in an array by checking each element.',
+        outputType: 'integer',
+        visualization: {
+          details: {
+            type: 'searching',
+            description: 'Linear search visualization steps.',
+          },
+        },
         parameters: [
           { name: 'array', type: 'array' },
           { name: 'target', type: 'integer' },
@@ -3820,23 +3827,30 @@ export const implementations = {
         execute: (array, target, updateStep) => {
           for (let i = 0; i < array.length; i++) {
             updateStep({ index: i, value: array[i] });
-            if (array[i] === target) return i;
+            if (array[i] === target) { console.log("test"); return i; }; // Return the index if the target is found
           }
-          return -1;
+          return -1; // Return -1 if the target is not found
         },
         code: `
-function linearSearch(array, target, updateStep) {
-  for (let i = 0; i < array.length; i++) {
-    updateStep({ index: i, value: array[i] });
-    if (array[i] === target) return i;
-  }
-  return -1;
-}
-      `,
-      },
+      function linearSearch(array, target, updateStep) {
+        for (let i = 0; i < array.length; i++) {
+          updateStep({ index: i, value: array[i], action: 'visiting' });
+          if (array[i] === target) return i; // Correctly returns index when found
+        }
+        return -1; // Correctly returns -1 if not found
+      }
+        `,
+      },      
       {
         name: 'Binary Search',
         description: 'Searches for an element in a sorted array using the binary search algorithm.',
+        outputType: 'integer',
+        visualization: {
+          details: {
+            type: 'searching',
+            description: 'Binary search visualization steps.',
+          },
+        },
         parameters: [
           { name: 'array', type: 'sortedArray' },
           { name: 'target', type: 'integer' },
@@ -3847,7 +3861,7 @@ function linearSearch(array, target, updateStep) {
 
           while (left <= right) {
             const mid = Math.floor((left + right) / 2);
-            updateStep({ mid, value: array[mid] });
+            updateStep({ mid, value: array[mid], action: 'visiting' });
             if (array[mid] === target) return mid;
             if (array[mid] < target) left = mid + 1;
             else right = mid - 1;
@@ -3855,24 +3869,31 @@ function linearSearch(array, target, updateStep) {
           return -1;
         },
         code: `
-function binarySearch(array, target, updateStep) {
-  let left = 0;
-  let right = array.length - 1;
+  function binarySearch(array, target, updateStep) {
+    let left = 0;
+    let right = array.length - 1;
 
-  while (left <= right) {
-    const mid = Math.floor((left + right) / 2);
-    updateStep({ mid, value: array[mid] });
-    if (array[mid] === target) return mid;
-    if (array[mid] < target) left = mid + 1;
-    else right = mid - 1;
+    while (left <= right) {
+      const mid = Math.floor((left + right) / 2);
+      updateStep({ mid, value: array[mid], action: 'visiting' });
+      if (array[mid] === target) return mid;
+      if (array[mid] < target) left = mid + 1;
+      else right = mid - 1;
+    }
+    return -1;
   }
-  return -1;
-}
-      `,
+        `,
       },
       {
         name: 'Interpolation Search',
         description: 'Searches for an element in a sorted array using interpolation.',
+        outputType: 'integer',
+        visualization: {
+          details: {
+            type: 'searching',
+            description: 'Interpolation search visualization steps.',
+          },
+        },
         parameters: [
           { name: 'array', type: 'sortedArray' },
           { name: 'target', type: 'integer' },
@@ -3883,7 +3904,7 @@ function binarySearch(array, target, updateStep) {
 
           while (low <= high && target >= array[low] && target <= array[high]) {
             const mid = low + Math.floor((high - low) / (array[high] - array[low]) * (target - array[low]));
-            updateStep({ mid, value: array[mid] });
+            updateStep({ mid, value: array[mid], action: 'visiting' });
 
             if (array[mid] === target) return mid;
             if (array[mid] < target) low = mid + 1;
@@ -3892,55 +3913,81 @@ function binarySearch(array, target, updateStep) {
           return -1;
         },
         code: `
-function interpolationSearch(array, target, updateStep) {
-  let low = 0;
-  let high = array.length - 1;
+  function interpolationSearch(array, target, updateStep) {
+    let low = 0;
+    let high = array.length - 1;
 
-  while (low <= high && target >= array[low] && target <= array[high]) {
-    const mid = low + Math.floor((high - low) / (array[high] - array[low]) * (target - array[low]));
-    updateStep({ mid, value: array[mid] });
+    while (low <= high && target >= array[low] && target <= array[high]) {
+      const mid = low + Math.floor((high - low) / (array[high] - array[low]) * (target - array[low]));
+      updateStep({ mid, value: array[mid], action: 'visiting' });
 
-    if (array[mid] === target) return mid;
-    if (array[mid] < target) low = mid + 1;
-    else high = mid - 1;
+      if (array[mid] === target) return mid;
+      if (array[mid] < target) low = mid + 1;
+      else high = mid - 1;
+    }
+    return -1;
   }
-  return -1;
-}
-      `,
+        `,
       },
       {
         name: 'Exponential Search',
         description: 'Searches for an element in a sorted array using exponential growth.',
+        outputType: 'integer',
+        visualization: {
+          details: {
+            type: 'searching',
+            description: 'Exponential search visualization steps.',
+          },
+        },
         parameters: [
           { name: 'array', type: 'sortedArray' },
           { name: 'target', type: 'integer' },
         ],
         execute: (array, target, updateStep) => {
-          if (array[0] === target) return 0;
+          if (array[0] === target) return 0; // Check if the first element is the target
           let i = 1;
 
+          // Find the range for binary search
           while (i < array.length && array[i] <= target) {
-            updateStep({ index: i, value: array[i] });
-            i *= 2;
+            updateStep({ index: i, value: array[i], action: 'visiting' });
+            i *= 2; // Double the index
           }
-          return binarySearch(array.slice(Math.floor(i / 2), Math.min(i, array.length)), target, updateStep);
+
+          // Perform binary search in the found range
+          const resultIndex = binarySearch(array.slice(Math.floor(i / 2), Math.min(i, array.length)), target, updateStep);
+          
+          // Adjust the result index based on the starting index of the slice
+          return resultIndex !== -1 ? Math.floor(i / 2) + resultIndex : -1;
         },
         code: `
-function exponentialSearch(array, target, updateStep) {
-  if (array[0] === target) return 0;
-  let i = 1;
+  function exponentialSearch(array, target, updateStep) {
+    if (array[0] === target) return 0; // Check if the first element is the target
+    let i = 1;
 
-  while (i < array.length && array[i] <= target) {
-    updateStep({ index: i, value: array[i] });
-    i *= 2;
+    // Find the range for binary search
+    while (i < array.length && array[i] <= target) {
+      updateStep({ index: i, value: array[i], action: 'visiting' });
+      i *= 2; // Double the index
+    }
+
+    // Perform binary search in the found range
+    const resultIndex = binarySearch(array.slice(Math.floor(i / 2), Math.min(i, array.length)), target, updateStep);
+    
+    // Adjust the result index based on the starting index of the slice
+    return resultIndex !== -1 ? Math.floor(i / 2) + resultIndex : -1;
   }
-  return binarySearch(array.slice(Math.floor(i / 2), Math.min(i, array.length)), target, updateStep);
-}
-      `,
+        `,
       },
       {
         name: 'Fibonacci Search',
         description: 'Searches for an element in a sorted array using Fibonacci numbers.',
+        outputType: 'integer',
+        visualization: {
+          details: {
+            type: 'searching',
+            description: 'Fibonacci search visualization steps.',
+          },
+        },
         parameters: [
           { name: 'array', type: 'sortedArray' },
           { name: 'target', type: 'integer' },
@@ -3960,7 +4007,7 @@ function exponentialSearch(array, target, updateStep) {
 
           while (fibM > 1) {
             const i = Math.min(offset + fibM2, array.length - 1);
-            updateStep({ index: i, value: array[i] });
+            updateStep({ index: i, value: array[i], action: 'visiting' });
 
             if (array[i] < target) {
               fibM = fibM1;
@@ -3978,39 +4025,39 @@ function exponentialSearch(array, target, updateStep) {
           return -1;
         },
         code: `
-function fibonacciSearch(array, target, updateStep) {
-  let fibM2 = 0;
-  let fibM1 = 1;
-  let fibM = fibM1 + fibM2;
+  function fibonacciSearch(array, target, updateStep) {
+    let fibM2 = 0;
+    let fibM1 = 1;
+    let fibM = fibM1 + fibM2;
 
-  while (fibM < array.length) {
-    fibM2 = fibM1;
-    fibM1 = fibM;
-    fibM = fibM1 + fibM2;
+    while (fibM < array.length) {
+      fibM2 = fibM1;
+      fibM1 = fibM;
+      fibM = fibM1 + fibM2;
+    }
+
+    let offset = -1;
+
+    while (fibM > 1) {
+      const i = Math.min(offset + fibM2, array.length - 1);
+      updateStep({ index: i, value: array[i], action: 'visiting' });
+
+      if (array[i] < target) {
+        fibM = fibM1;
+        fibM1 = fibM2;
+        fibM2 = fibM - fibM1;
+        offset = i;
+      } else if (array[i] > target) {
+        fibM = fibM2;
+        fibM1 -= fibM1;
+        fibM2 = fibM - fibM1;
+      } else return i;
+    }
+
+    if (fibM1 && array[offset + 1] === target) return offset + 1;
+    return -1;
   }
-
-  let offset = -1;
-
-  while (fibM > 1) {
-    const i = Math.min(offset + fibM2, array.length - 1);
-    updateStep({ index: i, value: array[i] });
-
-    if (array[i] < target) {
-      fibM = fibM1;
-      fibM1 = fibM2;
-      fibM2 = fibM - fibM1;
-      offset = i;
-    } else if (array[i] > target) {
-      fibM = fibM2;
-      fibM1 -= fibM1;
-      fibM2 = fibM - fibM1;
-    } else return i;
-  }
-
-  if (fibM1 && array[offset + 1] === target) return offset + 1;
-  return -1;
-}
-      `,
+        `,
       },
     ],
   },
