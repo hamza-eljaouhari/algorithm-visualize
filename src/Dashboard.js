@@ -114,9 +114,12 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 const scrollbarStyle = {
   '&::-webkit-scrollbar': {
     width: '8px',
+    height: '8px'
   },
   '&::-webkit-scrollbar-track': {
     backgroundColor: '#333',
+    borderLeft: '1px solid black'
+
   },
   '&::-webkit-scrollbar-thumb': {
     backgroundColor: '#888',
@@ -261,20 +264,22 @@ export default function Dashboard() {
   };
   
   const handleAlgorithmSelection = async (categoryName, algorithmName) => {
+    // Clear the steps when changing algorithms
+    setAlgorithmSteps([]);  // Clear previous algorithm steps
+    setCurrentStep(0);      // Reset current step
+    setFinalResult(null);   // Clear final result
+    setCode('');            // Clear code
+
     setSelectedAlgorithm(algorithmName);
     setSelectedCategory(categoryName);
 
     const algorithmImplementation = implementations[categoryName]?.algorithms.find(alg => alg.name === algorithmName);
-
     setAlgorithmImplementation(algorithmImplementation);
 
     if (algorithmImplementation) {
-      setAlgorithmSteps([]);
-      setCurrentStep(0);
-      setFinalResult(null);
-      const params = generateParameters(algorithmImplementation.parameters);
-      setGeneratedParams(params);
-      setCode(algorithmImplementation.code || '');
+        const params = generateParameters(algorithmImplementation.parameters);
+        setGeneratedParams(params);
+        setCode(algorithmImplementation.code || '');
     }
   };
 
@@ -446,7 +451,7 @@ export default function Dashboard() {
                   <pre>{JSON.stringify(generatedParams, null, 2)}</pre>
                 </CardContent>
               </Card>
-              <Card sx={{ height: 'calc(33vh - (64px + 56px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle, border: '1px solid black' }}>
+              <Card sx={{ height: 'calc(33vh - (64px + 56px) / 3)', overflowY: 'auto', overflowX: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle, border: '1px solid black' }}>
                 <Visualizer steps={algorithmSteps} currentStep={currentStep} stepType={currentImplementation?.visualization.stepType} />
               </Card>
               <Card sx={{ height: 'calc(33vh - (64px + 56px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
