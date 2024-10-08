@@ -137,6 +137,7 @@ export default function Dashboard() {
     setIsPlaying(true);
     setCurrentStep(0);
   };
+
   const generateParameters = (parameters) => {
     return parameters.map(param => {
       if (!param) return null; // Handle missing parameter gracefully

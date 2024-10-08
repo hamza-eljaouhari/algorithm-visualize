@@ -22,7 +22,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
 
   const renderArray = (stepData) => {
     const { arr, current, operation } = stepData;
-    const squareWidth = `${100 / arr.length}%`; // Calculate width based on number of squares
+    const squareWidth = `${100 / arr.length}%`;
 
     return (
       <Box display="flex" justifyContent="center">
@@ -30,8 +30,8 @@ export default function Visualizer({ steps, currentStep, stepType }) {
           <Box
             key={idx}
             sx={{
-              width: squareWidth, // Set width as a percentage
-              height: '50px', // Keep the height fixed
+              width: squareWidth,
+              height: '50px',
               lineHeight: '50px',
               textAlign: 'center',
               backgroundColor: current?.includes(idx) ? operationColors[operation] : '#2C2C54',
@@ -48,11 +48,8 @@ export default function Visualizer({ steps, currentStep, stepType }) {
 
   const renderMatrix = (stepData) => {
     const { arr, current, operation } = stepData;
-    
-    // Assume arr is a 2D array
-    const numRows = arr.length;
-    const numCols = arr[0].length;
-    const squareWidth = `${100 / numCols}%`; // Calculate width for matrix cells
+    const numCols = arr[0]?.length || 1;
+    const squareWidth = `${100 / numCols}%`;
 
     return (
       <Box mt={2}>
@@ -91,6 +88,60 @@ export default function Visualizer({ steps, currentStep, stepType }) {
     );
   };
 
+  const renderGraph = (stepData) => {
+    const { nodes = [], edges = [], current, operation } = stepData;
+  
+    return (
+      <Box position="relative" width="100%" height="400px" sx={{  borderRadius: '8px' }}>
+        {/* Render nodes */}
+        {nodes.map((node, index) => (
+          <Box
+            key={index}
+            sx={{
+              position: 'absolute',
+              left: `${node.x}%`,
+              top: `${node.y}%`,
+              width: '30px',
+              height: '30px',
+              borderRadius: '50%',
+              backgroundColor: current?.includes(index) ? operationColors[operation] : '#4682B4',
+              textAlign: 'center',
+              lineHeight: '30px',
+              color: 'white',
+              border: '2px solid #1e1e1e',
+            }}
+          >
+            {node.label}
+          </Box>
+        ))}
+        {/* Render edges */}
+        {edges.map((edge, index) => {
+          const startNode = nodes[edge[0]];
+          const endNode = nodes[edge[1]];
+  
+          // If the start or end node is not found, skip rendering this edge
+          if (!startNode || !endNode) return null;
+  
+          const isHighlighted = current && (current[0] === edge[0] && current[1] === edge[1]);
+  
+          return (
+            <Box
+              key={index}
+              sx={{
+                position: 'absolute',
+                left: `${Math.min(startNode.x, endNode.x)}%`,
+                top: `${Math.min(startNode.y, endNode.y)}%`,
+                width: `${Math.abs(endNode.x - startNode.x)}%`,
+                height: `${Math.abs(endNode.y - startNode.y)}%`,
+                border: `1px solid ${isHighlighted ? operationColors[operation] : '#8A2BE2'}`,
+              }}
+            />
+          );
+        })}
+      </Box>
+    );
+  };
+  
   const renderVisualization = (stepData) => {
     switch (stepType) {
       case 'array':
@@ -99,13 +150,15 @@ export default function Visualizer({ steps, currentStep, stepType }) {
         return renderMatrix(stepData);
       case 'tree':
         return renderTree(stepData);
+      case 'graph':
+        return renderGraph(stepData);
       default:
         return null;
     }
   };
 
   return (
-    <Box sx={{ mt: 2, overflow: 'hidden' }}> {/* Set overflow hidden on parent */}
+    <Box sx={{ mt: 2, overflow: 'hidden' }}>
       <Typography variant="subtitle1" sx={{ textAlign: 'left', mb: 1, ml: 2 }}>Visualization</Typography>
       {steps.slice(0, currentStep + 1).map((stepData, index) => (
         <Box key={index}>{renderVisualization(stepData)}</Box>

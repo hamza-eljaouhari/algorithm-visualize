@@ -2723,1033 +2723,139 @@ export const implementations = {
         },
       },
     ],
-    'Simple Recursive': {
-      algorithms: [
-        {
-            name: 'Cellular Automata',
-            description: 'Simulates cellular automata, which consists of a grid of cells that evolve through iterations.',
-            parameters: [
-              { name: 'numSteps', type: 'integer' } // Added numSteps as a parameter
-            ],
-            execute: (numSteps, callback) => {
-              const grid = initializeGrid(); // Define grid initialization logic
-      
-              for (let step = 0; step < numSteps; step++) {
-                // Update the grid
-                updateGrid(grid);
-                callback({ step, grid });
-              }
-            },
-            code: `
-      function cellularAutomata(numSteps, callback) {
-        const grid = initializeGrid(); // Define grid initialization logic
-      
-        for (let step = 0; step < numSteps; step++) {
-          // Update the grid
-          updateGrid(grid);
-          callback({ step, grid });
-        }
-      }
-            `,
-        },
-        {
-          name: 'Cycle Detection',
-          description: 'Detects cycles in a directed graph using DFS.',
-          parameters: [
-            { name: 'graph', type: 'adjacencyList' },
-          ],
-          execute: (graph, callback) => {
-            // Sample implementation for Cycle Detection
-            const visited = new Set();
-            const recursionStack = new Set();
-
-            const detectCycle = (node) => {
-              if (!visited.has(node)) {
-                visited.add(node);
-                recursionStack.add(node);
-                graph[node].forEach((neighbor) => {
-                  if (!visited.has(neighbor) && detectCycle(neighbor)) {
-                    return true;
-                  } else if (recursionStack.has(neighbor)) {
-                    return true;
-                  }
-                });
-              }
-              recursionStack.delete(node);
-              return false;
-            };
-
-            for (const node in graph) {
-              if (detectCycle(node)) {
-                callback({ cycleDetected: true });
-                return;
-              }
-            }
-            callback({ cycleDetected: false });
-          },
-          code: `
-    function cycleDetection(graph) {
-      // Implement DFS to detect cycles in a directed graph
-    }
-            `,
-        },
-        {
-          name: 'Euclidean Greatest Common Divisor',
-          description: 'Computes the GCD of two numbers using the Euclidean algorithm.',
-          parameters: [
-            { name: 'a', type: 'integer' },
-            { name: 'b', type: 'integer' },
-          ],
-          execute: (a, b, callback) => {
-            while (b) {
-              [a, b] = [b, a % b];
-              callback({ a, b });
-            }
-            return a;
-          },
-          code: `
-    function gcd(a, b) {
-      while (b) {
-        [a, b] = [b, a % b];
-      }
-      return a;
-    }
-            `,
-        },
-        {
-          name: 'Nth Factorial',
-          description: 'Calculates the factorial of a number recursively.',
-          parameters: [
-            { name: 'n', type: 'integer' },
-          ],
-          execute: (n, callback) => {
-            const factorial = (num) => {
-              if (num <= 1) return 1;
-              const result = num * factorial(num - 1);
-              callback({ num, result });
-              return result;
-            };
-            return factorial(n);
-          },
-          code: `
-    function factorial(n) {
-      if (n <= 1) return 1;
-      return n * factorial(n - 1);
-    }
-            `,
-        },
-        {
-          name: 'Suffix Array',
-          description: 'Constructs a suffix array for a given string.',
-          parameters: [
-            { name: 'string', type: 'string' },
-          ],
-          execute: (str, callback) => {
-            const suffixes = Array.from({ length: str.length }, (_, i) => str.slice(i));
-            const sortedSuffixes = suffixes.sort();
-            callback({ sortedSuffixes });
-            return sortedSuffixes.map((suffix) => str.length - suffix.length);
-          },
-          code: `
-    function buildSuffixArray(str) {
-      const suffixes = Array.from({ length: str.length }, (_, i) => str.slice(i));
-      return suffixes.sort();
-    }
-            `,
-        },
-        {
-          name: 'Recursive Backtracking (N-Queens Problem)',
-          description: 'Solves the N-Queens problem using recursive backtracking.',
-          parameters: [
-            { name: 'n', type: 'integer' },
-          ],
-          execute: (n, callback) => {
-            const board = Array.from({ length: n }, () => Array(n).fill(0));
-            const solveNQueens = (row) => {
-              if (row === n) {
-                callback({ board });
-                return true;
-              }
-              for (let col = 0; col < n; col++) {
-                if (isSafe(board, row, col)) {
-                  board[row][col] = 1;
-                  if (solveNQueens(row + 1)) return true;
-                  board[row][col] = 0; // backtrack
-                }
-              }
-              return false;
-            };
-            solveNQueens(0);
-          },
-          code: `
-    function solveNQueens(n) {
-      // Implement N-Queens problem using backtracking
-    }
-            `,
-        },
-      ],
-    },
-    'Graph Algorithms': {
-      algorithms: [
-        {
-          name: 'Depth-First Search (DFS)',
-          description: 'Performs a depth-first traversal of a graph.',
-          parameters: [
-            { name: 'graph', type: 'adjacencyList' },
-            { name: 'start', type: 'integer' },
-          ],
-          execute: (graph, start, callback) => {
-            const visited = new Set();
-            const dfs = (node) => {
-              visited.add(node);
-              callback({ node });
-              graph[node].forEach((neighbor) => {
-                if (!visited.has(neighbor)) dfs(neighbor);
-              });
-            };
-            dfs(start);
-          },
-          code: `
-  function dfs(graph, start) {
-    const visited = new Set();
-    // Implement DFS logic here
-  }
-          `,
-        },
-        {
-          name: 'Breadth-First Search (BFS)',
-          description: 'Performs a breadth-first traversal of a graph.',
-          parameters: [
-            { name: 'graph', type: 'adjacencyList' },
-            { name: 'start', type: 'integer' },
-          ],
-          execute: (graph, start, callback) => {
-            const visited = new Set();
-            const queue = [start];
-            while (queue.length) {
-              const node = queue.shift();
-              if (!visited.has(node)) {
-                visited.add(node);
-                callback({ node });
-                queue.push(...graph[node].filter(neighbor => !visited.has(neighbor)));
-              }
-            }
-          },
-          code: `
-  function bfs(graph, start) {
-    const visited = new Set();
-    // Implement BFS logic here
-  }
-          `,
-        },
-        {
-          name: 'A* Search Algorithm',
-          description: 'Finds the shortest path from a start node to a goal node in a weighted graph.',
-          parameters: [
-            { name: 'graph', type: 'adjacencyList' },
-            { name: 'start', type: 'integer' },
-            { name: 'goal', type: 'integer' },
-          ],
-          execute: (graph, start, goal, callback) => {
-            // Implement A* Search logic here
-          },
-          code: `
-  function aStar(graph, start, goal) {
-    // A* Search algorithm implementation
-  }
-          `,
-        },
-        {
-          name: 'Topological Sorting',
-          description: 'Returns a topological ordering of a directed acyclic graph (DAG).',
-          parameters: [
-            { name: 'graph', type: 'adjacencyList' },
-          ],
-          execute: (graph, callback) => {
-            // Implement Topological Sort logic here
-          },
-          code: `
-  function topologicalSort(graph) {
-    // Topological sort implementation
-  }
-          `,
-        },
-        {
-          name: 'Tarjan\'s Algorithm (Strongly Connected Components)',
-          description: 'Finds strongly connected components in a directed graph.',
-          parameters: [
-            { name: 'graph', type: 'adjacencyList' },
-          ],
-          execute: (graph, callback) => {
-            // Implement Tarjan's algorithm logic here
-          },
-          code: `
-  function tarjan(graph) {
-    // Tarjan's algorithm implementation
-  }
-          `,
-        },
-        {
-          name: 'Bellman-Ford Algorithm',
-          description: 'Finds the shortest path from a single source to all vertices in a weighted graph.',
-          parameters: [
-            { name: 'graph', type: 'adjacencyList' },
-            { name: 'source', type: 'integer' },
-          ],
-          execute: (graph, source, callback) => {
-            // Implement Bellman-Ford logic here
-          },
-          code: `
-  function bellmanFord(graph, source) {
-    // Bellman-Ford algorithm implementation
-  }
-          `,
-        },
-        {
-          name: 'Johnson\'s Algorithm',
-          description: 'Finds shortest paths between all pairs of vertices in a sparse graph.',
-          parameters: [
-            { name: 'graph', type: 'adjacencyList' },
-          ],
-          execute: (graph, callback) => {
-            // Implement Johnson's algorithm logic here
-          },
-          code: `
-  function johnson(graph) {
-    // Johnson's algorithm implementation
-  }
-          `,
-        },
-        {
-          name: 'Minimum Spanning Tree (Kruskal and Prim)',
-          description: 'Finds the minimum spanning tree of a graph.',
-          parameters: [
-            { name: 'graph', type: 'adjacencyList' },
-          ],
-          execute: (graph, callback) => {
-            // Implement Minimum Spanning Tree logic here
-          },
-          code: `
-  function minimumSpanningTree(graph) {
-    // Minimum Spanning Tree implementation
-  }
-          `,
-        },
-        {
-          name: 'Floyd-Warshall Algorithm',
-          description: 'Finds shortest paths between all pairs of vertices in a weighted graph.',
-          parameters: [
-            { name: 'graph', type: 'adjacencyList' },
-          ],
-          execute: (graph, callback) => {
-            // Implement Floyd-Warshall logic here
-          },
-          code: `
-  function floydWarshall(graph) {
-    // Floyd-Warshall algorithm implementation
-  }
-          `,
-        },
-      ],
-    },
-    'Searching Algorithms': {
-      algorithms: [
-        {
-          name: 'Linear Search',
-          description: 'Searches for an element in an array by checking each element.',
-          parameters: [
-            { name: 'array', type: 'array' },
-            { name: 'target', type: 'integer' },
-          ],
-          execute: (array, target, callback) => {
-            for (let i = 0; i < array.length; i++) {
-              callback({ index: i, value: array[i] });
-              if (array[i] === target) return i;
-            }
-            return -1;
-          },
-          code: `
-  function linearSearch(array, target) {
-    // Implement Linear Search logic here
-  }
-          `,
-        },
-        {
-          name: 'Binary Search',
-          description: 'Searches for an element in a sorted array using the binary search algorithm.',
-          parameters: [
-            { name: 'array', type: 'sortedArray' },
-            { name: 'target', type: 'integer' },
-          ],
-          execute: (array, target, callback) => {
-            let left = 0;
-            let right = array.length - 1;
-            while (left <= right) {
-              const mid = Math.floor((left + right) / 2);
-              callback({ mid, value: array[mid] });
-              if (array[mid] === target) return mid;
-              if (array[mid] < target) left = mid + 1;
-              else right = mid - 1;
-            }
-            return -1;
-          },
-          code: `
-  function binarySearch(array, target) {
-    // Implement Binary Search logic here
-  }
-          `,
-        },
-        {
-          name: 'Interpolation Search',
-          description: 'Searches for an element in a sorted array, using interpolation to find the index.',
-          parameters: [
-            { name: 'array', type: 'sortedArray' },
-            { name: 'target', type: 'integer' },
-          ],
-          execute: (array, target, callback) => {
-            let low = 0;
-            let high = array.length - 1;
-            while (low <= high && target >= array[low] && target <= array[high]) {
-              const mid = low + Math.floor((high - low) / (array[high] - array[low]) * (target - array[low]));
-              callback({ mid, value: array[mid] });
-              if (array[mid] === target) return mid;
-              if (array[mid] < target) low = mid + 1;
-              else high = mid - 1;
-            }
-            return -1;
-          },
-          code: `
-  function interpolationSearch(array, target) {
-    // Implement Interpolation Search logic here
-  }
-          `,
-        },
-        {
-          name: 'Exponential Search',
-          description: 'Searches for an element in a sorted array using exponential growth to find the range.',
-          parameters: [
-            { name: 'array', type: 'sortedArray' },
-            { name: 'target', type: 'integer' },
-          ],
-          execute: (array, target, callback) => {
-            if (array[0] === target) return 0;
-            let i = 1;
-            while (i < array.length && array[i] <= target) {
-              callback({ index: i, value: array[i] });
-              i *= 2;
-            }
-            return binarySearch(array.slice(Math.floor(i / 2), Math.min(i, array.length)), target, callback);
-          },
-          code: `
-  function exponentialSearch(array, target) {
-    // Implement Exponential Search logic here
-  }
-          `,
-        },
-        {
-          name: 'Fibonacci Search',
-          description: 'Searches for an element in a sorted array using Fibonacci numbers.',
-          parameters: [
-            { name: 'array', type: 'sortedArray' },
-            { name: 'target', type: 'integer' },
-          ],
-          execute: (array, target, callback) => {
-            let fibM2 = 0;
-            let fibM1 = 1;
-            let fibM = fibM1 + fibM2;
-
-            while (fibM < array.length) {
-              fibM2 = fibM1;
-              fibM1 = fibM;
-              fibM = fibM1 + fibM2;
-            }
-
-            let offset = -1;
-
-            while (fibM > 1) {
-              const i = Math.min(offset + fibM2, array.length - 1);
-              callback({ index: i, value: array[i] });
-
-              if (array[i] < target) {
-                fibM = fibM1;
-                fibM1 = fibM2;
-                fibM2 = fibM - fibM1;
-                offset = i;
-              } else if (array[i] > target) {
-                fibM = fibM2;
-                fibM1 -= fibM1;
-                fibM2 = fibM - fibM1;
-              } else return i;
-            }
-
-            if (fibM1 && array[offset + 1] === target) return offset + 1;
-            return -1;
-          },
-          code: `
-  function fibonacciSearch(array, target) {
-    // Implement Fibonacci Search logic here
-  }
-          `,
-        },
-      ],
-    },
-    'Sorting Algorithms': {
-      algorithms: [
-        {
-          name: 'Bubble Sort',
-          description: 'Sorts an array using the bubble sort algorithm.',
-          parameters: [
-            { name: 'array', type: 'array' },
-          ],
-          execute: (array, callback) => {
-            const n = array.length;
-            for (let i = 0; i < n - 1; i++) {
-              for (let j = 0; j < n - i - 1; j++) {
-                callback({ j, swapped: array[j] > array[j + 1] });
-                if (array[j] > array[j + 1]) {
-                  [array[j], array[j + 1]] = [array[j + 1], array[j]];
-                }
-              }
-            }
-            return array;
-          },
-          code: `
-  function bubbleSort(array) {
-    // Implement Bubble Sort logic here
-  }
-          `,
-        },
-        {
-          name: 'Insertion Sort',
-          description: 'Sorts an array using the insertion sort algorithm.',
-          parameters: [
-            { name: 'array', type: 'array' },
-          ],
-          execute: (array, callback) => {
-            const n = array.length;
-            for (let i = 1; i < n; i++) {
-              let key = array[i];
-              let j = i - 1;
-              while (j >= 0 && array[j] > key) {
-                callback({ j, shifted: true });
-                array[j + 1] = array[j];
-                j--;
-              }
-              array[j + 1] = key;
-            }
-            return array;
-          },
-          code: `
-  function insertionSort(array) {
-    // Implement Insertion Sort logic here
-  }
-          `,
-        },
-        {
-          name: 'Selection Sort',
-          description: 'Sorts an array using the selection sort algorithm.',
-          parameters: [
-            { name: 'array', type: 'array' },
-          ],
-          execute: (array, callback) => {
-            const n = array.length;
-            for (let i = 0; i < n - 1; i++) {
-              let minIndex = i;
-              for (let j = i + 1; j < n; j++) {
-                callback({ j, isMinimum: array[j] < array[minIndex] });
-                if (array[j] < array[minIndex]) {
-                  minIndex = j;
-                }
-              }
-              if (minIndex !== i) {
-                [array[i], array[minIndex]] = [array[minIndex], array[i]];
-              }
-            }
-            return array;
-          },
-          code: `
-  function selectionSort(array) {
-    // Implement Selection Sort logic here
-  }
-          `,
-        },
-        {
-          name: 'Shell Sort',
-          description: 'Sorts an array using the shell sort algorithm.',
-          parameters: [
-            { name: 'array', type: 'array' },
-          ],
-          execute: (array, callback) => {
-            const n = array.length;
-            let gap = Math.floor(n / 2);
-            while (gap > 0) {
-              for (let i = gap; i < n; i++) {
-                const temp = array[i];
-                let j;
-                for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
-                  callback({ j, swapped: true });
-                  array[j] = array[j - gap];
-                }
-                array[j] = temp;
-              }
-              gap = Math.floor(gap / 2);
-            }
-            return array;
-          },
-          code: `
-  function shellSort(array) {
-    // Implement Shell Sort logic here
-  }
-          `,
-        },
-        {
-          name: 'Heap Sort',
-          description: 'Sorts an array using the heap sort algorithm.',
-          parameters: [
-            { name: 'array', type: 'array' },
-          ],
-          execute: (array, callback) => {
-            const n = array.length;
-            const heapify = (arr, n, i) => {
-              let largest = i;
-              const left = 2 * i + 1;
-              const right = 2 * i + 2;
-
-              if (left < n && arr[left] > arr[largest]) largest = left;
-              if (right < n && arr[right] > arr[largest]) largest = right;
-
-              if (largest !== i) {
-                [arr[i], arr[largest]] = [arr[largest], arr[i]];
-                heapify(arr, n, largest);
-              }
-            };
-
-            for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(array, n, i);
-            for (let i = n - 1; i > 0; i--) {
-              callback({ i });
-              [array[0], array[i]] = [array[i], array[0]];
-              heapify(array, i, 0);
-            }
-            return array;
-          },
-          code: `
-  function heapSort(array) {
-    // Implement Heap Sort logic here
-  }
-          `,
-        },
-        {
-          name: 'Comb Sort',
-          description: 'Sorts an array using the comb sort algorithm.',
-          parameters: [
-            { name: 'array', type: 'array' },
-          ],
-          execute: (array, callback) => {
-            const n = array.length;
-            let gap = n;
-            let swapped = true;
-
-            while (gap !== 1 || swapped) {
-              gap = Math.max(1, Math.floor(gap / 1.3));
-              swapped = false;
-
-              for (let i = 0; i + gap < n; i++) {
-                callback({ i, swapped: array[i] > array[i + gap] });
-                if (array[i] > array[i + gap]) {
-                  [array[i], array[i + gap]] = [array[i + gap], array[i]];
-                  swapped = true;
-                }
-              }
-            }
-            return array;
-          },
-          code: `
-  function combSort(array) {
-    // Implement Comb Sort logic here
-  }
-          `,
-        },
-        {
-          name: 'Tim Sort',
-          description: 'Sorts an array using the Tim sort algorithm, a hybrid sorting algorithm derived from merge sort and insertion sort.',
-          parameters: [
-            { name: 'array', type: 'array' },
-          ],
-          execute: (array, callback) => {
-            // Implement Tim Sort logic here
-          },
-          code: `
-  function timSort(array) {
-    // Tim Sort algorithm implementation
-  }
-          `,
-        },
-      ],
-    },
-    'String Algorithms': {
-      algorithms: [
-        {
-          name: 'Rabin-Karp Algorithm',
-          description: 'Searches for a pattern in a text using hashing.',
-          parameters: [
-            { name: 'text', type: 'string' },
-            { name: 'pattern', type: 'string' },
-          ],
-          execute: (text, pattern, callback) => {
-            // Implement Rabin-Karp logic here
-          },
-          code: `
-  function rabinKarp(text, pattern) {
-    // Rabin-Karp algorithm implementation
-  }
-          `,
-        },
-        {
-          name: 'Z Algorithm',
-          description: 'Searches for occurrences of a pattern in a text using the Z-array.',
-          parameters: [
-            { name: 'text', type: 'string' },
-            { name: 'pattern', type: 'string' },
-          ],
-          execute: (text, pattern, callback) => {
-            // Implement Z algorithm logic here
-          },
-          code: `
-  function zAlgorithm(text, pattern) {
-    // Z algorithm implementation
-  }
-          `,
-        },
-        {
-          name: 'Aho-Corasick Algorithm',
-          description: 'Searches for multiple patterns in a text simultaneously using a trie and a finite state machine.',
-          parameters: [
-            { name: 'text', type: 'string' },
-            { name: 'patterns', type: 'array' },
-          ],
-          execute: (text, patterns, callback) => {
-            // Implement Aho-Corasick logic here
-          },
-          code: `
-  function ahoCorasick(text, patterns) {
-    // Aho-Corasick algorithm implementation
-  }
-          `,
-        },
-        {
-          name: 'KMP Algorithm',
-          description: 'Searches for a pattern in a text using the Knuth-Morris-Pratt algorithm.',
-          parameters: [
-            { name: 'text', type: 'string' },
-            { name: 'pattern', type: 'string' },
-          ],
-          execute: (text, pattern, callback) => {
-            // Implement KMP logic here
-          },
-          code: `
-  function kmp(text, pattern) {
-    // KMP algorithm implementation
-  }
-          `,
-        },
-        {
-          name: 'Suffix Tree Construction',
-          description: 'Constructs a suffix tree from a given string.',
-          parameters: [
-            { name: 'string', type: 'string' },
-          ],
-          execute: (string, callback) => {
-            // Implement Suffix Tree logic here
-          },
-          code: `
-  function buildSuffixTree(string) {
-    // Suffix Tree construction implementation
-  }
-          `,
-        },
-        {
-          name: 'Longest Repeated Substring',
-          description: 'Finds the longest repeated substring in a given string.',
-          parameters: [
-            { name: 'string', type: 'string' },
-          ],
-          execute: (string, callback) => {
-            // Implement Longest Repeated Substring logic here
-          },
-          code: `
-  function longestRepeatedSubstring(string) {
-    // Longest Repeated Substring implementation
-  }
-          `,
-        },
-      ],
-    },
-    'Miscellaneous Algorithms': {
-      algorithms: [
-        {
-          name: 'Backtracking (Hamiltonian Cycle)',
-          description: 'Finds Hamiltonian cycles in a graph using backtracking.',
-          parameters: [
-            { name: 'graph', type: 'adjacencyList' },
-          ],
-          execute: (graph, callback) => {
-            // Implement Hamiltonian Cycle logic here
-          },
-          code: `
-  function hamiltonianCycle(graph) {
-    // Hamiltonian Cycle implementation
-  }
-          `,
-        },
-        {
-          name: 'Randomized Algorithms (Randomized QuickSort)',
-          description: 'Sorts an array using randomized quicksort.',
-          parameters: [
-            { name: 'array', type: 'array' },
-          ],
-          execute: (array, callback) => {
-            // Implement Randomized QuickSort logic here
-          },
-          code: `
-  function randomizedQuickSort(array) {
-    // Randomized QuickSort implementation
-  }
-          `,
-        },
-        {
-          name: 'Monte Carlo Algorithms',
-          description: 'Uses random sampling to obtain numerical results, typically used for probabilistic algorithms.',
-          parameters: [],
-          execute: (callback) => {
-            // Implement Monte Carlo algorithm logic here
-          },
-          code: `
-  function monteCarlo() {
-    // Monte Carlo algorithm implementation
-  }
-          `,
-        },
-        {
-          name: 'Simulated Annealing',
-          description: 'An optimization algorithm that searches for a good solution by exploring the solution space and accepting worse solutions with decreasing probability.',
-          parameters: [],
-          execute: (callback) => {
-            // Implement Simulated Annealing logic here
-          },
-          code: `
-  function simulatedAnnealing() {
-    // Simulated Annealing implementation
-  }
-          `,
-        },
-        {
-          name: 'Genetic Algorithms',
-          description: 'An optimization technique based on the principles of natural selection and genetics.',
-          parameters: [],
-          execute: (callback) => {
-            // Implement Genetic Algorithms logic here
-          },
-          code: `
-  function geneticAlgorithm() {
-    // Genetic Algorithms implementation
-  }
-          `,
-        },
-      ],
-    },
-    'Uncategorised': {
-      algorithms: [
-        {
-          name: 'Affine Cipher',
-          description: 'An encryption algorithm that uses a simple mathematical function.',
-          parameters: [
-            { name: 'text', type: 'string' },
-            { name: 'a', type: 'integer' },
-            { name: 'b', type: 'integer' },
-          ],
-          execute: (text, a, b, callback) => {
-            // Implement Affine Cipher logic here
-          },
-          code: `
-    function affineCipher(text, a, b) {
-      // Affine Cipher implementation
-    }
-            `,
-        },
-        {
-          name: 'Caesar Cipher',
-          description: 'A simple encryption technique that shifts characters by a fixed number.',
-          parameters: [
-            { name: 'text', type: 'string' },
-            { name: 'shift', type: 'integer' },
-          ],
-          execute: (text, shift, callback) => {
-            // Implement Caesar Cipher logic here
-          },
-          code: `
-    function caesarCipher(text, shift) {
-      // Caesar Cipher implementation
-    }
-            `,
-        },
-        {
-          name: 'Freivalds\' Matrix-Multiplication Verification',
-          description: 'Verifies the product of two matrices using randomization.',
-          parameters: [
-            { name: 'matrixA', type: 'matrix' },
-            { name: 'matrixB', type: 'matrix' },
-            { name: 'resultMatrix', type: 'matrix' },
-          ],
-          execute: (matrixA, matrixB, resultMatrix, callback) => {
-            // Implement Freivalds' verification logic here
-          },
-          code: `
-    function freivaldsVerification(matrixA, matrixB, resultMatrix) {
-      // Freivalds' algorithm implementation
-    }
-            `,
-        },
-        {
-          name: 'K-Means Clustering',
-          description: 'Partitions n observations into k clusters in which each observation belongs to the cluster with the nearest mean.',
-          parameters: [
-            { name: 'data', type: 'array' },
-            { name: 'k', type: 'integer' },
-          ],
-          execute: (data, k, callback) => {
-            // Implement K-Means Clustering logic here
-          },
-          code: `
-    function kMeans(data, k) {
-      // K-Means algorithm implementation
-    }
-            `,
-        },
-        {
-          name: 'Magic Square',
-          description: 'Generates a magic square of a given size.',
-          parameters: [
-            { name: 'n', type: 'integer' },
-          ],
-          execute: (n, callback) => {
-            // Implement Magic Square logic here
-          },
-          code: `
-    function magicSquare(n) {
-      // Magic Square algorithm implementation
-    }
-            `,
-        },
-        {
-          name: 'Maze Generation',
-          description: 'Generates a maze using algorithms like Prim\'s or Kruskal\'s.',
-          parameters: [
-            { name: 'width', type: 'integer' },
-            { name: 'height', type: 'integer' },
-          ],
-          execute: (width, height, callback) => {
-            // Implement Maze Generation logic here
-          },
-          code: `
-    function generateMaze(width, height) {
-      // Maze generation algorithm implementation
-    }
-            `,
-        },
-        {
-          name: 'Miller-Rabin\'s Primality Test',
-          description: 'Tests whether a number is a prime using probabilistic methods.',
-          parameters: [
-            { name: 'n', type: 'integer' },
-            { name: 'k', type: 'integer' },
-          ],
-          execute: (n, k, callback) => {
-            // Implement Miller-Rabin logic here
-          },
-          code: `
-    function millerRabin(n, k) {
-      // Miller-Rabin primality test implementation
-    }
-            `,
-        },
-        {
-          name: 'Shortest Unsorted Continuous Subarray',
-          description: 'Finds the length of the shortest unsorted continuous subarray.',
-          parameters: [
-            { name: 'array', type: 'array' },
-          ],
-          execute: (array, callback) => {
-            // Implement Shortest Unsorted Continuous Subarray logic here
-          },
-          code: `
-    function shortestUnsortedSubarray(array) {
-      // Shortest Unsorted Continuous Subarray implementation
-    }
-            `,
-        },
-        {
-          name: 'Conway\'s Game of Life',
-          description: 'Simulates Conway\'s Game of Life, a cellular automaton.',
-          parameters: [
-            { name: 'grid', type: 'matrix' },
-            { name: 'steps', type: 'integer' },
-          ],
-          execute: (grid, steps, callback) => {
-            // Implement Game of Life logic here
-          },
-          code: `
-    function gameOfLife(grid, steps) {
-      // Conway's Game of Life implementation
-    }
-            `,
-        },
-      ],
-    },
   },
   'Simple Recursive': {
     algorithms: [
       {
         name: 'Cellular Automata',
-        description: 'Simulates cellular automata, which consists of a grid of cells that evolve through iterations.',
+        description: 'Simulates cellular automata, consisting of a grid of cells evolving through iterations.',
         parameters: [],
         execute: (updateStep) => {
-          const grid = initializeGrid(); // Define grid initialization logic
-          const numSteps = 10; // Define the number of steps to simulate
 
-          for (let step = 0; step < numSteps; step++) {
-            updateGrid(grid); // Update the grid
-            updateStep({ step, grid });
+          function updateGrid(grid) {
+            const newGrid = JSON.parse(JSON.stringify(grid)); // Deep copy of the grid
+      
+            for (let row = 0; row < grid.length; row++) {
+              for (let col = 0; col < grid[row].length; col++) {
+                const neighbors = [
+                  [row - 1, col - 1], [row - 1, col], [row - 1, col + 1],
+                  [row, col - 1],                [row, col + 1],
+                  [row + 1, col - 1], [row + 1, col], [row + 1, col + 1]
+                ];
+      
+                let liveNeighbors = 0;
+                for (const [nRow, nCol] of neighbors) {
+                  if (nRow >= 0 && nRow < grid.length && nCol >= 0 && nCol < grid[row].length) {
+                    liveNeighbors += grid[nRow][nCol] === 1 ? 1 : 0;
+                  }
+                }
+      
+                if (grid[row][col] === 1) { // Live cell
+                  newGrid[row][col] = (liveNeighbors === 2 || liveNeighbors === 3) ? 1 : 0;
+                } else { // Dead cell
+                  newGrid[row][col] = liveNeighbors === 3 ? 1 : 0;
+                }
+              }
+            }
+      
+            return newGrid; // Return the updated grid
           }
+
+          function initializeGrid(rows, cols, initialValue = 0) {
+            const grid = [];
+            for (let i = 0; i < rows; i++) {
+              const row = [];
+              for (let j = 0; j < cols; j++) {
+                row.push(initialValue);
+              }
+              grid.push(row);
+            }
+            return grid;
+          }
+
+          const numRows = 10;
+          const numCols = 10;
+          let grid = initializeGrid(numRows, numCols, Math.round(Math.random())); // Random initial state
+          const numSteps = 10;
+          const result = [];
+      
+          for (let step = 0; step < numSteps; step++) {
+            grid = updateGrid(grid); // Update the grid with each iteration
+            updateStep({ arr: grid, step });
+            result.push(JSON.parse(JSON.stringify(grid))); // Save each step
+          }
+      
+          return result; // Return all grid states
         },
         code: `
-function cellularAutomata(updateStep) {
-  const grid = initializeGrid(); // Define grid initialization logic
-  const numSteps = 10; // Define the number of steps to simulate
-
-  for (let step = 0; step < numSteps; step++) {
-    updateGrid(grid); // Update the grid
-    updateStep({ step, grid });
-  }
-}
+          // Initialize a grid with given dimensions and initial value
+          function initializeGrid(rows, cols, initialValue = 0) {
+            const grid = [];
+            for (let i = 0; i < rows; i++) {
+              const row = [];
+              for (let j = 0; j < cols; j++) {
+                row.push(initialValue);
+              }
+              grid.push(row);
+            }
+            return grid;
+          }
+      
+          // Cellular Automata update function
+          function updateGrid(grid) {
+            const newGrid = JSON.parse(JSON.stringify(grid)); // Deep copy of the grid
+      
+            for (let row = 0; row < grid.length; row++) {
+              for (let col = 0; col < grid[row].length; col++) {
+                const neighbors = [
+                  [row - 1, col - 1], [row - 1, col], [row - 1, col + 1],
+                  [row, col - 1],                [row, col + 1],
+                  [row + 1, col - 1], [row + 1, col], [row + 1, col + 1]
+                ];
+      
+                let liveNeighbors = 0;
+                for (const [nRow, nCol] of neighbors) {
+                  if (nRow >= 0 && nRow < grid.length && nCol >= 0 && nCol < grid[row].length) {
+                    liveNeighbors += grid[nRow][nCol] === 1 ? 1 : 0;
+                  }
+                }
+      
+                if (grid[row][col] === 1) { // Live cell
+                  newGrid[row][col] = (liveNeighbors === 2 || liveNeighbors === 3) ? 1 : 0;
+                } else { // Dead cell
+                  newGrid[row][col] = liveNeighbors === 3 ? 1 : 0;
+                }
+              }
+            }
+      
+            return newGrid; // Return the updated grid
+          }
         `,
+        visualization: {
+          stepType: 'matrix',
+          details: { numRows: 10, numCols: 10 }
+        },
+        outputType: 'array'
       },
       {
         name: 'Cycle Detection',
         description: 'Detects cycles in a directed graph using DFS.',
         parameters: [
-          { name: 'graph', type: 'adjacencyList' },
+          { name: 'graph', type: 'adjacencyList' }
         ],
         execute: (graph, updateStep) => {
           const visited = new Set();
           const recursionStack = new Set();
-
+      
           const detectCycle = (node) => {
             if (!visited.has(node)) {
               visited.add(node);
               recursionStack.add(node);
               updateStep({ node, action: 'Visiting' });
-
-              for (const neighbor of graph[node]) {
+      
+              const neighbors = graph[node] || []; // Use an empty array if graph[node] is undefined
+              for (let i = 0; i < neighbors.length; i++) {
+                const neighbor = neighbors[i];
                 if (!visited.has(neighbor) && detectCycle(neighbor)) {
                   return true;
                 } else if (recursionStack.has(neighbor)) {
@@ -3761,8 +2867,10 @@ function cellularAutomata(updateStep) {
             updateStep({ node, action: 'Backtracking' });
             return false;
           };
-
-          for (const node in graph) {
+      
+          const nodes = Object.keys(graph); // Extract the nodes as keys of the graph object
+          for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i];
             if (detectCycle(node)) {
               updateStep({ cycleDetected: true });
               return;
@@ -3771,45 +2879,54 @@ function cellularAutomata(updateStep) {
           updateStep({ cycleDetected: false });
         },
         code: `
-function cycleDetection(graph, updateStep) {
-  const visited = new Set();
-  const recursionStack = new Set();
-
-  const detectCycle = (node) => {
-    if (!visited.has(node)) {
-      visited.add(node);
-      recursionStack.add(node);
-      updateStep({ node, action: 'Visiting' });
-
-      for (const neighbor of graph[node]) {
-        if (!visited.has(neighbor) && detectCycle(neighbor)) {
-          return true;
-        } else if (recursionStack.has(neighbor)) {
-          return true;
+      function cycleDetection(graph, updateStep) {
+        const visited = new Set();
+        const recursionStack = new Set();
+      
+        const detectCycle = (node) => {
+          if (!visited.has(node)) {
+            visited.add(node);
+            recursionStack.add(node);
+            updateStep({ node, action: 'Visiting' });
+      
+            const neighbors = graph[node] || [];
+            for (let i = 0; i < neighbors.length; i++) {
+              const neighbor = neighbors[i];
+              if (!visited.has(neighbor) && detectCycle(neighbor)) {
+                return true;
+              } else if (recursionStack.has(neighbor)) {
+                return true;
+              }
+            }
+          }
+          recursionStack.delete(node);
+          updateStep({ node, action: 'Backtracking' });
+          return false;
+        };
+      
+        const nodes = Object.keys(graph);
+        for (let i = 0; i < nodes.length; i++) {
+          const node = nodes[i];
+          if (detectCycle(node)) {
+            updateStep({ cycleDetected: true });
+            return;
+          }
         }
+        updateStep({ cycleDetected: false });
       }
-    }
-    recursionStack.delete(node);
-    updateStep({ node, action: 'Backtracking' });
-    return false;
-  };
-
-  for (const node in graph) {
-    if (detectCycle(node)) {
-      updateStep({ cycleDetected: true });
-      return;
-    }
-  }
-  updateStep({ cycleDetected: false });
-}
         `,
-      },
+        visualization: {
+          stepType: 'graph',
+          details: { directed: true }
+        },
+        outputType: 'graph' // Indicates if a cycle was detected or not
+      },      
       {
         name: 'Euclidean Greatest Common Divisor',
         description: 'Computes the GCD of two numbers using the Euclidean algorithm.',
         parameters: [
           { name: 'a', type: 'integer' },
-          { name: 'b', type: 'integer' },
+          { name: 'b', type: 'integer' }
         ],
         execute: (a, b, updateStep) => {
           while (b) {
@@ -3819,20 +2936,25 @@ function cycleDetection(graph, updateStep) {
           return a;
         },
         code: `
-function gcd(a, b, updateStep) {
-  while (b) {
-    updateStep({ a, b });
-    [a, b] = [b, a % b];
+  function gcd(a, b, updateStep) {
+    while (b) {
+      updateStep({ a, b });
+      [a, b] = [b, a % b];
+    }
+    return a;
   }
-  return a;
-}
         `,
+        visualization: {
+          stepType: 'stepwise',
+          details: { description: 'Shows each calculation step' }
+        },
+        outputType: 'integer'
       },
       {
         name: 'Nth Factorial',
         description: 'Calculates the factorial of a number recursively.',
         parameters: [
-          { name: 'n', type: 'integer' },
+          { name: 'n', type: 'integer' }
         ],
         execute: (n, updateStep) => {
           const factorial = (num) => {
@@ -3844,22 +2966,27 @@ function gcd(a, b, updateStep) {
           return factorial(n);
         },
         code: `
-function factorial(n, updateStep) {
-  const factorial = (num) => {
-    if (num <= 1) return 1;
-    const result = num * factorial(num - 1);
-    updateStep({ num, result });
-    return result;
-  };
-  return factorial(n);
-}
+  function factorial(n, updateStep) {
+    const factorial = (num) => {
+      if (num <= 1) return 1;
+      const result = num * factorial(num - 1);
+      updateStep({ num, result });
+      return result;
+    };
+    return factorial(n);
+  }
         `,
+        visualization: {
+          stepType: 'stepwise',
+          details: { description: 'Recursion tree visualization' }
+        },
+        outputType: 'integer'
       },
       {
         name: 'Suffix Array',
         description: 'Constructs a suffix array for a given string.',
         parameters: [
-          { name: 'string', type: 'string' },
+          { name: 'string', type: 'string' }
         ],
         execute: (str, updateStep) => {
           const suffixes = Array.from({ length: str.length }, (_, i) => str.slice(i));
@@ -3872,23 +2999,28 @@ function factorial(n, updateStep) {
           return sortedSuffixes.map((suffix) => str.length - suffix.length);
         },
         code: `
-function buildSuffixArray(str, updateStep) {
-  const suffixes = Array.from({ length: str.length }, (_, i) => str.slice(i));
-  const sortedSuffixes = suffixes.sort();
-
-  sortedSuffixes.forEach((suffix, index) => {
-    updateStep({ index, suffix });
-  });
-
-  return sortedSuffixes.map((suffix) => str.length - suffix.length);
-}
+  function buildSuffixArray(str, updateStep) {
+    const suffixes = Array.from({ length: str.length }, (_, i) => str.slice(i));
+    const sortedSuffixes = suffixes.sort();
+  
+    sortedSuffixes.forEach((suffix, index) => {
+      updateStep({ index, suffix });
+    });
+  
+    return sortedSuffixes.map((suffix) => str.length - suffix.length);
+  }
         `,
+        visualization: {
+          stepType: 'array',
+          details: { description: 'Displays sorted suffixes and their indices' }
+        },
+        outputType: 'array'
       },
       {
         name: 'Recursive Backtracking (N-Queens Problem)',
         description: 'Solves the N-Queens problem using recursive backtracking.',
         parameters: [
-          { name: 'n', type: 'integer' },
+          { name: 'n', type: 'integer' }
         ],
         execute: (n, updateStep) => {
           const board = Array.from({ length: n }, () => Array(n).fill(0));
@@ -3919,37 +3051,42 @@ function buildSuffixArray(str, updateStep) {
           solveNQueens(0);
         },
         code: `
-function solveNQueens(n, updateStep) {
-  const board = Array.from({ length: n }, () => Array(n).fill(0));
-
-  const isSafe = (row, col) => {
-    for (let i = 0; i < row; i++) {
-      if (board[i][col] === 1) return false; // Check column
-      if (col - (row - i) >= 0 && board[i][col - (row - i)] === 1) return false; // Check left diagonal
-      if (col + (row - i) < n && board[i][col + (row - i)] === 1) return false; // Check right diagonal
-    }
-    return true;
-  };
-
-  const solveNQueens = (row) => {
-    if (row === n) {
-      updateStep({ board: JSON.parse(JSON.stringify(board)) }); // Clone board for state
-      return true;
-    }
-    for (let col = 0; col < n; col++) {
-      if (isSafe(row, col)) {
-        board[row][col] = 1;
-        if (solveNQueens(row + 1)) return true;
-        board[row][col] = 0; // backtrack
+  function solveNQueens(n, updateStep) {
+    const board = Array.from({ length: n }, () => Array(n).fill(0));
+  
+    const isSafe = (row, col) => {
+      for (let i = 0; i < row; i++) {
+        if (board[i][col] === 1) return false; // Check column
+        if (col - (row - i) >= 0 && board[i][col - (row - i)] === 1) return false; // Check left diagonal
+        if (col + (row - i) < n && board[i][col + (row - i)] === 1) return false; // Check right diagonal
       }
-    }
-    return false;
-  };
-  solveNQueens(0);
-}
+      return true;
+    };
+  
+    const solveNQueens = (row) => {
+      if (row === n) {
+        updateStep({ board: JSON.parse(JSON.stringify(board)) }); // Clone board for state
+        return true;
+      }
+      for (let col = 0; col < n; col++) {
+        if (isSafe(row, col)) {
+          board[row][col] = 1;
+          if (solveNQueens(row + 1)) return true;
+          board[row][col] = 0; // backtrack
+        }
+      }
+      return false;
+    };
+    solveNQueens(0);
+  }
         `,
-      },
-    ],
+        visualization: {
+          stepType: 'grid',
+          details: { description: 'Displays queens on an n x n chessboard' }
+        },
+        outputType: 'boolean'
+      }
+    ]
   },
   'Graph Algorithms': {
     algorithms: [
@@ -3975,21 +3112,26 @@ function solveNQueens(n, updateStep) {
           dfs(start);
         },
         code: `
-function dfs(graph, start, updateStep) {
-  const visited = new Set();
+  function dfs(graph, start, updateStep) {
+    const visited = new Set();
 
-  const dfs = (node) => {
-    visited.add(node);
-    updateStep({ node, action: 'Visiting' });
-    for (const neighbor of graph[node]) {
-      if (!visited.has(neighbor)) {
-        dfs(neighbor);
+    const dfs = (node) => {
+      visited.add(node);
+      updateStep({ node, action: 'Visiting' });
+      for (const neighbor of graph[node]) {
+        if (!visited.has(neighbor)) {
+          dfs(neighbor);
+        }
       }
-    }
-  };
-  dfs(start);
-}
+    };
+    dfs(start);
+  }
         `,
+        visualization: {
+          stepType: 'graph',
+          details: { traversalType: 'DFS' }
+        },
+        outputType: 'path'  // Path of visited nodes
       },
       {
         name: 'Breadth-First Search (BFS)',
@@ -4012,20 +3154,25 @@ function dfs(graph, start, updateStep) {
           }
         },
         code: `
-function bfs(graph, start, updateStep) {
-  const visited = new Set();
-  const queue = [start];
+  function bfs(graph, start, updateStep) {
+    const visited = new Set();
+    const queue = [start];
 
-  while (queue.length) {
-    const node = queue.shift();
-    if (!visited.has(node)) {
-      visited.add(node);
-      updateStep({ node, action: 'Visiting' });
-      queue.push(...graph[node].filter((neighbor) => !visited.has(neighbor)));
+    while (queue.length) {
+      const node = queue.shift();
+      if (!visited.has(node)) {
+        visited.add(node);
+        updateStep({ node, action: 'Visiting' });
+        queue.push(...graph[node].filter((neighbor) => !visited.has(neighbor)));
+      }
     }
   }
-}
         `,
+        visualization: {
+          stepType: 'graph',
+          details: { traversalType: 'BFS' }
+        },
+        outputType: 'path'  // Path of visited nodes
       },
       {
         name: 'A* Search Algorithm',
@@ -4036,7 +3183,6 @@ function bfs(graph, start, updateStep) {
           { name: 'goal', type: 'integer' },
         ],
         execute: (graph, start, goal, updateStep) => {
-          // Placeholder implementation
           const openSet = new Set([start]);
           const cameFrom = new Map();
           const gScore = new Map();
@@ -4066,37 +3212,41 @@ function bfs(graph, start, updateStep) {
           }
         },
         code: `
-function aStar(graph, start, goal, updateStep) {
-  // Placeholder implementation
-  const openSet = new Set([start]);
-  const cameFrom = new Map();
-  const gScore = new Map();
-  const fScore = new Map();
+  function aStar(graph, start, goal, updateStep) {
+    const openSet = new Set([start]);
+    const cameFrom = new Map();
+    const gScore = new Map();
+    const fScore = new Map();
 
-  gScore.set(start, 0);
-  fScore.set(start, heuristicCostEstimate(start, goal));
+    gScore.set(start, 0);
+    fScore.set(start, heuristicCostEstimate(start, goal));
 
-  while (openSet.size > 0) {
-    const current = getLowestFScore(openSet, fScore);
-    if (current === goal) {
-      updateStep({ path: reconstructPath(cameFrom, current) });
-      return;
-    }
-    openSet.delete(current);
+    while (openSet.size > 0) {
+      const current = getLowestFScore(openSet, fScore);
+      if (current === goal) {
+        updateStep({ path: reconstructPath(cameFrom, current) });
+        return;
+      }
+      openSet.delete(current);
 
-    for (const neighbor of graph[current]) {
-      const tentativeGScore = (gScore.get(current) || Infinity) + distance(current, neighbor);
-      if (tentativeGScore < (gScore.get(neighbor) || Infinity)) {
-        cameFrom.set(neighbor, current);
-        gScore.set(neighbor, tentativeGScore);
-        fScore.set(neighbor, (gScore.get(neighbor) || Infinity) + heuristicCostEstimate(neighbor, goal));
-        openSet.add(neighbor);
-        updateStep({ current, neighbor });
+      for (const neighbor of graph[current]) {
+        const tentativeGScore = (gScore.get(current) || Infinity) + distance(current, neighbor);
+        if (tentativeGScore < (gScore.get(neighbor) || Infinity)) {
+          cameFrom.set(neighbor, current);
+          gScore.set(neighbor, tentativeGScore);
+          fScore.set(neighbor, (gScore.get(neighbor) || Infinity) + heuristicCostEstimate(neighbor, goal));
+          openSet.add(neighbor);
+          updateStep({ current, neighbor });
+        }
       }
     }
   }
-}
         `,
+        visualization: {
+          stepType: 'graph',
+          details: { pathType: 'A*', showHeuristic: true }
+        },
+        outputType: 'path'  // Path from start to goal
       },
       {
         name: 'Topological Sorting',
@@ -4128,30 +3278,35 @@ function aStar(graph, start, goal, updateStep) {
           return stack.reverse(); // Return reversed stack as the topological order
         },
         code: `
-function topologicalSort(graph, updateStep) {
-  const visited = new Set();
-  const stack = [];
+  function topologicalSort(graph, updateStep) {
+    const visited = new Set();
+    const stack = [];
 
-  const topologicalSortUtil = (node) => {
-    visited.add(node);
-    for (const neighbor of graph[node]) {
-      if (!visited.has(neighbor)) {
-        topologicalSortUtil(neighbor);
+    const topologicalSortUtil = (node) => {
+      visited.add(node);
+      for (const neighbor of graph[node]) {
+        if (!visited.has(neighbor)) {
+          topologicalSortUtil(neighbor);
+        }
+      }
+      stack.push(node);
+      updateStep({ node, action: 'Adding to stack' });
+    };
+
+    for (const node in graph) {
+      if (!visited.has(node)) {
+        topologicalSortUtil(node);
       }
     }
-    stack.push(node);
-    updateStep({ node, action: 'Adding to stack' });
-  };
 
-  for (const node in graph) {
-    if (!visited.has(node)) {
-      topologicalSortUtil(node);
-    }
+    return stack.reverse(); // Return reversed stack as the topological order
   }
-
-  return stack.reverse(); // Return reversed stack as the topological order
-}
         `,
+        visualization: {
+          stepType: 'array',
+          details: { ordering: 'topological' }
+        },
+        outputType: 'order'  // Array representing topological order
       },
       {
         name: 'Tarjan\'s Algorithm (Strongly Connected Components)',
@@ -4201,48 +3356,53 @@ function topologicalSort(graph, updateStep) {
           }
         },
         code: `
-function tarjan(graph, updateStep) {
-  const index = new Map();
-  const lowlink = new Map();
-  const onStack = new Set();
-  const stack = [];
-  let currentIndex = 0;
+  function tarjan(graph, updateStep) {
+    const index = new Map();
+    const lowlink = new Map();
+    const onStack = new Set();
+    const stack = [];
+    let currentIndex = 0;
 
-  const strongconnect = (node) => {
-    index.set(node, currentIndex);
-    lowlink.set(node, currentIndex);
-    currentIndex++;
-    stack.push(node);
-    onStack.add(node);
+    const strongconnect = (node) => {
+      index.set(node, currentIndex);
+      lowlink.set(node, currentIndex);
+      currentIndex++;
+      stack.push(node);
+      onStack.add(node);
 
-    for (const neighbor of graph[node]) {
-      if (!index.has(neighbor)) {
-        strongconnect(neighbor);
-        lowlink.set(node, Math.min(lowlink.get(node), lowlink.get(neighbor)));
-      } else if (onStack.has(neighbor)) {
-        lowlink.set(node, Math.min(lowlink.get(node), index.get(neighbor)));
+      for (const neighbor of graph[node]) {
+        if (!index.has(neighbor)) {
+          strongconnect(neighbor);
+          lowlink.set(node, Math.min(lowlink.get(node), lowlink.get(neighbor)));
+        } else if (onStack.has(neighbor)) {
+          lowlink.set(node, Math.min(lowlink.get(node), index.get(neighbor)));
+        }
+      }
+
+      if (lowlink.get(node) === index.get(node)) {
+        const scc = [];
+        let w;
+        do {
+          w = stack.pop();
+          onStack.delete(w);
+          scc.push(w);
+          updateStep({ scc });
+        } while (w !== node);
+      }
+    };
+
+    for (const node in graph) {
+      if (!index.has(node)) {
+        strongconnect(node);
       }
     }
-
-    if (lowlink.get(node) === index.get(node)) {
-      const scc = [];
-      let w;
-      do {
-        w = stack.pop();
-        onStack.delete(w);
-        scc.push(w);
-        updateStep({ scc });
-      } while (w !== node);
-    }
-  };
-
-  for (const node in graph) {
-    if (!index.has(node)) {
-      strongconnect(node);
-    }
   }
-}
         `,
+        visualization: {
+          stepType: 'graph',
+          details: { connectedComponents: 'strongly connected' }
+        },
+        outputType: 'components'  // Array of strongly connected components
       },
       {
         name: 'Bellman-Ford Algorithm',
@@ -4277,62 +3437,204 @@ function tarjan(graph, updateStep) {
           return { distances, predecessors };
         },
         code: `
-function bellmanFord(graph, source, updateStep) {
-  const distances = new Map();
-  const predecessors = new Map();
+  function bellmanFord(graph, source, updateStep) {
+    const distances = new Map();
+    const predecessors = new Map();
 
-  for (const node in graph) {
-    distances.set(node, Infinity);
-    predecessors.set(node, null);
-  }
-  distances.set(source, 0);
-  updateStep({ node: source, distance: 0 });
+    for (const node in graph) {
+      distances.set(node, Infinity);
+      predecessors.set(node, null);
+    }
+    distances.set(source, 0);
+    updateStep({ node: source, distance: 0 });
 
-  for (let i = 0; i < graph.size - 1; i++) {
-    for (const [node, edges] of graph.entries()) {
-      for (const [neighbor, weight] of edges) {
-        if (distances.get(node) + weight < distances.get(neighbor)) {
-          distances.set(neighbor, distances.get(node) + weight);
-          predecessors.set(neighbor, node);
-          updateStep({ node, neighbor, weight, distance: distances.get(neighbor) });
+    for (let i = 0; i < graph.size - 1; i++) {
+      for (const [node, edges] of graph.entries()) {
+        for (const [neighbor, weight] of edges) {
+          if (distances.get(node) + weight < distances.get(neighbor)) {
+            distances.set(neighbor, distances.get(node) + weight);
+            predecessors.set(neighbor, node);
+            updateStep({ node, neighbor, weight, distance: distances.get(neighbor) });
+          }
         }
       }
     }
-  }
 
-  return { distances, predecessors };
-}
+    return { distances, predecessors };
+  }
         `,
+        visualization: {
+          stepType: 'graph',
+          details: { distance: 'single source' }
+        },
+        outputType: 'distances'  // Object with shortest path distances from source
       },
       {
         name: 'Johnson\'s Algorithm',
-        description: 'Finds shortest paths between all pairs of vertices in a sparse graph.',
+        description: 'Finds shortest paths between all pairs of vertices in a sparse graph using a combination of Bellman-Ford and Dijkstra\'s algorithms.',
         parameters: [
-          { name: 'graph', type: 'adjacencyList' },
+          { name: 'graph', type: 'adjacencyList', numVertices: 5 }
         ],
         execute: (graph, updateStep) => {
-          // Johnson's algorithm logic
-          const nodes = Object.keys(graph);
+          const numVertices = graph.length;
+          const distances = Array(numVertices).fill(Infinity).map(() => Array(numVertices).fill(Infinity));
+
           // Step 1: Add a new vertex connected to all others with weight 0
+          const newGraph = { ...graph, newVertex: [] };
+          for (let i = 0; i < numVertices; i++) {
+            newGraph.newVertex.push([i, 0]);
+          }
 
           // Step 2: Run Bellman-Ford from the new vertex to find shortest paths
+          const bellmanFord = (graph, start) => {
+            const distance = Array(numVertices + 1).fill(Infinity);
+            distance[start] = 0;
+
+            for (let i = 0; i < numVertices; i++) {
+              for (const [src, edges] of Object.entries(graph)) {
+                for (const [dest, weight] of edges) {
+                  if (distance[src] !== Infinity && distance[src] + weight < distance[dest]) {
+                    distance[dest] = distance[src] + weight;
+                    updateStep({ vertex: src, distance: [...distance], action: 'Relax edge' });
+                  }
+                }
+              }
+            }
+
+            // Check for negative-weight cycles
+            for (const [src, edges] of Object.entries(graph)) {
+              for (const [dest, weight] of edges) {
+                if (distance[src] !== Infinity && distance[src] + weight < distance[dest]) {
+                  updateStep({ action: 'Negative cycle detected' });
+                  return null;
+                }
+              }
+            }
+
+            return distance;
+          };
+
+          const h = bellmanFord(newGraph, 'newVertex');
+          if (!h) {
+            return 'Negative cycle detected';
+          }
 
           // Step 3: Reweight edges using the results from Bellman-Ford
+          const reweightedGraph = {};
+          for (const [src, edges] of Object.entries(graph)) {
+            reweightedGraph[src] = edges.map(([dest, weight]) => [dest, weight + h[src] - h[dest]]);
+          }
 
-          // Step 4: Run Dijkstra's algorithm from each vertex to find all pairs shortest paths
+          // Step 4: Run Dijkstra's algorithm from each vertex
+          const dijkstra = (graph, start) => {
+            const distance = Array(numVertices).fill(Infinity);
+            distance[start] = 0;
+            const visited = new Set();
+
+            while (visited.size < numVertices) {
+              const u = distance
+                .map((dist, idx) => (!visited.has(idx) ? { dist, idx } : null))
+                .filter(Boolean)
+                .reduce((min, node) => (node.dist < min.dist ? node : min), { dist: Infinity }).idx;
+
+              visited.add(u);
+
+              for (const [v, weight] of graph[u]) {
+                if (!visited.has(v) && distance[u] + weight < distance[v]) {
+                  distance[v] = distance[u] + weight;
+                  updateStep({ vertex: u, target: v, distance: [...distance], action: 'Update distance' });
+                }
+              }
+            }
+
+            return distance;
+          };
+
+          for (let u = 0; u < numVertices; u++) {
+            distances[u] = dijkstra(reweightedGraph, u).map((dist, v) => dist + h[v] - h[u]);
+          }
+
+          updateStep({ distances, action: 'All pairs shortest paths computed' });
+          return distances;
         },
         code: `
-function johnson(graph, updateStep) {
-  // Johnson's algorithm logic
-  const nodes = Object.keys(graph);
-  // Step 1: Add a new vertex connected to all others with weight 0
-
-  // Step 2: Run Bellman-Ford from the new vertex to find shortest paths
+  function johnson(graph, updateStep) {
+    const numVertices = graph.length;
+    const distances = Array(numVertices).fill(Infinity).map(() => Array(numVertices).fill(Infinity));
+    
+    const newGraph = { ...graph, newVertex: [] };
+    for (let i = 0; i < numVertices; i++) {
+      newGraph.newVertex.push([i, 0]);
+    }
   
-  // Step 3: Reweight edges using the results from Bellman-Ford
+    const bellmanFord = (graph, start) => {
+      const distance = Array(numVertices + 1).fill(Infinity);
+      distance[start] = 0;
+      
+      for (let i = 0; i < numVertices; i++) {
+        for (const [src, edges] of Object.entries(graph)) {
+          for (const [dest, weight] of edges) {
+            if (distance[src] !== Infinity && distance[src] + weight < distance[dest]) {
+              distance[dest] = distance[src] + weight;
+              updateStep({ vertex: src, distance: [...distance], action: 'Relax edge' });
+            }
+          }
+        }
+      }
   
-  // Step 4: Run Dijkstra's algorithm from each vertex to find all pairs shortest paths
-}
+      for (const [src, edges] of Object.entries(graph)) {
+        for (const [dest, weight] of edges) {
+          if (distance[src] !== Infinity && distance[src] + weight < distance[dest]) {
+            updateStep({ action: 'Negative cycle detected' });
+            return null;
+          }
+        }
+      }
+  
+      return distance;
+    };
+  
+    const h = bellmanFord(newGraph, 'newVertex');
+    if (!h) {
+      return 'Negative cycle detected';
+    }
+  
+    const reweightedGraph = {};
+    for (const [src, edges] of Object.entries(graph)) {
+      reweightedGraph[src] = edges.map(([dest, weight]) => [dest, weight + h[src] - h[dest]]);
+    }
+  
+    const dijkstra = (graph, start) => {
+      const distance = Array(numVertices).fill(Infinity);
+      distance[start] = 0;
+      const visited = new Set();
+  
+      while (visited.size < numVertices) {
+        const u = distance
+          .map((dist, idx) => (!visited.has(idx) ? { dist, idx } : null))
+          .filter(Boolean)
+          .reduce((min, node) => (node.dist < min.dist ? node : min), { dist: Infinity }).idx;
+  
+        visited.add(u);
+  
+        for (const [v, weight] of graph[u]) {
+          if (!visited.has(v) && distance[u] + weight < distance[v]) {
+            distance[v] = distance[u] + weight;
+            updateStep({ vertex: u, target: v, distance: [...distance], action: 'Update distance' });
+          }
+        }
+      }
+  
+      return distance;
+    };
+  
+    for (let u = 0; u < numVertices; u++) {
+      distances[u] = dijkstra(reweightedGraph, u).map((dist, v) => dist + h[v] - h[u]);
+    }
+  
+    updateStep({ distances, action: 'All pairs shortest paths computed' });
+    return distances;
+  }
         `,
       },
       {
@@ -4345,9 +3647,9 @@ function johnson(graph, updateStep) {
           // Placeholder for Minimum Spanning Tree implementation (Kruskal's or Prim's)
         },
         code: `
-function minimumSpanningTree(graph, updateStep) {
-  // Placeholder for Minimum Spanning Tree implementation (Kruskal's or Prim's)
-}
+  function minimumSpanningTree(graph, updateStep) {
+    // Placeholder for Minimum Spanning Tree implementation (Kruskal's or Prim's)
+  }
         `,
       },
       {
@@ -4386,35 +3688,35 @@ function minimumSpanningTree(graph, updateStep) {
           return dist;
         },
         code: `
-function floydWarshall(graph, updateStep) {
-  const dist = {};
-  for (const node in graph) {
-    dist[node] = {};
-    for (const neighbor in graph) {
-      dist[node][neighbor] = Infinity;
+  function floydWarshall(graph, updateStep) {
+    const dist = {};
+    for (const node in graph) {
+      dist[node] = {};
+      for (const neighbor in graph) {
+        dist[node][neighbor] = Infinity;
+      }
+      dist[node][node] = 0;
     }
-    dist[node][node] = 0;
-  }
-
-  for (const node in graph) {
-    for (const [neighbor, weight] of graph[node]) {
-      dist[node][neighbor] = weight;
-      updateStep({ node, neighbor, weight });
+  
+    for (const node in graph) {
+      for (const [neighbor, weight] of graph[node]) {
+        dist[node][neighbor] = weight;
+        updateStep({ node, neighbor, weight });
+      }
     }
-  }
-
-  for (const k in graph) {
-    for (const i in graph) {
-      for (const j in graph) {
-        if (dist[i][j] > dist[i][k] + dist[k][j]) {
-          dist[i][j] = dist[i][k] + dist[k][j];
-          updateStep({ i, j, k, distance: dist[i][j] });
+  
+    for (const k in graph) {
+      for (const i in graph) {
+        for (const j in graph) {
+          if (dist[i][j] > dist[i][k] + dist[k][j]) {
+            dist[i][j] = dist[i][k] + dist[k][j];
+            updateStep({ i, j, k, distance: dist[i][j] });
+          }
         }
       }
     }
+    return dist;
   }
-  return dist;
-}
         `,
       },
     ],
@@ -4443,7 +3745,7 @@ function linearSearch(array, target, updateStep) {
   }
   return -1;
 }
-        `,
+      `,
       },
       {
         name: 'Binary Search',
@@ -4479,7 +3781,7 @@ function binarySearch(array, target, updateStep) {
   }
   return -1;
 }
-        `,
+      `,
       },
       {
         name: 'Interpolation Search',
@@ -4517,7 +3819,7 @@ function interpolationSearch(array, target, updateStep) {
   }
   return -1;
 }
-        `,
+      `,
       },
       {
         name: 'Exponential Search',
@@ -4547,7 +3849,7 @@ function exponentialSearch(array, target, updateStep) {
   }
   return binarySearch(array.slice(Math.floor(i / 2), Math.min(i, array.length)), target, updateStep);
 }
-        `,
+      `,
       },
       {
         name: 'Fibonacci Search',
@@ -4621,7 +3923,7 @@ function fibonacciSearch(array, target, updateStep) {
   if (fibM1 && array[offset + 1] === target) return offset + 1;
   return -1;
 }
-        `,
+      `,
       },
     ],
   },
@@ -4646,18 +3948,18 @@ function fibonacciSearch(array, target, updateStep) {
           return array;
         },
         code: `
-function bubbleSort(array, updateStep) {
-  const n = array.length;
-  for (let i = 0; i < n - 1; i++) {
-    for (let j = 0; j < n - i - 1; j++) {
-      updateStep({ j, swapped: array[j] > array[j + 1] });
-      if (array[j] > array[j + 1]) {
-        [array[j], array[j + 1]] = [array[j + 1], array[j]];
+  function bubbleSort(array, updateStep) {
+    const n = array.length;
+    for (let i = 0; i < n - 1; i++) {
+      for (let j = 0; j < n - i - 1; j++) {
+        updateStep({ j, swapped: array[j] > array[j + 1] });
+        if (array[j] > array[j + 1]) {
+          [array[j], array[j + 1]] = [array[j + 1], array[j]];
+        }
       }
     }
+    return array;
   }
-  return array;
-}
         `,
       },
       {
@@ -4681,20 +3983,20 @@ function bubbleSort(array, updateStep) {
           return array;
         },
         code: `
-function insertionSort(array, updateStep) {
-  const n = array.length;
-  for (let i = 1; i < n; i++) {
-    let key = array[i];
-    let j = i - 1;
-    while (j >= 0 && array[j] > key) {
-      updateStep({ j, shifted: true });
-      array[j + 1] = array[j];
-      j--;
+  function insertionSort(array, updateStep) {
+    const n = array.length;
+    for (let i = 1; i < n; i++) {
+      let key = array[i];
+      let j = i - 1;
+      while (j >= 0 && array[j] > key) {
+        updateStep({ j, shifted: true });
+        array[j + 1] = array[j];
+        j--;
+      }
+      array[j + 1] = key;
     }
-    array[j + 1] = key;
+    return array;
   }
-  return array;
-}
         `,
       },
       {
@@ -4720,22 +4022,22 @@ function insertionSort(array, updateStep) {
           return array;
         },
         code: `
-function selectionSort(array, updateStep) {
-  const n = array.length;
-  for (let i = 0; i < n - 1; i++) {
-    let minIndex = i;
-    for (let j = i + 1; j < n; j++) {
-      updateStep({ j, isMinimum: array[j] < array[minIndex] });
-      if (array[j] < array[minIndex]) {
-        minIndex = j;
+  function selectionSort(array, updateStep) {
+    const n = array.length;
+    for (let i = 0; i < n - 1; i++) {
+      let minIndex = i;
+      for (let j = i + 1; j < n; j++) {
+        updateStep({ j, isMinimum: array[j] < array[minIndex] });
+        if (array[j] < array[minIndex]) {
+          minIndex = j;
+        }
+      }
+      if (minIndex !== i) {
+        [array[i], array[minIndex]] = [array[minIndex], array[i]];
       }
     }
-    if (minIndex !== i) {
-      [array[i], array[minIndex]] = [array[minIndex], array[i]];
-    }
+    return array;
   }
-  return array;
-}
         `,
       },
       {
@@ -4762,23 +4064,23 @@ function selectionSort(array, updateStep) {
           return array;
         },
         code: `
-function shellSort(array, updateStep) {
-  const n = array.length;
-  let gap = Math.floor(n / 2);
-  while (gap > 0) {
-    for (let i = gap; i < n; i++) {
-      const temp = array[i];
-      let j;
-      for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
-        updateStep({ j, swapped: true });
-        array[j] = array[j - gap];
+  function shellSort(array, updateStep) {
+    const n = array.length;
+    let gap = Math.floor(n / 2);
+    while (gap > 0) {
+      for (let i = gap; i < n; i++) {
+        const temp = array[i];
+        let j;
+        for (j = i; j >= gap && array[j - gap] > temp; j -= gap) {
+          updateStep({ j, swapped: true });
+          array[j] = array[j - gap];
+        }
+        array[j] = temp;
       }
-      array[j] = temp;
+      gap = Math.floor(gap / 2);
     }
-    gap = Math.floor(gap / 2);
+    return array;
   }
-  return array;
-}
         `,
       },
       {
@@ -4813,201 +4115,31 @@ function shellSort(array, updateStep) {
           return array;
         },
         code: `
-function heapSort(array, updateStep) {
-  const n = array.length;
+  function heapSort(array, updateStep) {
+    const n = array.length;
 
-  const heapify = (arr, n, i) => {
-    let largest = i;
-    const left = 2 * i + 1;
-    const right = 2 * i + 2;
+    const heapify = (arr, n, i) => {
+      let largest = i;
+      const left = 2 * i + 1;
+      const right = 2 * i + 2;
 
-    if (left < n && arr[left] > arr[largest]) largest = left;
-    if (right < n && arr[right] > arr[largest]) largest = right;
+      if (left < n && arr[left] > arr[largest]) largest = left;
+      if (right < n && arr[right] > arr[largest]) largest = right;
 
-    if (largest !== i) {
-      [arr[i], arr[largest]] = [arr[largest], arr[i]];
-      heapify(arr, n, largest);
-    }
-  };
-
-  for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(array, n, i);
-  for (let i = n - 1; i > 0; i--) {
-    updateStep({ i });
-    [array[0], array[i]] = [array[i], array[0]];
-    heapify(array, i, 0);
-  }
-  return array;
-}
-        `,
-      },
-      {
-        name: 'Comb Sort',
-        description: 'Sorts an array using the comb sort algorithm.',
-        parameters: [
-          { name: 'array', type: 'array' },
-        ],
-        execute: (array, updateStep) => {
-          const n = array.length;
-          let gap = n;
-          let swapped = true;
-
-          while (gap !== 1 || swapped) {
-            gap = Math.max(1, Math.floor(gap / 1.3));
-            swapped = false;
-
-            for (let i = 0; i + gap < n; i++) {
-              updateStep({ i, swapped: array[i] > array[i + gap] });
-              if (array[i] > array[i + gap]) {
-                [array[i], array[i + gap]] = [array[i + gap], array[i]];
-                swapped = true;
-              }
-            }
-          }
-          return array;
-        },
-        code: `
-function combSort(array, updateStep) {
-  const n = array.length;
-  let gap = n;
-  let swapped = true;
-
-  while (gap !== 1 || swapped) {
-    gap = Math.max(1, Math.floor(gap / 1.3));
-    swapped = false;
-
-    for (let i = 0; i + gap < n; i++) {
-      updateStep({ i, swapped: array[i] > array[i + gap] });
-      if (array[i] > array[i + gap]) {
-        [array[i], array[i + gap]] = [array[i + gap], array[i]];
-        swapped = true;
+      if (largest !== i) {
+        [arr[i], arr[largest]] = [arr[largest], arr[i]];
+        heapify(arr, n, largest);
       }
+    };
+
+    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) heapify(array, n, i);
+    for (let i = n - 1; i > 0; i--) {
+      updateStep({ i });
+      [array[0], array[i]] = [array[i], array[0]];
+      heapify(array, i, 0);
     }
+    return array;
   }
-  return array;
-}
-        `,
-      },
-      {
-        name: 'Tim Sort',
-        description: 'Sorts an array using the Tim sort algorithm.',
-        parameters: [
-          { name: 'array', type: 'array' },
-        ],
-        execute: (array, updateStep) => {
-          const minRun = 32;
-
-          const insertionSort = (arr, left, right) => {
-            for (let i = left + 1; i <= right; i++) {
-              const temp = arr[i];
-              let j = i - 1;
-              while (j >= left && arr[j] > temp) {
-                updateStep({ j, shifted: true });
-                arr[j + 1] = arr[j];
-                j--;
-              }
-              arr[j + 1] = temp;
-            }
-          };
-
-          const merge = (arr, left, mid, right) => {
-            const leftArr = arr.slice(left, mid + 1);
-            const rightArr = arr.slice(mid + 1, right + 1);
-            let i = 0, j = 0, k = left;
-
-            while (i < leftArr.length && j < rightArr.length) {
-              if (leftArr[i] <= rightArr[j]) {
-                arr[k] = leftArr[i++];
-              } else {
-                arr[k] = rightArr[j++];
-              }
-              updateStep({ index: k, value: arr[k] });
-              k++;
-            }
-
-            while (i < leftArr.length) {
-              arr[k++] = leftArr[i++];
-              updateStep({ index: k - 1, value: arr[k - 1] });
-            }
-
-            while (j < rightArr.length) {
-              arr[k++] = rightArr[j++];
-              updateStep({ index: k - 1, value: arr[k - 1] });
-            }
-          };
-
-          for (let i = 0; i < array.length; i += minRun) {
-            insertionSort(array, i, Math.min(i + minRun - 1, array.length - 1));
-          }
-
-          for (let size = minRun; size < array.length; size *= 2) {
-            for (let left = 0; left < array.length; left += size * 2) {
-              const mid = Math.min(left + size - 1, array.length - 1);
-              const right = Math.min(left + 2 * size - 1, array.length - 1);
-              if (mid < right) {
-                merge(array, left, mid, right);
-              }
-            }
-          }
-          return array;
-        },
-        code: `
-function timSort(array, updateStep) {
-  const minRun = 32;
-
-  const insertionSort = (arr, left, right) => {
-    for (let i = left + 1; i <= right; i++) {
-      const temp = arr[i];
-      let j = i - 1;
-      while (j >= left && arr[j] > temp) {
-        updateStep({ j, shifted: true });
-        arr[j + 1] = arr[j];
-        j--;
-      }
-      arr[j + 1] = temp;
-    }
-  };
-
-  const merge = (arr, left, mid, right) => {
-    const leftArr = arr.slice(left, mid + 1);
-    const rightArr = arr.slice(mid + 1, right + 1);
-    let i = 0, j = 0, k = left;
-
-    while (i < leftArr.length && j < rightArr.length) {
-      if (leftArr[i] <= rightArr[j]) {
-        arr[k] = leftArr[i++];
-      } else {
-        arr[k] = rightArr[j++];
-      }
-      updateStep({ index: k, value: arr[k] });
-      k++;
-    }
-
-    while (i < leftArr.length) {
-      arr[k++] = leftArr[i++];
-      updateStep({ index: k - 1, value: arr[k - 1] });
-    }
-
-    while (j < rightArr.length) {
-      arr[k++] = rightArr[j++];
-      updateStep({ index: k - 1, value: arr[k - 1] });
-    }
-  };
-
-  for (let i = 0; i < array.length; i += minRun) {
-    insertionSort(array, i, Math.min(i + minRun - 1, array.length - 1));
-  }
-
-  for (let size = minRun; size < array.length; size *= 2) {
-    for (let left = 0; left < array.length; left += size * 2) {
-      const mid = Math.min(left + size - 1, array.length - 1);
-      const right = Math.min(left + 2 * size - 1, array.length - 1);
-      if (mid < right) {
-        merge(array, left, mid, right);
-      }
-    }
-  }
-  return array;
-}
         `,
       },
     ],
@@ -5024,10 +4156,10 @@ function timSort(array, updateStep) {
         execute: (text, pattern, updateStep) => {
           const m = pattern.length;
           const n = text.length;
-          const prime = 101; // A prime number
-          const p = 0; // Hash value for pattern
-          const t = 0; // Hash value for text
-          const h = Math.pow(256, m - 1) % prime; // The value of h would be "pow(d, m-1)%q"
+          const prime = 101;
+          let p = 0;
+          let t = 0;
+          const h = Math.pow(256, m - 1) % prime;
 
           for (let i = 0; i < m; i++) {
             p = (256 * p + pattern.charCodeAt(i)) % prime;
@@ -5044,242 +4176,40 @@ function timSort(array, updateStep) {
             }
             if (i < n - m) {
               t = (256 * (t - text.charCodeAt(i) * h) + text.charCodeAt(i + m)) % prime;
-              if (t < 0) t += prime; // Ensure t is positive
+              if (t < 0) t += prime;
             }
             updateStep({ index: i, action: 'Hash updated', currentHash: t });
           }
         },
         code: `
-function rabinKarp(text, pattern, updateStep) {
-  const m = pattern.length;
-  const n = text.length;
-  const prime = 101; // A prime number
-  let p = 0; // Hash value for pattern
-  let t = 0; // Hash value for text
-  const h = Math.pow(256, m - 1) % prime; // The value of h would be "pow(d, m-1)%q"
-  
-  for (let i = 0; i < m; i++) {
-    p = (256 * p + pattern.charCodeAt(i)) % prime;
-    t = (256 * t + text.charCodeAt(i)) % prime;
-  }
+  function rabinKarp(text, pattern, updateStep) {
+    const m = pattern.length;
+    const n = text.length;
+    const prime = 101;
+    let p = 0;
+    let t = 0;
+    const h = Math.pow(256, m - 1) % prime;
 
-  for (let i = 0; i <= n - m; i++) {
-    if (p === t) {
-      let j;
-      for (j = 0; j < m; j++) {
-        if (text[i + j] !== pattern[j]) break;
-      }
-      if (j === m) updateStep({ index: i, found: true });
+    for (let i = 0; i < m; i++) {
+      p = (256 * p + pattern.charCodeAt(i)) % prime;
+      t = (256 * t + text.charCodeAt(i)) % prime;
     }
-    if (i < n - m) {
-      t = (256 * (t - text.charCodeAt(i) * h) + text.charCodeAt(i + m)) % prime;
-      if (t < 0) t += prime; // Ensure t is positive
-    }
-    updateStep({ index: i, action: 'Hash updated', currentHash: t });
-  }
-}
-        `,
-      },
-      {
-        name: 'Z Algorithm',
-        description: 'Searches for occurrences of a pattern in a text using the Z-array.',
-        parameters: [
-          { name: 'text', type: 'string' },
-          { name: 'pattern', type: 'string' },
-        ],
-        execute: (text, pattern, updateStep) => {
-          const concat = pattern + "$" + text;
-          const Z = new Array(concat.length).fill(0);
-          let L = 0, R = 0;
 
-          for (let i = 1; i < concat.length; i++) {
-            if (i > R) {
-              L = R = i;
-              while (R < concat.length && concat[R] === concat[R - L]) R++;
-              Z[i] = R - L;
-              R--;
-            } else {
-              const k = i - L;
-              if (Z[k] < R - i + 1) {
-                Z[i] = Z[k];
-              } else {
-                L = i;
-                while (R < concat.length && concat[R] === concat[R - L]) R++;
-                Z[i] = R - L;
-                R--;
-              }
-            }
-            updateStep({ index: i, Z: Z[i] });
-          }
-
-          for (let i = 0; i < Z.length; i++) {
-            if (Z[i] === pattern.length) {
-              updateStep({ index: i - pattern.length - 1, found: true });
-            }
-          }
-        },
-        code: `
-function zAlgorithm(text, pattern, updateStep) {
-  const concat = pattern + "$" + text;
-  const Z = new Array(concat.length).fill(0);
-  let L = 0, R = 0;
-
-  for (let i = 1; i < concat.length; i++) {
-    if (i > R) {
-      L = R = i;
-      while (R < concat.length && concat[R] === concat[R - L]) R++;
-      Z[i] = R - L;
-      R--;
-    } else {
-      const k = i - L;
-      if (Z[k] < R - i + 1) {
-        Z[i] = Z[k];
-      } else {
-        L = i;
-        while (R < concat.length && concat[R] === concat[R - L]) R++;
-        Z[i] = R - L;
-        R--;
-      }
-    }
-    updateStep({ index: i, Z: Z[i] });
-  }
-
-  for (let i = 0; i < Z.length; i++) {
-    if (Z[i] === pattern.length) {
-      updateStep({ index: i - pattern.length - 1, found: true });
-    }
-  }
-}
-        `,
-      },
-      {
-        name: 'Aho-Corasick Algorithm',
-        description: 'Searches for multiple patterns in a text simultaneously using a trie and a finite state machine.',
-        parameters: [
-          { name: 'text', type: 'string' },
-          { name: 'patterns', type: 'array' },
-        ],
-        execute: (text, patterns, updateStep) => {
-          const buildTrie = (patterns) => {
-            const root = {};
-            for (const pattern of patterns) {
-              let node = root;
-              for (const char of pattern) {
-                if (!node[char]) node[char] = {};
-                node = node[char];
-              }
-              node.isEnd = true;
-            }
-            return root;
-          };
-
-          const trie = buildTrie(patterns);
-          const queue = [];
-          for (const char in trie) {
-            if (char !== 'isEnd') queue.push(trie[char]);
-          }
-
-          const output = {};
-          const fail = {};
-
-          const createFailLinks = (trie) => {
-            for (const node of queue) {
-              for (const char in node) {
-                if (char !== 'isEnd') {
-                  // Assign fail links
-                  if (fail[node[char]]) {
-                    node[char].fail = fail[node[char]];
-                  } else {
-                    node[char].fail = trie;
-                  }
-                  queue.push(node[char]);
-                }
-              }
-            }
-          };
-
-          createFailLinks(trie);
-
-          const search = (text) => {
-            let node = trie;
-            for (let i = 0; i < text.length; i++) {
-              const char = text[i];
-              while (node && !node[char]) {
-                node = node.fail;
-              }
-              if (node) {
-                node = node[char];
-                if (node.isEnd) updateStep({ index: i, found: true });
-              } else {
-                node = trie;
-              }
-              updateStep({ index: i });
-            }
-          };
-
-          search(text);
-        },
-        code: `
-function ahoCorasick(text, patterns, updateStep) {
-  const buildTrie = (patterns) => {
-    const root = {};
-    for (const pattern of patterns) {
-      let node = root;
-      for (const char of pattern) {
-        if (!node[char]) node[char] = {};
-        node = node[char];
-      }
-      node.isEnd = true;
-    }
-    return root;
-  };
-
-  const trie = buildTrie(patterns);
-  const queue = [];
-  for (const char in trie) {
-    if (char !== 'isEnd') queue.push(trie[char]);
-  }
-
-  const output = {};
-  const fail = {};
-
-  const createFailLinks = (trie) => {
-    for (const node of queue) {
-      for (const char in node) {
-        if (char !== 'isEnd') {
-          // Assign fail links
-          if (fail[node[char]]) {
-            node[char].fail = fail[node[char]];
-          } else {
-            node[char].fail = trie;
-          }
-          queue.push(node[char]);
+    for (let i = 0; i <= n - m; i++) {
+      if (p === t) {
+        let j;
+        for (j = 0; j < m; j++) {
+          if (text[i + j] !== pattern[j]) break;
         }
+        if (j === m) updateStep({ index: i, found: true });
       }
+      if (i < n - m) {
+        t = (256 * (t - text.charCodeAt(i) * h) + text.charCodeAt(i + m)) % prime;
+        if (t < 0) t += prime;
+      }
+      updateStep({ index: i, action: 'Hash updated', currentHash: t });
     }
-  };
-
-  createFailLinks(trie);
-
-  const search = (text) => {
-    let node = trie;
-    for (let i = 0; i < text.length; i++) {
-      const char = text[i];
-      while (node && !node[char]) {
-        node = node.fail;
-      }
-      if (node) {
-        node = node[char];
-        if (node.isEnd) updateStep({ index: i, found: true });
-      } else {
-        node = trie;
-      }
-      updateStep({ index: i });
-    }
-  };
-
-  search(text);
-}
+  }
         `,
       },
       {
@@ -5336,82 +4266,52 @@ function ahoCorasick(text, patterns, updateStep) {
           }
         },
         code: `
-function kmp(text, pattern, updateStep) {
-  const lps = (pattern) => {
-    const lpsArray = Array(pattern.length).fill(0);
-    let len = 0; 
-    let i = 1;
+  function kmp(text, pattern, updateStep) {
+    const lps = (pattern) => {
+      const lpsArray = Array(pattern.length).fill(0);
+      let len = 0;
+      let i = 1;
 
-    while (i < pattern.length) {
-      if (pattern[i] === pattern[len]) {
-        len++;
-        lpsArray[i] = len;
-        i++;
-      } else {
-        if (len !== 0) {
-          len = lpsArray[len - 1];
+      while (i < pattern.length) {
+        if (pattern[i] === pattern[len]) {
+          len++;
+          lpsArray[i] = len;
+          i++;
         } else {
-          lpsArray[i] = 0;
+          if (len !== 0) {
+            len = lpsArray[len - 1];
+          } else {
+            lpsArray[i] = 0;
+            i++;
+          }
+        }
+      }
+      return lpsArray;
+    };
+
+    const lpsArray = lps(pattern);
+    let i = 0;
+    let j = 0;
+
+    while (i < text.length) {
+      if (pattern[j] === text[i]) {
+        updateStep({ i, j });
+        i++;
+        j++;
+      }
+
+      if (j === pattern.length) {
+        updateStep({ index: i - j, found: true });
+        j = lpsArray[j - 1];
+      } else if (i < text.length && pattern[j] !== text[i]) {
+        if (j !== 0) {
+          j = lpsArray[j - 1];
+        } else {
           i++;
         }
       }
     }
-    return lpsArray;
-  };
-
-  const lpsArray = lps(pattern);
-  let i = 0; 
-  let j = 0; 
-
-  while (i < text.length) {
-    if (pattern[j] === text[i]) {
-      updateStep({ i, j });
-      i++;
-      j++;
-    }
-
-    if (j === pattern.length) {
-      updateStep({ index: i - j, found: true });
-      j = lpsArray[j - 1];
-    } else if (i < text.length && pattern[j] !== text[i]) {
-      if (j !== 0) {
-        j = lpsArray[j - 1];
-      } else {
-        i++;
-      }
-    }
   }
-}
-        `,
-      },
-      {
-        name: 'Suffix Tree Construction',
-        description: 'Constructs a suffix tree from a given string.',
-        parameters: [
-          { name: 'string', type: 'string' },
-        ],
-        execute: (string, updateStep) => {
-          // Placeholder for suffix tree construction
-        },
-        code: `
-function buildSuffixTree(string, updateStep) {
-  // Placeholder for suffix tree construction
-}
-        `,
-      },
-      {
-        name: 'Longest Repeated Substring',
-        description: 'Finds the longest repeated substring in a given string.',
-        parameters: [
-          { name: 'string', type: 'string' },
-        ],
-        execute: (string, updateStep) => {
-          // Placeholder for finding the longest repeated substring
-        },
-        code: `
-function longestRepeatedSubstring(string, updateStep) {
-  // Placeholder for finding the longest repeated substring
-}
         `,
       },
     ],
@@ -5420,29 +4320,109 @@ function longestRepeatedSubstring(string, updateStep) {
     algorithms: [
       {
         name: 'Backtracking (Hamiltonian Cycle)',
-        description: 'Finds Hamiltonian cycles in a graph using backtracking.',
+        description: 'Finds Hamiltonian cycles in a graph using a backtracking approach.',
         parameters: [
-          { name: 'graph', type: 'adjacencyList' },
+          { name: 'graph', type: 'adjacencyList', numVertices: 5 }
         ],
         execute: (graph, updateStep) => {
-          // Placeholder for Hamiltonian Cycle implementation
+          const numVertices = graph.length;
+          const path = Array(numVertices).fill(-1);
+          path[0] = 0;
+
+          const isSafe = (v, pos) => {
+            if (!graph[path[pos - 1]].some(edge => edge[0] === v)) return false;
+            return !path.includes(v);
+          };
+
+          const hamiltonianCycleUtil = (pos) => {
+            if (pos === numVertices) {
+              if (graph[path[pos - 1]].some(edge => edge[0] === path[0])) {
+                updateStep({ path: [...path], cycleComplete: true });
+                return true;
+              } else {
+                return false;
+              }
+            }
+
+            for (let v = 1; v < numVertices; v++) {
+              if (isSafe(v, pos)) {
+                path[pos] = v;
+                updateStep({ path: [...path], currentVertex: v, step: pos });
+
+                if (hamiltonianCycleUtil(pos + 1)) return true;
+
+                path[pos] = -1;
+                updateStep({ path: [...path], backtracking: true, step: pos });
+              }
+            }
+
+            return false;
+          };
+
+          if (!hamiltonianCycleUtil(1)) {
+            updateStep({ path: null, cycleComplete: false });
+            return false;
+          }
+
+          return path;
         },
         code: `
-function hamiltonianCycle(graph, updateStep) {
-  // Placeholder for Hamiltonian Cycle implementation
-}
-        `,
+  function hamiltonianCycle(graph, updateStep) {
+    const numVertices = graph.length;
+    const path = Array(numVertices).fill(-1);
+    path[0] = 0;
+
+    const isSafe = (v, pos) => {
+      if (!graph[path[pos - 1]].some(edge => edge[0] === v)) return false;
+      return !path.includes(v);
+    };
+
+    const hamiltonianCycleUtil = (pos) => {
+      if (pos === numVertices) {
+        if (graph[path[pos - 1]].some(edge => edge[0] === path[0])) {
+          updateStep({ path: [...path], cycleComplete: true });
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+      for (let v = 1; v < numVertices; v++) {
+        if (isSafe(v, pos)) {
+          path[pos] = v;
+          updateStep({ path: [...path], currentVertex: v, step: pos });
+
+          if (hamiltonianCycleUtil(pos + 1)) return true;
+
+          path[pos] = -1;
+          updateStep({ path: [...path], backtracking: true, step: pos });
+        }
+      }
+
+      return false;
+    };
+
+    if (!hamiltonianCycleUtil(1)) {
+      updateStep({ path: null, cycleComplete: false });
+      return false;
+    }
+
+    return path;
+  }
+        `
       },
       {
         name: 'Randomized Algorithms (Randomized QuickSort)',
-        description: 'Sorts an array using randomized quicksort.',
+        description: 'Sorts an array using randomized quicksort, where the pivot is chosen randomly in each partition step.',
         parameters: [
-          { name: 'array', type: 'array' },
+          { name: 'array', type: 'array', length: 10, min: 1, max: 100 }
         ],
         execute: (array, updateStep) => {
           const randomizedQuickSort = (arr, low, high) => {
             if (low < high) {
               const pivotIndex = partition(arr, low, high);
+              updateStep({ array: [...arr], pivotIndex, low, high, action: 'Partition complete' });
+
               randomizedQuickSort(arr, low, pivotIndex - 1);
               randomizedQuickSort(arr, pivotIndex + 1, high);
             }
@@ -5451,19 +4431,21 @@ function hamiltonianCycle(graph, updateStep) {
           const partition = (arr, low, high) => {
             const pivotIndex = Math.floor(Math.random() * (high - low + 1)) + low;
             const pivotValue = arr[pivotIndex];
-            updateStep({ pivotValue });
-            [arr[pivotIndex], arr[high]] = [arr[high], arr[pivotIndex]]; // Move pivot to end
-            let storeIndex = low;
+            [arr[pivotIndex], arr[high]] = [arr[high], arr[pivotIndex]];
+            updateStep({ array: [...arr], pivotValue, pivotIndex, action: 'Pivot chosen and moved to end' });
 
+            let storeIndex = low;
             for (let i = low; i < high; i++) {
               if (arr[i] < pivotValue) {
-                updateStep({ i, action: 'Swapping' });
                 [arr[storeIndex], arr[i]] = [arr[i], arr[storeIndex]];
+                updateStep({ array: [...arr], i, storeIndex, action: 'Swapping elements' });
                 storeIndex++;
               }
             }
-            updateStep({ action: 'Placing pivot', pivotValue });
+
             [arr[storeIndex], arr[high]] = [arr[high], arr[storeIndex]];
+            updateStep({ array: [...arr], pivotFinalIndex: storeIndex, action: 'Placing pivot in final position' });
+
             return storeIndex;
           };
 
@@ -5471,77 +4453,105 @@ function hamiltonianCycle(graph, updateStep) {
           return array;
         },
         code: `
-function randomizedQuickSort(array, updateStep) {
-  const randomizedQuickSort = (arr, low, high) => {
-    if (low < high) {
-      const pivotIndex = partition(arr, low, high);
-      randomizedQuickSort(arr, low, pivotIndex - 1);
-      randomizedQuickSort(arr, pivotIndex + 1, high);
-    }
-  };
+  function randomizedQuickSort(array, updateStep) {
+    const randomizedQuickSort = (arr, low, high) => {
+      if (low < high) {
+        const pivotIndex = partition(arr, low, high);
+        updateStep({ array: [...arr], pivotIndex, low, high, action: 'Partition complete' });
 
-  const partition = (arr, low, high) => {
-    const pivotIndex = Math.floor(Math.random() * (high - low + 1)) + low;
-    const pivotValue = arr[pivotIndex];
-    updateStep({ pivotValue });
-    [arr[pivotIndex], arr[high]] = [arr[high], arr[pivotIndex]]; // Move pivot to end
-    let storeIndex = low;
-
-    for (let i = low; i < high; i++) {
-      if (arr[i] < pivotValue) {
-        updateStep({ i, action: 'Swapping' });
-        [arr[storeIndex], arr[i]] = [arr[i], arr[storeIndex]];
-        storeIndex++;
+        randomizedQuickSort(arr, low, pivotIndex - 1);
+        randomizedQuickSort(arr, pivotIndex + 1, high);
       }
-    }
-    updateStep({ action: 'Placing pivot', pivotValue });
-    [arr[storeIndex], arr[high]] = [arr[high], arr[storeIndex]];
-    return storeIndex;
-  };
+    };
 
-  randomizedQuickSort(array, 0, array.length - 1);
-  return array;
-}
-        `,
+    const partition = (arr, low, high) => {
+      const pivotIndex = Math.floor(Math.random() * (high - low + 1)) + low;
+      const pivotValue = arr[pivotIndex];
+      [arr[pivotIndex], arr[high]] = [arr[high], arr[pivotIndex]];
+      updateStep({ array: [...arr], pivotValue, pivotIndex, action: 'Pivot chosen and moved to end' });
+
+      let storeIndex = low;
+      for (let i = low; i < high; i++) {
+        if (arr[i] < pivotValue) {
+          [arr[storeIndex], arr[i]] = [arr[i], arr[storeIndex]];
+          updateStep({ array: [...arr], i, storeIndex, action: 'Swapping elements' });
+          storeIndex++;
+        }
+      }
+
+      [arr[storeIndex], arr[high]] = [arr[high], arr[storeIndex]];
+      updateStep({ array: [...arr], pivotFinalIndex: storeIndex, action: 'Placing pivot in final position' });
+
+      return storeIndex;
+    };
+
+    randomizedQuickSort(array, 0, array.length - 1);
+    return array;
+  }
+        `
       },
       {
-        name: 'Monte Carlo Algorithms',
-        description: 'Uses random sampling to obtain numerical results, typically used for probabilistic algorithms.',
-        parameters: [],
-        execute: (updateStep) => {
-          // Placeholder for Monte Carlo algorithm implementation
+        name: 'Monte Carlo Algorithms (Estimating π)',
+        description: 'Uses random sampling to estimate the value of π by calculating points inside a unit circle.',
+        parameters: [
+          { name: 'numPoints', type: 'integer', min: 100, max: 100000 }
+        ],
+        execute: (numPoints, updateStep) => {
+          let insideCircle = 0;
+
+          for (let i = 0; i < numPoints; i++) {
+            const x = Math.random();
+            const y = Math.random();
+            const distance = Math.sqrt(x * x + y * y);
+            if (distance <= 1) insideCircle++;
+
+            updateStep({
+              x,
+              y,
+              insideCircle,
+              totalPoints: i + 1,
+              estimatedPi: (4 * insideCircle) / (i + 1),
+              action: 'Sampling'
+            });
+          }
+
+          const piEstimate = (4 * insideCircle) / numPoints;
+          updateStep({
+            estimatedPi: piEstimate,
+            action: 'Final Estimate'
+          });
+
+          return piEstimate;
         },
         code: `
-function monteCarlo(updateStep) {
-  // Placeholder for Monte Carlo algorithm implementation
-}
-        `,
-      },
-      {
-        name: 'Simulated Annealing',
-        description: 'An optimization algorithm that searches for a good solution by exploring the solution space and accepting worse solutions with decreasing probability.',
-        parameters: [],
-        execute: (updateStep) => {
-          // Placeholder for Simulated Annealing implementation
-        },
-        code: `
-function simulatedAnnealing(updateStep) {
-  // Placeholder for Simulated Annealing implementation
-}
-        `,
-      },
-      {
-        name: 'Genetic Algorithms',
-        description: 'An optimization technique based on the principles of natural selection and genetics.',
-        parameters: [],
-        execute: (updateStep) => {
-          // Placeholder for Genetic Algorithms implementation
-        },
-        code: `
-function geneticAlgorithm(updateStep) {
-  // Placeholder for Genetic Algorithms implementation
-}
-        `,
+  function monteCarlo(numPoints, updateStep) {
+    let insideCircle = 0;
+
+    for (let i = 0; i < numPoints; i++) {
+      const x = Math.random();
+      const y = Math.random();
+      const distance = Math.sqrt(x * x + y * y);
+      if (distance <= 1) insideCircle++;
+
+      updateStep({
+        x,
+        y,
+        insideCircle,
+        totalPoints: i + 1,
+        estimatedPi: (4 * insideCircle) / (i + 1),
+        action: 'Sampling'
+      });
+    }
+
+    const piEstimate = (4 * insideCircle) / numPoints;
+    updateStep({
+      estimatedPi: piEstimate,
+      action: 'Final Estimate'
+    });
+
+    return piEstimate;
+  }
+        `
       },
     ],
   },
@@ -5557,7 +4567,6 @@ function geneticAlgorithm(updateStep) {
         ],
         execute: (text, a, b, updateStep) => {
           let result = '';
-
           for (let i = 0; i < text.length; i++) {
             const char = text.charCodeAt(i);
             if (char >= 65 && char <= 90) {
@@ -5565,32 +4574,13 @@ function geneticAlgorithm(updateStep) {
             } else if (char >= 97 && char <= 122) {
               result += String.fromCharCode(((a * (char - 97) + b) % 26) + 97);
             } else {
-              result += text[i]; // Non-alphabetic characters remain unchanged
+              result += text[i];
             }
             updateStep({ char: text[i], encrypted: result[i] });
           }
-
           return result;
         },
-        code: `
-function affineCipher(text, a, b, updateStep) {
-  let result = '';
-
-  for (let i = 0; i < text.length; i++) {
-    const char = text.charCodeAt(i);
-    if (char >= 65 && char <= 90) {
-      result += String.fromCharCode(((a * (char - 65) + b) % 26) + 65);
-    } else if (char >= 97 && char <= 122) {
-      result += String.fromCharCode(((a * (char - 97) + b) % 26) + 97);
-    } else {
-      result += text[i]; // Non-alphabetic characters remain unchanged
-    }
-    updateStep({ char: text[i], encrypted: result[i] });
-  }
-
-  return result;
-}
-        `,
+        code: `function affineCipher(text, a, b, updateStep) { ... }`
       },
       {
         name: 'Caesar Cipher',
@@ -5601,7 +4591,6 @@ function affineCipher(text, a, b, updateStep) {
         ],
         execute: (text, shift, updateStep) => {
           let result = '';
-
           for (let i = 0; i < text.length; i++) {
             const char = text.charCodeAt(i);
             if (char >= 65 && char <= 90) {
@@ -5609,220 +4598,762 @@ function affineCipher(text, a, b, updateStep) {
             } else if (char >= 97 && char <= 122) {
               result += String.fromCharCode(((char - 97 + shift) % 26) + 97);
             } else {
-              result += text[i]; // Non-alphabetic characters remain unchanged
+              result += text[i];
             }
             updateStep({ char: text[i], encrypted: result[i] });
           }
-
           return result;
         },
-        code: `
-function caesarCipher(text, shift, updateStep) {
-  let result = '';
-
-  for (let i = 0; i < text.length; i++) {
-    const char = text.charCodeAt(i);
-    if (char >= 65 && char <= 90) {
-      result += String.fromCharCode(((char - 65 + shift) % 26) + 65);
-    } else if (char >= 97 && char <= 122) {
-      result += String.fromCharCode(((char - 97 + shift) % 26) + 97);
-    } else {
-      result += text[i]; // Non-alphabetic characters remain unchanged
-    }
-    updateStep({ char: text[i], encrypted: result[i] });
-  }
-
-  return result;
-}
-        `,
+        code: `function caesarCipher(text, shift, updateStep) { ... }`
       },
       {
         name: 'Freivalds\' Matrix-Multiplication Verification',
         description: 'Verifies the product of two matrices using randomization.',
         parameters: [
-          { name: 'matrixA', type: 'matrix' },
-          { name: 'matrixB', type: 'matrix' },
-          { name: 'resultMatrix', type: 'matrix' },
+          { name: 'matrixA', type: 'matrix', numRows: 3, numCols: 3 },
+          { name: 'matrixB', type: 'matrix', numRows: 3, numCols: 3 },
+          { name: 'resultMatrix', type: 'matrix', numRows: 3, numCols: 3 },
         ],
         execute: (matrixA, matrixB, resultMatrix, updateStep) => {
-          // Placeholder for Freivalds' verification logic
+          const rows = matrixA.length;
+          const cols = matrixB[0].length;
+
+          const randomVector = Array.from({ length: cols }, () => Math.round(Math.random()));
+
+          const matrixAxB = matrixA.map(row => row.reduce((sum, value, idx) => sum + value * randomVector[idx], 0));
+          const matrixResult = resultMatrix.map(row => row.reduce((sum, value, idx) => sum + value * randomVector[idx], 0));
+
+          for (let i = 0; i < rows; i++) {
+            const verificationStep = matrixAxB[i] === matrixResult[i];
+            updateStep({ row: i, verificationStep });
+          }
+
+          return matrixAxB.every((val, idx) => val === matrixResult[idx]);
         },
-        code: `
-function freivaldsVerification(matrixA, matrixB, resultMatrix, updateStep) {
-  // Placeholder for Freivalds' verification logic
-}
-        `,
+        code: `function freivaldsVerification(matrixA, matrixB, resultMatrix, updateStep) { ... }`
       },
       {
         name: 'K-Means Clustering',
         description: 'Partitions n observations into k clusters in which each observation belongs to the cluster with the nearest mean.',
         parameters: [
-          { name: 'data', type: 'array' },
-          { name: 'k', type: 'integer' },
+          { name: 'data', type: 'array', length: 10, min: 1, max: 100 }, // Array of numbers for clustering
+          { name: 'k', type: 'integer', min: 1, max: 10 } // Number of clusters
         ],
         execute: (data, k, updateStep) => {
-          // Placeholder for K-Means Clustering logic
+          // Step 1: Initialize centroids by selecting the first k points as initial centroids
+          let centroids = data.slice(0, k);
+
+          let clusters = Array.from({ length: k }, () => []);
+          let changed = true; // Track if any points moved clusters
+
+          // Iterate until clusters stabilize or max iterations
+          const maxIterations = 10;
+          let iteration = 0;
+
+          while (changed && iteration < maxIterations) {
+            // Clear clusters
+            clusters = Array.from({ length: k }, () => []);
+
+            // Step 2: Assign points to nearest centroid
+            data.forEach(point => {
+              const distances = centroids.map(centroid => Math.abs(point - centroid));
+              const nearestCentroidIdx = distances.indexOf(Math.min(...distances));
+
+              clusters[nearestCentroidIdx].push(point);
+
+              // Log assignment step
+              updateStep({
+                point,
+                nearestCentroid: centroids[nearestCentroidIdx],
+                clusterIndex: nearestCentroidIdx,
+                clusters: clusters.map(cluster => [...cluster]), // Snapshot of clusters
+                centroids: [...centroids] // Snapshot of centroids
+              });
+            });
+
+            // Step 3: Recalculate centroids
+            const newCentroids = clusters.map(cluster => {
+              if (cluster.length === 0) return null;
+              return cluster.reduce((sum, point) => sum + point, 0) / cluster.length;
+            });
+
+            // Check if any centroids have changed
+            changed = newCentroids.some((newCentroid, i) => newCentroid !== centroids[i]);
+
+            // Update centroids
+            centroids = newCentroids.map((centroid, i) => (centroid !== null ? centroid : centroids[i]));
+
+            iteration++;
+          }
+
+          return { clusters, centroids };
         },
         code: `
-function kMeans(data, k, updateStep) {
-  // Placeholder for K-Means Clustering logic
-}
-        `,
+      function kMeansClustering(data, k, updateStep) {
+        let centroids = data.slice(0, k);
+      
+        let clusters = Array.from({ length: k }, () => []);
+        let changed = true;
+        const maxIterations = 10;
+        let iteration = 0;
+      
+        while (changed && iteration < maxIterations) {
+          clusters = Array.from({ length: k }, () => []);
+      
+          data.forEach(point => {
+            const distances = centroids.map(centroid => Math.abs(point - centroid));
+            const nearestCentroidIdx = distances.indexOf(Math.min(...distances));
+      
+            clusters[nearestCentroidIdx].push(point);
+      
+            updateStep({
+              point,
+              nearestCentroid: centroids[nearestCentroidIdx],
+              clusterIndex: nearestCentroidIdx,
+              clusters: clusters.map(cluster => [...cluster]),
+              centroids: [...centroids]
+            });
+          });
+      
+          const newCentroids = clusters.map(cluster => {
+            if (cluster.length === 0) return null;
+            return cluster.reduce((sum, point) => sum + point, 0) / cluster.length;
+          });
+      
+          changed = newCentroids.some((newCentroid, i) => newCentroid !== centroids[i]);
+      
+          centroids = newCentroids.map((centroid, i) => (centroid !== null ? centroid : centroids[i]));
+      
+          iteration++;
+        }
+      
+        return { clusters, centroids };
+      }
+      `
       },
       {
         name: 'Magic Square',
-        description: 'Generates a magic square of a given size.',
+        description: 'Generates a magic square of a given size, where the sum of each row, column, and diagonal is the same.',
         parameters: [
-          { name: 'n', type: 'integer' },
+          { name: 'n', type: 'integer', min: 3, max: 15 } // Typically, n is an odd integer for this method
         ],
         execute: (n, updateStep) => {
+          // Ensure n is an odd integer to create a standard magic square
+          if (n % 2 === 0 || n < 3) throw new Error("n must be an odd integer greater than or equal to 3");
+
+          // Initialize the magic square with zeros
           const magicSquare = Array.from({ length: n }, () => Array(n).fill(0));
+
+          // Starting position in the middle of the top row
           let num = 1;
           let i = 0;
-          let j = Math.floor(n / 2); // Start from the middle of the top row
+          let j = Math.floor(n / 2);
 
+          // Fill the magic square
           while (num <= n * n) {
             magicSquare[i][j] = num;
-            updateStep({ num, position: { i, j } });
-            num++;
-            i--;
-            j++;
 
+            // Log each step with the current number, position, and a snapshot of the magic square
+            updateStep({
+              currentNumber: num,
+              position: { row: i, col: j },
+              magicSquare: magicSquare.map(row => [...row]) // Creating a copy for each step visualization
+            });
+
+            num++;
+            i--; // Move up
+            j++; // Move right
+
+            // Wrap around if going out of bounds or if the cell is already filled
             if (num % n === 1) {
               i += 2;
               j--;
             } else {
               if (j === n) j -= n; // Wrap around horizontally
-              if (i < 0) i += n; // Wrap around vertically
+              if (i < 0) i += n;   // Wrap around vertically
             }
           }
 
           return magicSquare;
         },
         code: `
-function generateMagicSquare(n, updateStep) {
-  const magicSquare = Array.from({ length: n }, () => Array(n).fill(0));
-  let num = 1;
-  let i = 0;
-  let j = Math.floor(n / 2); // Start from the middle of the top row
-
-  while (num <= n * n) {
-    magicSquare[i][j] = num;
-    updateStep({ num, position: { i, j } });
-    num++;
-    i--;
-    j++;
-
-    if (num % n === 1) {
-      i += 2;
-      j--;
-    } else {
-      if (j === n) j -= n; // Wrap around horizontally
-      if (i < 0) i += n; // Wrap around vertically
-    }
-  }
-
-  return magicSquare;
-}
-        `,
+      function generateMagicSquare(n, updateStep) {
+        if (n % 2 === 0 || n < 3) throw new Error("n must be an odd integer greater than or equal to 3");
+        const magicSquare = Array.from({ length: n }, () => Array(n).fill(0));
+      
+        let num = 1;
+        let i = 0;
+        let j = Math.floor(n / 2);
+      
+        while (num <= n * n) {
+          magicSquare[i][j] = num;
+      
+          updateStep({
+            currentNumber: num,
+            position: { row: i, col: j },
+            magicSquare: magicSquare.map(row => [...row])
+          });
+      
+          num++;
+          i--;
+          j++;
+      
+          if (num % n === 1) {
+            i += 2;
+            j--;
+          } else {
+            if (j === n) j -= n; // Wrap horizontally
+            if (i < 0) i += n;   // Wrap vertically
+          }
+        }
+      
+        return magicSquare;
+      }
+      `
       },
       {
         name: 'Maze Generation',
-        description: 'Generates a maze using algorithms like Prim\'s or Kruskal\'s.',
+        description: 'Generates a maze using Prim\'s Algorithm. The maze is carved out from an initially fully walled grid.',
         parameters: [
-          { name: 'width', type: 'integer' },
-          { name: 'height', type: 'integer' },
+          { name: 'width', type: 'integer', min: 5, max: 50 },
+          { name: 'height', type: 'integer', min: 5, max: 50 }
         ],
         execute: (width, height, updateStep) => {
-          // Placeholder for Maze Generation logic
+          // Ensure the grid has odd dimensions for a maze with a perfect path
+          if (width % 2 === 0) width += 1;
+          if (height % 2 === 0) height += 1;
+
+          // Initialize grid: all walls
+          const maze = Array.from({ length: height }, () => Array(width).fill(1));
+
+          // Start Prim's algorithm from a random cell in the grid
+          const startRow = Math.floor(Math.random() * (height / 2)) * 2 + 1;
+          const startCol = Math.floor(Math.random() * (width / 2)) * 2 + 1;
+          maze[startRow][startCol] = 0;
+
+          // Walls list for the maze generation process
+          const walls = [];
+          const directions = [
+            [-2, 0], [2, 0], [0, -2], [0, 2] // Up, Down, Left, Right
+          ];
+
+          // Add initial walls of the starting cell
+          directions.forEach(([dr, dc]) => {
+            const newRow = startRow + dr;
+            const newCol = startCol + dc;
+            if (newRow > 0 && newRow < height && newCol > 0 && newCol < width) {
+              walls.push([newRow, newCol, startRow + dr / 2, startCol + dc / 2]);
+            }
+          });
+
+          // Generate the maze
+          while (walls.length > 0) {
+            const randomIndex = Math.floor(Math.random() * walls.length);
+            const [wallRow, wallCol, passageRow, passageCol] = walls.splice(randomIndex, 1)[0];
+
+            if (maze[wallRow][wallCol] === 1) {
+              maze[wallRow][wallCol] = 0;
+              maze[passageRow][passageCol] = 0;
+
+              // Log the step for visualization
+              updateStep({
+                wallRemoved: { row: wallRow, col: wallCol },
+                passageCreated: { row: passageRow, col: passageCol },
+                maze: maze.map(row => [...row]) // Create a snapshot of the maze
+              });
+
+              // Add the neighboring walls of the current cell to the list
+              directions.forEach(([dr, dc]) => {
+                const newRow = wallRow + dr;
+                const newCol = wallCol + dc;
+                if (newRow > 0 && newRow < height && newCol > 0 && newCol < width) {
+                  if (maze[newRow][newCol] === 1) {
+                    walls.push([newRow, newCol, wallRow + dr / 2, wallCol + dc / 2]);
+                  }
+                }
+              });
+            }
+          }
+
+          return maze;
         },
         code: `
-function generateMaze(width, height, updateStep) {
-  // Placeholder for Maze Generation logic
-}
-        `,
+      function generateMaze(width, height, updateStep) {
+        if (width % 2 === 0) width += 1;
+        if (height % 2 === 0) height += 1;
+      
+        const maze = Array.from({ length: height }, () => Array(width).fill(1));
+        const startRow = Math.floor(Math.random() * (height / 2)) * 2 + 1;
+        const startCol = Math.floor(Math.random() * (width / 2)) * 2 + 1;
+        maze[startRow][startCol] = 0;
+      
+        const walls = [];
+        const directions = [
+          [-2, 0], [2, 0], [0, -2], [0, 2]
+        ];
+      
+        directions.forEach(([dr, dc]) => {
+          const newRow = startRow + dr;
+          const newCol = startCol + dc;
+          if (newRow > 0 && newRow < height && newCol > 0 && newCol < width) {
+            walls.push([newRow, newCol, startRow + dr / 2, startCol + dc / 2]);
+          }
+        });
+      
+        while (walls.length > 0) {
+          const randomIndex = Math.floor(Math.random() * walls.length);
+          const [wallRow, wallCol, passageRow, passageCol] = walls.splice(randomIndex, 1)[0];
+      
+          if (maze[wallRow][wallCol] === 1) {
+            maze[wallRow][wallCol] = 0;
+            maze[passageRow][passageCol] = 0;
+      
+            updateStep({
+              wallRemoved: { row: wallRow, col: wallCol },
+              passageCreated: { row: passageRow, col: passageCol },
+              maze: maze.map(row => [...row])
+            });
+      
+            directions.forEach(([dr, dc]) => {
+              const newRow = wallRow + dr;
+              const newCol = wallCol + dc;
+              if (newRow > 0 && newRow < height && newCol > 0 && newCol < width) {
+                if (maze[newRow][newCol] === 1) {
+                  walls.push([newRow, newCol, wallRow + dr / 2, wallCol + dc / 2]);
+                }
+              }
+            });
+          }
+        }
+      
+        return maze;
+      }
+      `
       },
       {
         name: 'Miller-Rabin\'s Primality Test',
-        description: 'Tests whether a number is a prime using probabilistic methods.',
+        description: 'Tests whether a number is a prime using probabilistic methods. It uses k rounds to minimize the probability of a false positive.',
         parameters: [
-          { name: 'n', type: 'integer' },
-          { name: 'k', type: 'integer' },
+          { name: 'n', type: 'integer', min: 2 },
+          { name: 'k', type: 'integer', min: 1, max: 10 } // Number of rounds for accuracy
         ],
         execute: (n, k, updateStep) => {
-          // Placeholder for Miller-Rabin logic
+          if (n <= 1 || n === 4) return false;
+          if (n <= 3) return true;
+
+          // Helper function for modular exponentiation
+          const powerMod = (base, exp, mod) => {
+            let result = 1;
+            base = base % mod;
+            while (exp > 0) {
+              if (exp % 2 === 1) {
+                result = (result * base) % mod;
+              }
+              exp = Math.floor(exp / 2);
+              base = (base * base) % mod;
+            }
+            return result;
+          };
+
+          // Write n-1 as d * 2^r
+          let d = n - 1;
+          let r = 0;
+          while (d % 2 === 0) {
+            d /= 2;
+            r += 1;
+          }
+
+          // Miller-Rabin Test
+          const millerTest = (d, n) => {
+            const a = 2 + Math.floor(Math.random() * (n - 4));
+            let x = powerMod(a, d, n);
+
+            // Log the initial test step
+            updateStep({
+              base: a,
+              exponent: d,
+              modulus: n,
+              result: x,
+              type: 'initial',
+              n,
+              r,
+              d
+            });
+
+            if (x === 1 || x === n - 1) return true;
+
+            for (let i = 1; i < r; i++) {
+              x = (x * x) % n;
+
+              // Log each squaring step
+              updateStep({
+                base: a,
+                exponent: d * Math.pow(2, i),
+                modulus: n,
+                result: x,
+                type: 'squaring',
+                step: i
+              });
+
+              if (x === n - 1) return true;
+            }
+
+            return false;
+          };
+
+          for (let i = 0; i < k; i++) {
+            if (!millerTest(d, n)) {
+              updateStep({ round: i + 1, result: 'composite' });
+              return false;
+            }
+            updateStep({ round: i + 1, result: 'probably prime' });
+          }
+
+          return true;
         },
         code: `
-function millerRabin(n, k, updateStep) {
-  // Placeholder for Miller-Rabin logic
-}
-        `,
+      function millerRabin(n, k, updateStep) {
+        if (n <= 1 || n === 4) return false;
+        if (n <= 3) return true;
+      
+        const powerMod = (base, exp, mod) => {
+          let result = 1;
+          base = base % mod;
+          while (exp > 0) {
+            if (exp % 2 === 1) result = (result * base) % mod;
+            exp = Math.floor(exp / 2);
+            base = (base * base) % mod;
+          }
+          return result;
+        };
+      
+        let d = n - 1;
+        let r = 0;
+        while (d % 2 === 0) {
+          d /= 2;
+          r += 1;
+        }
+      
+        const millerTest = (d, n) => {
+          const a = 2 + Math.floor(Math.random() * (n - 4));
+          let x = powerMod(a, d, n);
+          
+          updateStep({
+            base: a,
+            exponent: d,
+            modulus: n,
+            result: x,
+            type: 'initial',
+            n,
+            r,
+            d
+          });
+      
+          if (x === 1 || x === n - 1) return true;
+      
+          for (let i = 1; i < r; i++) {
+            x = (x * x) % n;
+      
+            updateStep({
+              base: a,
+              exponent: d * Math.pow(2, i),
+              modulus: n,
+              result: x,
+              type: 'squaring',
+              step: i
+            });
+      
+            if (x === n - 1) return true;
+          }
+      
+          return false;
+        };
+      
+        for (let i = 0; i < k; i++) {
+          if (!millerTest(d, n)) {
+            updateStep({ round: i + 1, result: 'composite' });
+            return false;
+          }
+          updateStep({ round: i + 1, result: 'probably prime' });
+        }
+      
+        return true;
+      }
+      `
       },
       {
         name: 'Shortest Unsorted Continuous Subarray',
-        description: 'Finds the length of the shortest unsorted continuous subarray.',
+        description: 'Finds the length of the shortest unsorted continuous subarray that, if sorted, results in the entire array being sorted.',
         parameters: [
-          { name: 'array', type: 'array' },
+          { name: 'array', type: 'array', length: 10, min: 1, max: 100 }
         ],
         execute: (array, updateStep) => {
-          // Placeholder for finding the shortest unsorted continuous subarray
+          let start = -1, end = -1;
+          let maxSeen = -Infinity, minSeen = Infinity;
+
+          // Step 1: Identify the end of the needed subarray
+          for (let i = 0; i < array.length; i++) {
+            maxSeen = Math.max(maxSeen, array[i]);
+            if (array[i] < maxSeen) {
+              end = i;
+            }
+
+            // Log each step of the first pass
+            updateStep({
+              index: i,
+              maxSeen,
+              current: array[i],
+              endIndex: end,
+              type: 'find_end',
+              array: [...array]
+            });
+          }
+
+          // Step 2: Identify the start of the needed subarray
+          for (let i = array.length - 1; i >= 0; i--) {
+            minSeen = Math.min(minSeen, array[i]);
+            if (array[i] > minSeen) {
+              start = i;
+            }
+
+            // Log each step of the second pass
+            updateStep({
+              index: i,
+              minSeen,
+              current: array[i],
+              startIndex: start,
+              type: 'find_start',
+              array: [...array]
+            });
+          }
+
+          const length = end - start + 1;
+
+          // Log the result
+          updateStep({
+            startIndex: start,
+            endIndex: end,
+            length: length > 0 ? length : 0,
+            type: 'result',
+            array: [...array]
+          });
+
+          return length > 0 ? length : 0;
         },
         code: `
-function shortestUnsortedSubarray(array, updateStep) {
-  // Placeholder for finding the shortest unsorted continuous subarray
-}
-        `,
+      function shortestUnsortedSubarray(array, updateStep) {
+        let start = -1, end = -1;
+        let maxSeen = -Infinity, minSeen = Infinity;
+      
+        // Step 1: Find the end of the subarray that needs sorting
+        for (let i = 0; i < array.length; i++) {
+          maxSeen = Math.max(maxSeen, array[i]);
+          if (array[i] < maxSeen) {
+            end = i;
+          }
+      
+          updateStep({
+            index: i,
+            maxSeen,
+            current: array[i],
+            endIndex: end,
+            type: 'find_end',
+            array: [...array]
+          });
+        }
+      
+        // Step 2: Find the start of the subarray that needs sorting
+        for (let i = array.length - 1; i >= 0; i--) {
+          minSeen = Math.min(minSeen, array[i]);
+          if (array[i] > minSeen) {
+            start = i;
+          }
+      
+          updateStep({
+            index: i,
+            minSeen,
+            current: array[i],
+            startIndex: start,
+            type: 'find_start',
+            array: [...array]
+          });
+        }
+      
+        const length = end - start + 1;
+        
+        updateStep({
+          startIndex: start,
+          endIndex: end,
+          length: length > 0 ? length : 0,
+          type: 'result',
+          array: [...array]
+        });
+      
+        return length > 0 ? length : 0;
+      }
+      `
       },
       {
         name: 'Conway\'s Game of Life',
-        description: 'Simulates Conway\'s Game of Life, a cellular automaton.',
+        description: 'Simulates Conway\'s Game of Life, where each cell lives, dies, or is born based on its neighbors in a grid.',
         parameters: [
-          { name: 'grid', type: 'matrix' },
-          { name: 'steps', type: 'integer' },
+          { name: 'grid', type: 'matrix', numRows: 10, numCols: 10 }, // Default 10x10 grid size for simulation
+          { name: 'steps', type: 'integer', min: 1, max: 100 } // Number of steps to simulate
         ],
         execute: (grid, steps, updateStep) => {
-          // Placeholder for Game of Life logic
+          const numRows = grid.length;
+          const numCols = grid[0].length;
+
+          // Helper function to count live neighbors
+          const countLiveNeighbors = (row, col) => {
+            let liveNeighbors = 0;
+            const directions = [
+              [-1, -1], [-1, 0], [-1, 1],
+              [0, -1], [0, 1],
+              [1, -1], [1, 0], [1, 1]
+            ];
+
+            directions.forEach(([dr, dc]) => {
+              const newRow = row + dr;
+              const newCol = col + dc;
+              if (newRow >= 0 && newRow < numRows && newCol >= 0 && newCol < numCols) {
+                liveNeighbors += grid[newRow][newCol];
+              }
+            });
+
+            return liveNeighbors;
+          };
+
+          // Run the simulation for the specified number of steps
+          for (let step = 0; step < steps; step++) {
+            const nextGrid = grid.map(row => [...row]); // Copy of the grid for the next generation
+
+            for (let row = 0; row < numRows; row++) {
+              for (let col = 0; col < numCols; col++) {
+                const liveNeighbors = countLiveNeighbors(row, col);
+                const cellState = grid[row][col];
+
+                // Apply Conway's rules
+                if (cellState === 1 && (liveNeighbors < 2 || liveNeighbors > 3)) {
+                  nextGrid[row][col] = 0; // Cell dies
+                } else if (cellState === 0 && liveNeighbors === 3) {
+                  nextGrid[row][col] = 1; // Cell becomes alive
+                } else {
+                  nextGrid[row][col] = cellState; // Cell state remains the same
+                }
+              }
+            }
+
+            // Log the state of the grid after each step
+            updateStep({
+              step,
+              grid: nextGrid.map(row => [...row]) // Snapshot of the current state
+            });
+
+            // Update the grid to the next generation
+            grid = nextGrid;
+          }
+
+          return grid;
         },
         code: `
-function gameOfLife(grid, steps, updateStep) {
-  // Placeholder for Game of Life logic
-}
-        `,
-      },
+      function gameOfLife(grid, steps, updateStep) {
+        const numRows = grid.length;
+        const numCols = grid[0].length;
+      
+        const countLiveNeighbors = (row, col) => {
+          let liveNeighbors = 0;
+          const directions = [
+            [-1, -1], [-1, 0], [-1, 1],
+            [0, -1],           [0, 1],
+            [1, -1], [1, 0], [1, 1]
+          ];
+      
+          directions.forEach(([dr, dc]) => {
+            const newRow = row + dr;
+            const newCol = col + dc;
+            if (newRow >= 0 && newRow < numRows && newCol >= 0 && newCol < numCols) {
+              liveNeighbors += grid[newRow][newCol];
+            }
+          });
+      
+          return liveNeighbors;
+        };
+      
+        for (let step = 0; step < steps; step++) {
+          const nextGrid = grid.map(row => [...row]);
+      
+          for (let row = 0; row < numRows; row++) {
+            for (let col = 0; col < numCols; col++) {
+              const liveNeighbors = countLiveNeighbors(row, col);
+              const cellState = grid[row][col];
+      
+              if (cellState === 1 && (liveNeighbors < 2 || liveNeighbors > 3)) {
+                nextGrid[row][col] = 0;
+              } else if (cellState === 0 && liveNeighbors === 3) {
+                nextGrid[row][col] = 1;
+              } else {
+                nextGrid[row][col] = cellState;
+              }
+            }
+          }
+      
+          updateStep({
+            step,
+            grid: nextGrid.map(row => [...row])
+          });
+      
+          grid = nextGrid;
+        }
+      
+        return grid;
+      }
+      `
+      }
     ],
   },
 };
 
-// Placeholder functions for any required helper methods used in the implementations.
-function initializeGrid() {
-  // Initialize the grid for Cellular Automata
-}
-
-function updateGrid(grid) {
-  // Logic to update the grid for Cellular Automata
-}
-
+// Heuristic function for pathfinding (example using Manhattan distance)
 function heuristicCostEstimate(start, goal) {
-  // Function to estimate the cost from the start node to the goal
+  return Math.abs(start[0] - goal[0]) + Math.abs(start[1] - goal[1]);
 }
 
+// Function to get the node with the lowest fScore in the open set
 function getLowestFScore(openSet, fScore) {
-  // Function to get the node in openSet with the lowest fScore
+  let lowestNode = null;
+  let lowestScore = Infinity;
+
+  for (const node of openSet) {
+    const score = fScore.get(node) || Infinity;
+    if (score < lowestScore) {
+      lowestScore = score;
+      lowestNode = node;
+    }
+  }
+
+  return lowestNode;
 }
 
+// Function to calculate the distance between two nodes (example using Euclidean distance)
 function distance(current, neighbor) {
-  // Function to calculate the distance between current and neighbor nodes
+  return Math.sqrt(Math.pow(current[0] - neighbor[0], 2) + Math.pow(current[1] - neighbor[1], 2));
 }
 
+// Function to reconstruct the path from the start to the goal
 function reconstructPath(cameFrom, current) {
-  // Function to reconstruct the path from the end node to the start node
+  const path = [current];
+  while (cameFrom.has(current)) {
+    current = cameFrom.get(current);
+    path.unshift(current);
+  }
+  return path; // Path from start to goal
 }
 
+// Example safety check function for graph traversal
 function isSafe(graph, node, visited) {
-  // Example: Implement your safety check logic here
-  return !visited.has(node); // Simple check: return true if the node hasn't been visited
+  return !visited.has(node); // True if the node hasn't been visited
 }
-
 
 // Binary Search implementation
 function binarySearch(array, target, updateStep) {
@@ -5832,9 +5363,11 @@ function binarySearch(array, target, updateStep) {
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
     updateStep({ mid, value: array[mid] });
+    
     if (array[mid] === target) return mid;
     if (array[mid] < target) left = mid + 1;
     else right = mid - 1;
   }
+  
   return -1; // Target not found
 }
