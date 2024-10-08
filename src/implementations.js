@@ -2729,106 +2729,76 @@ export const implementations = {
       {
         name: 'Cellular Automata',
         description: 'Simulates cellular automata, consisting of a grid of cells evolving through iterations.',
-        parameters: [],
-        execute: (updateStep) => {
-
+        parameters: [
+          { name: 'numRows', type: 'integer', min: 5, max: 20, default: 10 },
+          { name: 'numCols', type: 'integer', min: 5, max: 20, default: 10 },
+          { name: 'initialValue', type: 'integer', min: 0, max: 1, default: 0 },
+          { name: 'numSteps', type: 'integer', min: 1, max: 100, default: 10 }
+        ],
+        execute: function (numRows = 10, numCols = 10, initialValue = 0, numSteps = 10, updateStep) {
           function updateGrid(grid) {
-            const newGrid = JSON.parse(JSON.stringify(grid)); // Deep copy of the grid
-      
+            const newGrid = JSON.parse(JSON.stringify(grid));
             for (let row = 0; row < grid.length; row++) {
               for (let col = 0; col < grid[row].length; col++) {
                 const neighbors = [
                   [row - 1, col - 1], [row - 1, col], [row - 1, col + 1],
-                  [row, col - 1],                [row, col + 1],
+                  [row, col - 1], [row, col + 1],
                   [row + 1, col - 1], [row + 1, col], [row + 1, col + 1]
                 ];
-      
                 let liveNeighbors = 0;
-                for (const [nRow, nCol] of neighbors) {
+                for (let i = 0; i < neighbors.length; i++) {
+                  const nRow = neighbors[i][0];
+                  const nCol = neighbors[i][1];
+                  
                   if (nRow >= 0 && nRow < grid.length && nCol >= 0 && nCol < grid[row].length) {
                     liveNeighbors += grid[nRow][nCol] === 1 ? 1 : 0;
                   }
                 }
-      
-                if (grid[row][col] === 1) { // Live cell
-                  newGrid[row][col] = (liveNeighbors === 2 || liveNeighbors === 3) ? 1 : 0;
-                } else { // Dead cell
-                  newGrid[row][col] = liveNeighbors === 3 ? 1 : 0;
-                }
+                newGrid[row][col] = (grid[row][col] === 1 && (liveNeighbors === 2 || liveNeighbors === 3)) ? 1 : (liveNeighbors === 3 ? 1 : 0);
               }
             }
-      
-            return newGrid; // Return the updated grid
+            return newGrid;
           }
-
+          
           function initializeGrid(rows, cols, initialValue = 0) {
-            const grid = [];
-            for (let i = 0; i < rows; i++) {
-              const row = [];
-              for (let j = 0; j < cols; j++) {
-                row.push(initialValue);
-              }
-              grid.push(row);
-            }
+            const grid = Array.from({ length: rows }, () => Array(cols).fill(initialValue));
             return grid;
           }
-
-          const numRows = 10;
-          const numCols = 10;
-          let grid = initializeGrid(numRows, numCols, Math.round(Math.random())); // Random initial state
-          const numSteps = 10;
+        
+          // Initialize the grid based on parameters or defaults
+          let grid = initializeGrid(numRows, numCols, initialValue);
+        
           const result = [];
-      
+        
+          // Execute steps with updateStep
           for (let step = 0; step < numSteps; step++) {
-            grid = updateGrid(grid); // Update the grid with each iteration
+            grid = updateGrid(grid);
             updateStep({ arr: grid, step });
-            result.push(JSON.parse(JSON.stringify(grid))); // Save each step
+            result.push(JSON.parse(JSON.stringify(grid)));
           }
-      
-          return result; // Return all grid states
-        },
+        
+          return result;
+        },               
         code: `
-          // Initialize a grid with given dimensions and initial value
-          function initializeGrid(rows, cols, initialValue = 0) {
-            const grid = [];
-            for (let i = 0; i < rows; i++) {
-              const row = [];
-              for (let j = 0; j < cols; j++) {
-                row.push(initialValue);
-              }
-              grid.push(row);
-            }
-            return grid;
-          }
-      
-          // Cellular Automata update function
           function updateGrid(grid) {
-            const newGrid = JSON.parse(JSON.stringify(grid)); // Deep copy of the grid
-      
+            const newGrid = JSON.parse(JSON.stringify(grid));
             for (let row = 0; row < grid.length; row++) {
               for (let col = 0; col < grid[row].length; col++) {
                 const neighbors = [
                   [row - 1, col - 1], [row - 1, col], [row - 1, col + 1],
-                  [row, col - 1],                [row, col + 1],
+                  [row, col - 1], [row, col + 1],
                   [row + 1, col - 1], [row + 1, col], [row + 1, col + 1]
                 ];
-      
                 let liveNeighbors = 0;
                 for (const [nRow, nCol] of neighbors) {
                   if (nRow >= 0 && nRow < grid.length && nCol >= 0 && nCol < grid[row].length) {
                     liveNeighbors += grid[nRow][nCol] === 1 ? 1 : 0;
                   }
                 }
-      
-                if (grid[row][col] === 1) { // Live cell
-                  newGrid[row][col] = (liveNeighbors === 2 || liveNeighbors === 3) ? 1 : 0;
-                } else { // Dead cell
-                  newGrid[row][col] = liveNeighbors === 3 ? 1 : 0;
-                }
+                newGrid[row][col] = (grid[row][col] === 1 && (liveNeighbors === 2 || liveNeighbors === 3)) ? 1 : (liveNeighbors === 3 ? 1 : 0);
               }
             }
-      
-            return newGrid; // Return the updated grid
+            return newGrid;
           }
         `,
         visualization: {
@@ -2841,36 +2811,28 @@ export const implementations = {
         name: 'Cycle Detection',
         description: 'Detects cycles in a directed graph using DFS.',
         parameters: [
-          { name: 'graph', type: 'adjacencyList' }
+          { name: 'graph', type: 'adjacencyList', numVertices: 5, minEdges: 5, maxEdges: 20 }
         ],
         execute: (graph, updateStep) => {
           const visited = new Set();
           const recursionStack = new Set();
-      
           const detectCycle = (node) => {
             if (!visited.has(node)) {
               visited.add(node);
               recursionStack.add(node);
               updateStep({ node, action: 'Visiting' });
-      
-              const neighbors = graph[node] || []; // Use an empty array if graph[node] is undefined
-              for (let i = 0; i < neighbors.length; i++) {
-                const neighbor = neighbors[i];
-                if (!visited.has(neighbor) && detectCycle(neighbor)) {
-                  return true;
-                } else if (recursionStack.has(neighbor)) {
-                  return true;
-                }
+              const neighbors = graph[node] || [];
+              for (const neighbor of neighbors) {
+                if (!visited.has(neighbor) && detectCycle(neighbor)) return true;
+                else if (recursionStack.has(neighbor)) return true;
               }
             }
             recursionStack.delete(node);
             updateStep({ node, action: 'Backtracking' });
             return false;
           };
-      
-          const nodes = Object.keys(graph); // Extract the nodes as keys of the graph object
-          for (let i = 0; i < nodes.length; i++) {
-            const node = nodes[i];
+          const nodes = Object.keys(graph);
+          for (const node of nodes) {
             if (detectCycle(node)) {
               updateStep({ cycleDetected: true });
               return;
@@ -2879,54 +2841,46 @@ export const implementations = {
           updateStep({ cycleDetected: false });
         },
         code: `
-      function cycleDetection(graph, updateStep) {
-        const visited = new Set();
-        const recursionStack = new Set();
-      
-        const detectCycle = (node) => {
-          if (!visited.has(node)) {
-            visited.add(node);
-            recursionStack.add(node);
-            updateStep({ node, action: 'Visiting' });
-      
-            const neighbors = graph[node] || [];
-            for (let i = 0; i < neighbors.length; i++) {
-              const neighbor = neighbors[i];
-              if (!visited.has(neighbor) && detectCycle(neighbor)) {
-                return true;
-              } else if (recursionStack.has(neighbor)) {
-                return true;
+          function detectCycle(graph, updateStep) {
+            const visited = new Set();
+            const recursionStack = new Set();
+            const detectCycle = (node) => {
+              if (!visited.has(node)) {
+                visited.add(node);
+                recursionStack.add(node);
+                updateStep({ node, action: 'Visiting' });
+                const neighbors = graph[node] || [];
+                for (const neighbor of neighbors) {
+                  if (!visited.has(neighbor) && detectCycle(neighbor)) return true;
+                  else if (recursionStack.has(neighbor)) return true;
+                }
+              }
+              recursionStack.delete(node);
+              updateStep({ node, action: 'Backtracking' });
+              return false;
+            };
+            const nodes = Object.keys(graph);
+            for (const node of nodes) {
+              if (detectCycle(node)) {
+                updateStep({ cycleDetected: true });
+                return;
               }
             }
+            updateStep({ cycleDetected: false });
           }
-          recursionStack.delete(node);
-          updateStep({ node, action: 'Backtracking' });
-          return false;
-        };
-      
-        const nodes = Object.keys(graph);
-        for (let i = 0; i < nodes.length; i++) {
-          const node = nodes[i];
-          if (detectCycle(node)) {
-            updateStep({ cycleDetected: true });
-            return;
-          }
-        }
-        updateStep({ cycleDetected: false });
-      }
         `,
         visualization: {
           stepType: 'graph',
           details: { directed: true }
         },
-        outputType: 'graph' // Indicates if a cycle was detected or not
-      },      
+        outputType: 'graph'
+      },
       {
         name: 'Euclidean Greatest Common Divisor',
         description: 'Computes the GCD of two numbers using the Euclidean algorithm.',
         parameters: [
-          { name: 'a', type: 'integer' },
-          { name: 'b', type: 'integer' }
+          { name: 'a', type: 'integer', min: 1, max: 100 },
+          { name: 'b', type: 'integer', min: 1, max: 100 }
         ],
         execute: (a, b, updateStep) => {
           while (b) {
@@ -2936,13 +2890,13 @@ export const implementations = {
           return a;
         },
         code: `
-  function gcd(a, b, updateStep) {
-    while (b) {
-      updateStep({ a, b });
-      [a, b] = [b, a % b];
-    }
-    return a;
-  }
+          function gcd(a, b, updateStep) {
+            while (b) {
+              updateStep({ a, b });
+              [a, b] = [b, a % b];
+            }
+            return a;
+          }
         `,
         visualization: {
           stepType: 'stepwise',
@@ -2954,27 +2908,27 @@ export const implementations = {
         name: 'Nth Factorial',
         description: 'Calculates the factorial of a number recursively.',
         parameters: [
-          { name: 'n', type: 'integer' }
+          { name: 'n', type: 'integer', min: 1, max: 20, default: 5 }
         ],
         execute: (n, updateStep) => {
           const factorial = (num) => {
             if (num <= 1) return 1;
             const result = num * factorial(num - 1);
-            updateStep({ num, result });
+            updateStep({ a: num, b: result });
             return result;
           };
           return factorial(n);
         },
         code: `
-  function factorial(n, updateStep) {
-    const factorial = (num) => {
-      if (num <= 1) return 1;
-      const result = num * factorial(num - 1);
-      updateStep({ num, result });
-      return result;
-    };
-    return factorial(n);
-  }
+          function factorial(n, updateStep) {
+            const factorial = (num) => {
+              if (num <= 1) return 1;
+              const result = num * factorial(num - 1);
+              updateStep({ num, result });
+              return result;
+            };
+            return factorial(n);
+          }
         `,
         visualization: {
           stepType: 'stepwise',
@@ -2986,99 +2940,88 @@ export const implementations = {
         name: 'Suffix Array',
         description: 'Constructs a suffix array for a given string.',
         parameters: [
-          { name: 'string', type: 'string' }
+          { name: 'string', type: 'string', minLength: 1, maxLength: 100, default: 'example' }
         ],
         execute: (str, updateStep) => {
           const suffixes = Array.from({ length: str.length }, (_, i) => str.slice(i));
           const sortedSuffixes = suffixes.sort();
-
-          sortedSuffixes.forEach((suffix, index) => {
-            updateStep({ index, suffix });
-          });
-
+          sortedSuffixes.forEach((suffix, index) => updateStep({ a: index, b: suffix }));
           return sortedSuffixes.map((suffix) => str.length - suffix.length);
         },
         code: `
-  function buildSuffixArray(str, updateStep) {
-    const suffixes = Array.from({ length: str.length }, (_, i) => str.slice(i));
-    const sortedSuffixes = suffixes.sort();
-  
-    sortedSuffixes.forEach((suffix, index) => {
-      updateStep({ index, suffix });
-    });
-  
-    return sortedSuffixes.map((suffix) => str.length - suffix.length);
-  }
+          function buildSuffixArray(str, updateStep) {
+            const suffixes = Array.from({ length: str.length }, (_, i) => str.slice(i));
+            const sortedSuffixes = suffixes.sort();
+            sortedSuffixes.forEach((suffix, index) => updateStep({ index, suffix }));
+            return sortedSuffixes.map((suffix) => str.length - suffix.length);
+          }
         `,
         visualization: {
-          stepType: 'array',
+          stepType: 'stepwise',
           details: { description: 'Displays sorted suffixes and their indices' }
         },
-        outputType: 'array'
+        outputType: 'string'
       },
       {
-        name: 'Recursive Backtracking (N-Queens Problem)',
+        name: 'Recursive Backtracking (e.g., N-Queens Problem, Sudoku Solver)',
         description: 'Solves the N-Queens problem using recursive backtracking.',
         parameters: [
-          { name: 'n', type: 'integer' }
+          { name: 'n', type: 'integer', min: 1, max: 20, default: 8 }
         ],
         execute: (n, updateStep) => {
           const board = Array.from({ length: n }, () => Array(n).fill(0));
-
           const isSafe = (row, col) => {
             for (let i = 0; i < row; i++) {
-              if (board[i][col] === 1) return false; // Check column
-              if (col - (row - i) >= 0 && board[i][col - (row - i)] === 1) return false; // Check left diagonal
-              if (col + (row - i) < n && board[i][col + (row - i)] === 1) return false; // Check right diagonal
+              if (board[i][col] === 1) return false;
+              if (col - (row - i) >= 0 && board[i][col - (row - i)] === 1) return false;
+              if (col + (row - i) < n && board[i][col + (row - i)] === 1) return false;
             }
             return true;
           };
-
           const solveNQueens = (row) => {
             if (row === n) {
-              updateStep({ board: JSON.parse(JSON.stringify(board)) }); // Clone board for state
+              updateStep({ board: JSON.parse(JSON.stringify(board)) });
               return true;
             }
             for (let col = 0; col < n; col++) {
               if (isSafe(row, col)) {
                 board[row][col] = 1;
                 if (solveNQueens(row + 1)) return true;
-                board[row][col] = 0; // backtrack
+                board[row][col] = 0;
               }
             }
             return false;
           };
-          solveNQueens(0);
+          return solveNQueens(0);
         },
+
         code: `
-  function solveNQueens(n, updateStep) {
-    const board = Array.from({ length: n }, () => Array(n).fill(0));
-  
-    const isSafe = (row, col) => {
-      for (let i = 0; i < row; i++) {
-        if (board[i][col] === 1) return false; // Check column
-        if (col - (row - i) >= 0 && board[i][col - (row - i)] === 1) return false; // Check left diagonal
-        if (col + (row - i) < n && board[i][col + (row - i)] === 1) return false; // Check right diagonal
-      }
-      return true;
-    };
-  
-    const solveNQueens = (row) => {
-      if (row === n) {
-        updateStep({ board: JSON.parse(JSON.stringify(board)) }); // Clone board for state
-        return true;
-      }
-      for (let col = 0; col < n; col++) {
-        if (isSafe(row, col)) {
-          board[row][col] = 1;
-          if (solveNQueens(row + 1)) return true;
-          board[row][col] = 0; // backtrack
-        }
-      }
-      return false;
-    };
-    solveNQueens(0);
-  }
+          function solveNQueens(n, updateStep) {
+            const board = Array.from({ length: n }, () => Array(n).fill(0));
+            const isSafe = (row, col) => {
+              for (let i = 0; i < row; i++) {
+                if (board[i][col] === 1) return false;
+                if (col - (row - i) >= 0 && board[i][col - (row - i)] === 1) return false;
+                if (col + (row - i) < n && board[i][col + (row - i)] === 1) return false;
+              }
+              return true;
+            };
+            const solveNQueens = (row) => {
+              if (row === n) {
+                updateStep({ board: JSON.parse(JSON.stringify(board)) });
+                return true;
+              }
+              for (let col = 0; col < n; col++) {
+                if (isSafe(row, col)) {
+                  board[row][col] = 1;
+                  if (solveNQueens(row + 1)) return true;
+                  board[row][col] = 0;
+                }
+              }
+              return false;
+            };
+            solveNQueens(0);
+          }
         `,
         visualization: {
           stepType: 'grid',

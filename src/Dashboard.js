@@ -140,68 +140,52 @@ export default function Dashboard() {
 
   const generateParameters = (parameters) => {
     return parameters.map(param => {
-      if (!param) return null; // Handle missing parameter gracefully
+      if (!param) return null;
   
-      // Define default values for rows and columns if not provided
-      const [defaultRows, defaultCols] = param.size || [1, 1];
-      const numRows = param.numRows !== undefined ? param.numRows : defaultRows;
-      const numCols = param.numCols !== undefined ? param.numCols : defaultCols;
-  
-      if (param.type === 'array') {
-        return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max || 10 - ( param.min || 1) + 1)) + param.min || 1);
-  
-      } else if (param.type === 'sortedArray') {
-        return Array.from({ length: param.length }, () => Math.floor(Math.random() * (param.max || 10 - ( param.min || 1 ) + 1)) + ( param.min || 1 )).sort((a, b) => a - b);
-  
-      } else if (param.type === 'matrix') {
-        // Use the number of rows and columns specified
+      const { type, length = 5, min = 1, max = 10, numRows = 1, numCols = 1, minLength = 1, maxLength = 10, maxFreq = 10, minFreq = 1 } = param;
+      
+      if (type === 'array') {
+        return Array.from({ length }, () => Math.floor(Math.random() * (max - min + 1)) + min);
+      } else if (type === 'sortedArray') {
+        return Array.from({ length }, () => Math.floor(Math.random() * (max - min + 1)) + min).sort((a, b) => a - b);
+      } else if (type === 'matrix') {
         return Array.from({ length: numRows }, () => 
-          Array.from({ length: numCols }, () => Math.floor(Math.random() * (param.max || 10 - ( param.min || 1 ) + 1)) + param.min || 1)
+          Array.from({ length: numCols }, () => Math.floor(Math.random() * (max - min + 1)) + min)
         );
-  
-      } else if (param.type === 'integer' || param.type === 'number') {
-        return Math.floor(Math.random() * (param.max || 10 - ( param.min || 1 ) + 1)) + param.min || 1;
-  
-      } else if (param.type === 'points') {
-        return Array.from({ length: param.length }, () => [
-          Math.floor(Math.random() * (param.max - param.min + 1)) + param.min,
-          Math.floor(Math.random() * (param.max - param.min + 1)) + param.min
+      } else if (type === 'integer' || type === 'number') {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      } else if (type === 'points') {
+        return Array.from({ length }, () => [
+          Math.floor(Math.random() * (max - min + 1)) + min,
+          Math.floor(Math.random() * (max - min + 1)) + min
         ]);
-  
-      } else if (param.type === 'string' || param.type === 'pattern') {
-        const length = Math.floor(Math.random() * (param.maxLength - param.minLength + 1)) + param.minLength;
-        return Array.from({ length }, () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('') || 'a'; // Ensure it's non-empty
-  
-      } else if (param.type === 'charFreqArray') {
-        const length = param.length || 5; // Default length of the array
+      } else if (type === 'string' || type === 'pattern') {
+        const strLength = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
+        return Array.from({ length: strLength }, () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('');
+      } else if (type === 'charFreqArray') {
         return Array.from({ length }, () => {
-          const char = String.fromCharCode(Math.floor(Math.random() * 26) + 97); // Random lowercase letter
-          const freq = Math.floor(Math.random() * (param.maxFreq - param.minFreq + 1)) + param.minFreq; // Random frequency
+          const char = String.fromCharCode(Math.floor(Math.random() * 26) + 97);
+          const freq = Math.floor(Math.random() * (maxFreq - minFreq + 1)) + minFreq;
           return { char, freq };
         });
-  
-      } else if (param.type === 'adjacencyList') {
-        const numVertices = param.numVertices || 5; // Number of vertices
-        const edges = Array.from({ length: numVertices }, () => []); // Initialize adjacency list
-  
+      } else if (type === 'adjacencyList') {
+        const numVertices = param.numVertices || 5;
+        const edges = Array.from({ length: numVertices }, () => []);
         for (let i = 0; i < numVertices; i++) {
-          const numEdges = Math.floor(Math.random() * (numVertices - 1)) + 1; // Random number of edges for each vertex
-          const connectedVertices = new Set(); // To avoid duplicate edges
-  
+          const numEdges = Math.floor(Math.random() * (numVertices - 1)) + 1;
+          const connectedVertices = new Set();
           while (connectedVertices.size < numEdges) {
             const neighbor = Math.floor(Math.random() * numVertices);
             if (neighbor !== i && !connectedVertices.has(neighbor)) {
-              const weight = Math.floor(Math.random() * 10) + 1; // Random weight between 1 and 10
-              edges[i].push([neighbor, weight]); // Add edge to the adjacency list
-              connectedVertices.add(neighbor); // Mark this neighbor as connected
+              const weight = Math.floor(Math.random() * 10) + 1;
+              edges[i].push([neighbor, weight]);
+              connectedVertices.add(neighbor);
             }
           }
         }
-  
-        return edges; // Return the generated adjacency list
-  
+        return edges;
       } else {
-        console.error(`Unknown parameter type: ${param.type}`);
+        console.error(`Unknown parameter type: ${type}`);
         return null;
       }
     });
@@ -229,33 +213,6 @@ export default function Dashboard() {
     setAlgorithmSteps((prevSteps) => [...prevSteps, stepData]);
   };
 
-  const generateBellmanParameters = (numVertices, numEdges) => {
-    const edges = [];
-    const vertices = Array.from({ length: numVertices }, (_, index) => index);
-
-    // Create edges with random weights
-    const addedEdges = new Set(); // To prevent duplicate edges
-    for (let i = 0; i < numEdges; i++) {
-      const src = vertices[Math.floor(Math.random() * numVertices)];
-      const dest = vertices[Math.floor(Math.random() * numVertices)];
-      const weight = Math.floor(Math.random() * 10) + 1; // Positive weights
-
-      // Avoid self-loops and duplicate edges
-      if (src !== dest && !addedEdges.has(`${src}-${dest}`)) {
-        edges.push([src, dest, weight]);
-        addedEdges.add(`${src}-${dest}`);
-      }
-    }
-
-    // Ensure at least one path from source to each vertex (create a tree-like structure)
-    for (let i = 1; i < numVertices; i++) {
-      const weight = Math.floor(Math.random() * 10) + 1;
-      edges.push([0, i, weight]); // Connecting all vertices to the source (vertex 0)
-    }
-
-    return { edges, vertices };
-  };
-
   const executeAlgorithm = async () => {
     if (!selectedAlgorithm) {
       console.error('No algorithm selected!');
@@ -274,12 +231,23 @@ export default function Dashboard() {
     // Generate parameters and execute the selected algorithm
     const params = generatedParams;
 
-    const result = await algorithmImplementation.execute(...params, (stepData) => {
-      updateStep({
-        ...stepData,
-        visualizationType: algorithmImplementation.visualization.stepType,
+    let result = [];
+
+    if(params.length > 0){
+      result = await algorithmImplementation.execute(...params, (stepData) => {
+        updateStep({
+          ...stepData,
+          visualizationType: algorithmImplementation.visualization.stepType,
+        });
       });
-    });
+    } else {
+      result = await algorithmImplementation.execute((stepData) => {
+        updateStep({
+          ...stepData,
+          visualizationType: algorithmImplementation.visualization.stepType,
+        });
+      })
+    }
 
     if (result) {
       setFinalResult(result);
