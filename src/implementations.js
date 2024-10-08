@@ -835,30 +835,30 @@ export const implementations = {
           finalType: 'number',
         },
         code: `
-        function longestCommonSubsequence(str1, str2) {
-            const dp = Array.from({ length: str1.length + 1 }, () => Array(str2.length + 1).fill(0));
-            for (let i = 1; i <= str1.length; i++) {
-                for (let j = 1; j <= str2.length; j++) {
-                    if (str1[i - 1] === str2[j - 1]) {
-                        dp[i][j] = dp[i - 1][j - 1] + 1;
-                    } else {
-                        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
-                    }
+          function longestCommonSubsequence(str1, str2) {
+            const m = str1.length, n = str2.length;
+            const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+      
+            for (let i = 1; i <= m; i++) {
+              for (let j = 1; j <= n; j++) {
+                if (str1[i - 1] === str2[j - 1]) {
+                  dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                  dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
                 }
+              }
             }
-            return dp[str1.length][str2.length];
-        }
+            return dp[m][n];
+          }
         `,
         execute: async function (str1, str2, updateStep) {
-          if (!str1 || !str2) {
-            throw new Error('Both strings must be provided.');
-          }
-
-          const dp = Array.from({ length: str1.length + 1 }, () => Array(str2.length + 1).fill(0));
+          const m = str1.length;
+          const n = str2.length;
+          const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
           updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
-
-          for (let i = 1; i <= str1.length; i++) {
-            for (let j = 1; j <= str2.length; j++) {
+      
+          for (let i = 1; i <= m; i++) {
+            for (let j = 1; j <= n; j++) {
               if (str1[i - 1] === str2[j - 1]) {
                 dp[i][j] = dp[i - 1][j - 1] + 1;
                 updateStep({ arr: dp.flat(), current: [i, j], operation: 'match', final: false });
@@ -869,9 +869,9 @@ export const implementations = {
             }
           }
           updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
-          return dp[str1.length][str2.length];
+          return dp[m][n];
         },
-      },
+      },      
       {
         name: 'Coin Change Problem',
         parameters: [
@@ -910,6 +910,61 @@ export const implementations = {
           return dp[amount] === Infinity ? -1 : dp[amount];
         },
       },
+      {
+        name: 'Maximum Sum Path',
+        parameters: [
+          { name: 'matrix', type: 'matrix', numRows: 5, numCols: 5, min: 10, max: 50 },
+        ],
+        outputType: 'number',
+        visualization: {
+          stepType: 'matrix',
+          finalType: 'number',
+        },
+        code: `
+          function maximumSumPath(matrix) {
+            const m = matrix.length;
+            const n = matrix[0].length;
+            const dp = Array.from({ length: m }, () => Array(n).fill(0));
+            
+            dp[0][0] = matrix[0][0];
+            for (let i = 1; i < m; i++) dp[i][0] = dp[i - 1][0] + matrix[i][0];
+            for (let j = 1; j < n; j++) dp[0][j] = dp[0][j - 1] + matrix[0][j];
+            
+            for (let i = 1; i < m; i++) {
+              for (let j = 1; j < n; j++) {
+                dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]) + matrix[i][j];
+              }
+            }
+            return dp[m - 1][n - 1];
+          }
+        `,
+        execute: async function (matrix, updateStep) {
+          const m = matrix.length;
+          const n = matrix[0].length;
+          const dp = Array.from({ length: m }, () => Array(n).fill(0));
+      
+          dp[0][0] = matrix[0][0];
+          updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
+      
+          for (let i = 1; i < m; i++) {
+            dp[i][0] = dp[i - 1][0] + matrix[i][0];
+            updateStep({ arr: dp.flat(), current: [i, 0], operation: 'update', final: false });
+          }
+          for (let j = 1; j < n; j++) {
+            dp[0][j] = dp[0][j - 1] + matrix[0][j];
+            updateStep({ arr: dp.flat(), current: [0, j], operation: 'update', final: false });
+          }
+      
+          for (let i = 1; i < m; i++) {
+            for (let j = 1; j < n; j++) {
+              dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]) + matrix[i][j];
+              updateStep({ arr: dp.flat(), current: [i, j], operation: 'update', final: false });
+            }
+          }
+          updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
+          return dp[m - 1][n - 1];
+        },
+      },      
       {
         name: 'Edit Distance',
         parameters: [
@@ -1000,6 +1055,48 @@ export const implementations = {
           return maxSoFar;
         },
       },
+      {
+        name: 'Longest Increasing Subsequence',
+        parameters: [
+          { name: 'arr', type: 'array', length: 10, min: 1, max: 50 },
+        ],
+        outputType: 'number',
+        visualization: {
+          stepType: 'array',
+          finalType: 'number',
+        },
+        code: `
+          function longestIncreasingSubsequence(arr) {
+            const n = arr.length;
+            const dp = Array(n).fill(1);
+      
+            for (let i = 1; i < n; i++) {
+              for (let j = 0; j < i; j++) {
+                if (arr[i] > arr[j]) {
+                  dp[i] = Math.max(dp[i], dp[j] + 1);
+                }
+              }
+            }
+            return Math.max(...dp);
+          }
+        `,
+        execute: async function (arr, updateStep) {
+          const n = arr.length;
+          const dp = Array(n).fill(1);
+          updateStep({ arr: [...dp], current: [], operation: 'initialize', final: false });
+      
+          for (let i = 1; i < n; i++) {
+            for (let j = 0; j < i; j++) {
+              if (arr[i] > arr[j]) {
+                dp[i] = Math.max(dp[i], dp[j] + 1);
+              }
+              updateStep({ arr: [...dp], current: [i, j], operation: 'update', final: false });
+            }
+          }
+          updateStep({ arr: [...dp], current: [], operation: 'final', final: true });
+          return Math.max(...dp);
+        },
+      },      
       {
         name: 'Longest Palindromic Subsequence',
         parameters: [
@@ -1173,6 +1270,7 @@ export const implementations = {
           function matrixChainOrder(dimensions) {
             const n = dimensions.length - 1;
             const dp = Array.from({ length: n }, () => Array(n).fill(0));
+      
             for (let length = 2; length <= n; length++) {
               for (let i = 0; i < n - length + 1; i++) {
                 const j = i + length - 1;
@@ -1185,18 +1283,18 @@ export const implementations = {
             }
             return dp[0][n - 1];
           }
-          `,
+        `,
         execute: async function (dimensions, updateStep) {
           const n = dimensions.length - 1;
           const dp = Array.from({ length: n }, () => Array(n).fill(0));
           updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
-
+      
           for (let length = 2; length <= n; length++) {
             for (let i = 0; i < n - length + 1; i++) {
               const j = i + length - 1;
               dp[i][j] = Infinity;
               updateStep({ arr: dp.flat(), current: [i, j], operation: 'initializeCell', final: false });
-
+      
               for (let k = i; k < j; k++) {
                 const cost = dp[i][k] + dp[k + 1][j] + dimensions[i] * dimensions[k + 1] * dimensions[j + 1];
                 if (cost < dp[i][j]) dp[i][j] = cost;
@@ -1207,7 +1305,7 @@ export const implementations = {
           updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
           return dp[0][n - 1];
         },
-      },
+      },      
       {
         name: 'Partition Problem',
         parameters: [
@@ -1492,57 +1590,38 @@ export const implementations = {
             return lps;
         }
         `,
-        execute: async function (text, pattern, updateStep) {
-          if (!pattern || pattern.length === 0) {
-            throw new Error('Pattern must be a non-empty string.');
+        execute: async function (str1, str2, updateStep) {
+          if (!str1 || !str2) {
+            throw new Error('Both strings must be provided.');
           }
-
-          const computeLPSArray = (pattern) => {
-            const lps = Array(pattern.length).fill(0);
-            let length = 0;
-            let i = 1;
-
-            while (i < pattern.length) {
-              if (pattern[i] === pattern[length]) {
-                length++;
-                lps[i] = length;
-                i++;
+        
+          const dp = Array.from({ length: str1.length + 1 }, () => Array(str2.length + 1).fill(0));
+        
+          // Initialize the dp array for base cases
+          for (let i = 0; i <= str1.length; i++) dp[i][0] = i;
+          for (let j = 0; j <= str2.length; j++) dp[0][j] = j;
+        
+          // Update visualization after initialization
+          updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
+        
+          for (let i = 1; i <= str1.length; i++) {
+            for (let j = 1; j <= str2.length; j++) {
+              if (str1[i - 1] === str2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1];
               } else {
-                if (length !== 0) {
-                  length = lps[length - 1];
-                } else {
-                  lps[i] = 0;
-                  i++;
-                }
+                dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
               }
-            }
-            return lps;
-          };
-
-          const lps = computeLPSArray(pattern);
-          let i = 0, j = 0, count = 0;
-
-          while (i < text.length) {
-            if (pattern[j] === text[i]) {
-              updateStep({ arr: [...text], current: [i], operation: 'match', final: false });
-              i++;
-              j++;
-            }
-
-            if (j === pattern.length) {
-              count++;
-              j = lps[j - 1];
-              updateStep({ arr: [...text], current: [], operation: 'found', final: false });
-            } else if (i < text.length && pattern[j] !== text[i]) {
-              if (j !== 0) {
-                j = lps[j - 1];
-              } else {
-                i++;
-              }
+        
+              // Update visualization at each step with the current 2D dp matrix
+              updateStep({ arr: dp, current: [i, j], operation: 'update', final: false });
             }
           }
-          updateStep({ arr: [...text], current: [], operation: 'final', final: true });
-          return count;
+        
+          // Final step to mark completion
+          updateStep({ arr: dp, current: [], operation: 'final', final: true });
+        
+          // Return the result
+          return dp[str1.length][str2.length];
         },
       },
       {
@@ -1579,12 +1658,16 @@ export const implementations = {
           if (!str1 || !str2) {
             throw new Error('Both strings must be provided.');
           }
-
+        
           const dp = Array.from({ length: str1.length + 1 }, () => Array(str2.length + 1).fill(0));
+          
+          // Initialize the base cases
           for (let i = 0; i <= str1.length; i++) dp[i][0] = i;
           for (let j = 0; j <= str2.length; j++) dp[0][j] = j;
-          updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
-
+        
+          // Update step for initialization
+          await updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
+        
           for (let i = 1; i <= str1.length; i++) {
             for (let j = 1; j <= str2.length; j++) {
               if (str1[i - 1] === str2[j - 1]) {
@@ -1592,10 +1675,15 @@ export const implementations = {
               } else {
                 dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
               }
-              updateStep({ arr: dp.flat(), current: [i, j], operation: 'update', final: false });
+              
+              // Update the visualization for each step
+              await updateStep({ arr: dp, current: [i, j], operation: 'update', final: false });
             }
           }
-          updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
+        
+          // Final step to mark completion
+          await updateStep({ arr: dp, current: [], operation: 'final', final: true });
+          
           return dp[str1.length][str2.length];
         },
       },
@@ -1906,37 +1994,34 @@ export const implementations = {
           finalType: 'boolean',
         },
         code: `
-        function subsetSum(set, target) {
+          function subsetSum(set, target) {
             const n = set.length;
             const dp = Array.from({ length: n + 1 }, () => Array(target + 1).fill(false));
             
             for (let i = 0; i <= n; i++) {
-                dp[i][0] = true; // A sum of 0 is always possible
+              dp[i][0] = true;
             }
-            
+      
             for (let i = 1; i <= n; i++) {
-                for (let j = 1; j <= target; j++) {
-                    if (set[i - 1] <= j) {
-                        dp[i][j] = dp[i - 1][j] || dp[i - 1][j - set[i - 1]];
-                    } else {
-                        dp[i][j] = dp[i - 1][j];
-                    }
+              for (let j = 1; j <= target; j++) {
+                if (set[i - 1] <= j) {
+                  dp[i][j] = dp[i - 1][j] || dp[i - 1][j - set[i - 1]];
+                } else {
+                  dp[i][j] = dp[i - 1][j];
                 }
+              }
             }
-            
+      
             return dp[n][target];
-        }
+          }
         `,
         execute: async function (set, target, updateStep) {
           const n = set.length;
           const dp = Array.from({ length: n + 1 }, () => Array(target + 1).fill(false));
-
-          for (let i = 0; i <= n; i++) {
-            dp[i][0] = true; // A sum of 0 can always be achieved with the empty set
-          }
-
+      
+          for (let i = 0; i <= n; i++) dp[i][0] = true;
           updateStep({ arr: dp.flat(), current: [], operation: 'initialize', final: false });
-
+      
           for (let i = 1; i <= n; i++) {
             for (let j = 1; j <= target; j++) {
               if (set[i - 1] <= j) {
@@ -1950,7 +2035,7 @@ export const implementations = {
           updateStep({ arr: dp.flat(), current: [], operation: 'final', final: true });
           return dp[n][target];
         },
-      },
+      },      
       {
         name: 'Z String Search',
         parameters: [
