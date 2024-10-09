@@ -576,11 +576,57 @@ export default function Dashboard() {
                 <Card sx={{ flex: 1, overflowY: 'auto', overflowX: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle, border: '1px solid black' }}>
                   <Visualizer steps={algorithmSteps} currentStep={currentStep} stepType={currentImplementation?.visualization.stepType} />
                 </Card>
-                <Card sx={{ flex: 1, overflowY: 'auto', backgroundColor: '#333', color: '#ddd', paddingBottom: '100px', ...scrollbarStyle }}>
-                  <CardContent>
-                    <Typography variant="subtitle2">Final Result:</Typography>
-                    <pre style={{ fontSize: '0.8rem' }}>{JSON.stringify(finalResult, null, 2)}</pre>
-                  </CardContent>
+                <Card sx={{ flex: 1, overflowY: 'auto', backgroundColor: '#333', position: 'relative', color: '#ddd', padding: '48px 0', borderRadius: 0, ...scrollbarStyle }}>
+                    <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', position: 'absolute', top: 0, width: '100%', height: '48px', zIndex: 1000 }}>
+                      {/* Generate Parameters */}
+                      <IconButton color="primary" onClick={() => setGeneratedParams(generateParameters(currentImplementation.parameters, selectedAlgorithm))} sx={{ color: '#388e3c' }}>
+                        <PlayCircleFilledIcon />
+                        <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Generate Params</Typography>
+                      </IconButton>
+
+                      {/* Reset Editor */}
+                      <IconButton color="primary" onClick={() => setCode('')} sx={{ color: '#d32f2f' }}>
+                        <PauseIcon />
+                        <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Reset</Typography>
+                      </IconButton>
+
+                      {/* Load Code */}
+                      <IconButton color="primary" onClick={() => setCode(localStorage.getItem('editorCode') || '')} sx={{ color: '#0288d1' }}>
+                        <SkipPreviousIcon />
+                        <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Load</Typography>
+                      </IconButton>
+
+                      {/* Save Code */}
+                      <IconButton color="primary" onClick={() => localStorage.setItem('editorCode', code)} sx={{ color: '#ffa000' }}>
+                        <SkipNextIcon />
+                        <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Save</Typography>
+                      </IconButton>
+
+                      {/* Copy Code */}
+                      <IconButton color="primary" onClick={() => navigator.clipboard.writeText(code)} sx={{ color: '#7b1fa2' }}>
+                        <FastForwardIcon />
+                        <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Copy</Typography>
+                      </IconButton>
+
+                      {/* Paste Code */}
+                      <IconButton color="primary" onClick={async () => {
+                        const text = await navigator.clipboard.readText();
+                        setCode(text);
+                      }} sx={{ color: '#ff5722' }}>
+                        <MenuIcon />
+                        <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Paste</Typography>
+                      </IconButton>
+                    </Toolbar>
+                    <Editor
+                      height="100%" // Ensures height is from below the toolbar to the bottom of the screen
+                      maxHeight="100%" // Constrains the editor's max height
+                      width="100%"
+                      value={JSON.stringify(finalResult, null, 2)}
+                      language="javascript"
+                      theme="vs-dark"
+                      onChange={(newValue) => setCode(newValue)}
+                      options={monacoEditorOptions}
+                    />
                 </Card>
               </Box>
             </Box>

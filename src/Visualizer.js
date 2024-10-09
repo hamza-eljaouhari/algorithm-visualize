@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Dialog, DialogTitle, DialogContent, TextField } from '@mui/material';
+import { Box, Typography, Dialog, DialogTitle, DialogContent, TextField, Toolbar } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import IconButton from '@mui/material/IconButton';
+
 
 export default function Visualizer({ steps, currentStep, stepType }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -77,12 +80,12 @@ export default function Visualizer({ steps, currentStep, stepType }) {
 
   const renderMatrix = (stepData) => {
     const { arr = [[]], action, current } = stepData;
-  
+
     if (!Array.isArray(arr)) {
       console.error("arr is not a 2D array:", arr);
       return <Typography color="error">Error: arr is not a 2D array.</Typography>;
     }
-  
+
     return (
       <Box mt={2}>
         {arr.map((row, rowIndex) => (
@@ -97,8 +100,8 @@ export default function Visualizer({ steps, currentStep, stepType }) {
                   textAlign: 'center',
                   backgroundColor:
                     current &&
-                    current[0] === rowIndex &&
-                    current[1] === colIndex
+                      current[0] === rowIndex &&
+                      current[1] === colIndex
                       ? operationColors[action] || '#4682B4'
                       : '#2C2C54',
                   color: 'white',
@@ -330,22 +333,8 @@ export default function Visualizer({ steps, currentStep, stepType }) {
 
   return (
     <Box sx={{ position: 'relative' }}>
-      <Box
-        sx={{
-          position: 'sticky',
-          top: 0,
-          left: 0,
-          width: 'inherit', // Match the width of the parent container
-          backgroundColor: '#333',
-          display: 'flex',
-          alignItems: 'center',
-          height: '64px',  // Smaller height
-          padding: '0 5px',
-          borderBottom: '1px solid black',
-          zIndex: 1000, // Make sure it stays on top of other content
-        }}
-      >
-        <Typography variant="subtitle1" sx={{ textAlign: 'left', color: 'white', ml: 2 }}>
+      <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', position: 'absolute', top: 0, width: '100%', height: '48px', zIndex: 1000 }}>
+        <Typography variant="subtitle1" sx={{ textAlign: 'left', color: 'black', ml: 2 }}>
           Visualization
         </Typography>
         <TextField
@@ -357,17 +346,16 @@ export default function Visualizer({ steps, currentStep, stepType }) {
           sx={{
             ml: 'auto',
             mr: 2,
-            '.MuiFormLabel-root': { color: 'white', fontSize: '14px', paddingBottom: '5px'},
-            '.MuiOutlinedInput-root fieldset': { color: 'white !important', height: '36px' },
+            '.MuiFormLabel-root': { color: 'black', fontSize: '14px', paddingBottom: '5px' },
+            '.MuiOutlinedInput-root fieldset': { color: 'black !important', height: '36px' },
             '& .MuiOutlinedInput-root': {
-              '& fieldset': { borderColor: 'white', marginTop: '5px'},
-              '&.Mui-focused fieldset': { borderColor: 'white' },
-              '& input': { color: 'white', width: '120px' },
+              '& fieldset': { borderColor: 'black', marginTop: '5px' },
+              '&.Mui-focused fieldset': { borderColor: 'black' },
+              '& input': { color: 'black', width: '120px' },
             },
           }}
         />
-      </Box>
-
+      </Toolbar>
       <Box sx={{ padding: '20px' }}> {/* Push content down to avoid overlap with header */}
         {displayedSteps.length > 0 && (
           <Typography variant="h6" sx={{ textAlign: 'left', mb: 2 }}>
