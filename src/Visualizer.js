@@ -379,7 +379,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
       </Toolbar>
       
       {/* Content Section */}
-      <Box sx={{ paddingTop: '20px', ml: 2 }}>
+      <Box sx={{ p: '20px 0', ml: 2 }}>
         {displayedSteps.length > 0 && (
           <Typography variant="h6" sx={{ textAlign: 'left', mb: 2,  ml: 2 }}>
             {`Step #${steps.indexOf(displayedSteps[0]) + 1} to Step #${steps.indexOf(displayedSteps[displayedSteps.length - 1]) + 1}`}
