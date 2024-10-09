@@ -19,16 +19,30 @@ import FastForwardIcon from '@mui/icons-material/FastForward';
 import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import { algorithms } from './algorithms';
-import { implementations } from './implementations';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import TextField from '@mui/material/TextField';
+import { algorithms } from './algorithms';
+import { implementations } from './implementations';
 import Visualizer from './Visualizer';
+import { Editor } from '@monaco-editor/react';
+
+// Configuration for the Monaco Editor
+const monacoEditorOptions = {
+  selectOnLineNumbers: true,
+  automaticLayout: true,
+  scrollBeyondLastLine: false,
+  theme: 'vs-dark', // Set to dark theme to match VS Code's dark theme
+  tabSize: 2,
+  fontSize: 14,
+  wordWrap: 'on',
+  minimap: {
+    enabled: false,
+  },
+};
 
 const drawerWidth = 250; // Reduced by 20%
 
@@ -53,7 +67,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({
     marginLeft: 0,
   }),
   marginBottom: 0,
-  '.MuiToolbar-root' : {
+  '.MuiToolbar-root': {
     minHeight: '48px'
   },
 }));
@@ -73,7 +87,7 @@ const AppBarStyled = styled(AppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
-  '.MuiToolbar-root' : {
+  '.MuiToolbar-root': {
     minHeight: '48px'
   }
 }));
@@ -179,8 +193,6 @@ export default function Dashboard() {
     setIsPlaying(true);
     setCurrentStep(0);
   };
-
-
 
   const generateParameters = (parameters, algorithmName) => {
     return parameters.map(param => {
@@ -314,24 +326,29 @@ export default function Dashboard() {
     });
   };
 
+  const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+
+
   const handleAlgorithmSelection = async (categoryName, algorithmName) => {
-    // Clear the steps when changing algorithms
-    setAlgorithmSteps([]);  // Clear previous algorithm steps
-    setCurrentStep(0);      // Reset current step
-    setFinalResult(null);   // Clear final result
-    setCode('');            // Clear code
+    setAlgorithmSteps([]);
+    setCurrentStep(0);
+    setFinalResult(null);
+    setCode('');
 
     setSelectedAlgorithm(algorithmName);
     setSelectedCategory(categoryName);
 
-    const algorithmImplementation = implementations[categoryName]?.algorithms.find(alg => alg.name === algorithmName);
+    const algorithmImplementation = implementations[categoryName]?.algorithms.find(
+      (alg) => alg.name === algorithmName
+    );
     setAlgorithmImplementation(algorithmImplementation);
 
     if (algorithmImplementation) {
       const params = generateParameters(algorithmImplementation.parameters, algorithmName);
       setGeneratedParams(params);
       setCode(algorithmImplementation.code || '');
-      console.log(algorithmImplementation.code)
     }
   };
 
@@ -354,7 +371,6 @@ export default function Dashboard() {
       return;
     }
 
-    // Generate parameters and execute the selected algorithm
     const params = generatedParams;
 
     let result = [];
@@ -370,21 +386,17 @@ export default function Dashboard() {
         updateStep({
           ...stepData
         });
-      })
+      });
     }
 
     setFinalResult(result);
-  };
-
-  const handleAccordionChange = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : false);
   };
 
   useEffect(() => {
     if (isPlaying && currentStep < algorithmSteps.length - 1) {
       const timer = setTimeout(() => {
         setCurrentStep((prevStep) => prevStep + 1);
-      }, 400); // Reduced delay
+      }, 400);
       return () => clearTimeout(timer);
     } else if (isPlaying && autoPlay && currentStep >= algorithmSteps.length - 1) {
       setIsPlaying(false);
@@ -393,7 +405,7 @@ export default function Dashboard() {
   }, [isPlaying, currentStep, algorithmSteps, autoPlay]);
 
   return (
-    <Box sx={{ display: 'flex', height: 'calc(100vh - 200px)'}}>
+    <Box sx={{ display: 'flex', height: 'calc(100vh - 200px)' }}>
       <CssBaseline />
       <AppBarStyled position="fixed" open={open} >
         <Toolbar sx={{ justifyContent: 'left' }}>
@@ -504,8 +516,8 @@ export default function Dashboard() {
             <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Visualize</Typography>
           </IconButton>
         </Toolbar>
-        <Box sx={{ display: 'flex', height: 'calc(100vh - 4px)', flexDirection: 'column', marginTop: '50px'}}>
-          <Box sx={{ display: 'flex', width: '100%', height: 'calc(100vh + 4px)'}}>
+        <Box sx={{ display: 'flex', height: 'calc(100vh - 4px)', flexDirection: 'column', marginTop: '50px' }}>
+          <Box sx={{ display: 'flex', width: '100%', height: 'calc(100vh + 4px)' }}>
             <Box sx={{ width: '50%', display: 'flex', height: '50vh + 4px', flexDirection: 'column' }}>
               <Card sx={{ height: 'calc(33vh - 96px / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
                 <CardContent>
@@ -523,25 +535,18 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             </Box>
-            <Box sx={{
-              width: '50%', // Reduced width
-              position: 'sticky',
-              top: 0,
-              height: 'calc(50vh + 4px)',
-              overflowY: 'auto',
-              ...scrollbarStyle
-            }}>
-              <TextField
-                multiline
-                fullWidth
-                variant="outlined"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                sx={{ height: '100%', color: '#ddd', fontFamily: 'monospace', ...scrollbarStyle }}
-                inputProps={{
-                  style: { color: '#ddd', backgroundColor: '#333', padding: '12px', fontSize: '0.8rem', border: 'none' }
-                }}
-              />
+            <Box sx={{ display: 'flex', flexDirection: 'column', width: '50vh' }}>
+              <Box sx={{ display: 'flex', width: '50vw', height: '100vh' }}>
+                <Box sx={{ width: '100%' }}>
+                  <Editor
+                    height="100%"
+                    value={code}
+                    language="javascript"
+                    onChange={(newValue) => setCode(newValue)}
+                    options={monacoEditorOptions}
+                  />
+                </Box>
+              </Box>
             </Box>
           </Box>
         </Box>
