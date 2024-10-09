@@ -4578,8 +4578,8 @@ function heapSort(array, updateStep) {
     algorithms: [
       {
         name: 'Rabin-Karp Algorithm',
-        description: 'Searches for a pattern in a text using hashing.',
-        outputType: 'integer',
+        description: 'Searches for a pattern in a text using hashing and returns all occurrences.',
+        outputType: 'array', // Change to array to accommodate multiple indices
         visualization: {
           description: 'Visualization of the Rabin-Karp algorithm.',
           details: {
@@ -4590,240 +4590,600 @@ function heapSort(array, updateStep) {
         },
         parameters: [
           { name: 'text', type: 'string' },
-          { name: 'pattern', type: 'string' },
+          { name: 'pattern', type: 'pattern' },
         ],
         execute: (text, pattern, updateStep) => {
           const m = pattern.length;
           const n = text.length;
-          const prime = 101;
-          let p = 0;
-          let t = 0;
-          const h = Math.pow(256, m - 1) % prime;
 
+          // Validate inputs
+          if (m > n) {
+            console.error("Pattern length is greater than text length.");
+            return [];
+          }
+
+          const prime = 101;
+          let p = 0; // Hash value for pattern
+          let t = 0; // Hash value for text
+          const h = Math.pow(256, m - 1) % prime; // Hash multiplier
+          const arr = Array.from(text); // Create an array from the text for visualization
+          const foundIndices = []; // Array to store all found indices
+
+          // Calculate the hash value for the pattern and the first window of text
           for (let i = 0; i < m; i++) {
             p = (256 * p + pattern.charCodeAt(i)) % prime;
             t = (256 * t + text.charCodeAt(i)) % prime;
+
+            // Debug log for each character addition
+            console.log(`Character: ${text[i]}, Hash for Pattern: ${p}, Hash for Text: ${t}`);
           }
 
+          console.log(`Initial Hash for Pattern: ${p}, Hash for Text: ${t}`);
+
+          // Slide the pattern over the text one by one
           for (let i = 0; i <= n - m; i++) {
+            // Check for hash match
             if (p === t) {
+              console.log(`Hashes match at index: ${i}`);
+              // Check for characters one by one
               let j;
               for (j = 0; j < m; j++) {
-                if (text[i + j] !== pattern[j]) break;
+                if (text[i + j] !== pattern[j]) {
+                  console.log(`Mismatch at index: ${i + j}, Text: ${text[i + j]}, Pattern: ${pattern[j]}`);
+                  break;
+                }
               }
-              if (j === m) updateStep({ index: i, found: true, action: 'Pattern found' });
+              if (j === m) {
+                foundIndices.push(i); // Store the index where the pattern is found
+                updateStep({ arr, index: i, action: 'Pattern found' });
+              }
             }
+
+            // Calculate hash for the next window of text
             if (i < n - m) {
               t = (256 * (t - text.charCodeAt(i) * h) + text.charCodeAt(i + m)) % prime;
+
+              // Ensure t is non-negative
               if (t < 0) t += prime;
+
+              // Update step for the current window hash
+              updateStep({ arr, index: i + 1, action: 'Hash updated', currentHash: t });
+              console.log(`Updated Hash for Text at index ${i + 1}: ${t}`);
             }
-            updateStep({ index: i, action: 'Hash updated', currentHash: t });
           }
+
+          // Final result display
+          updateStep({ arr, found: foundIndices.length > 0, action: 'Search complete' });
+          return foundIndices; // Return an array of indices where the pattern was found
         },
         code: `
-function rabinKarp(text, pattern, updateStep) {
-  const m = pattern.length;
-  const n = text.length;
-  const prime = 101;
-  let p = 0;
-  let t = 0;
-  const h = Math.pow(256, m - 1) % prime;
-
-  for (let i = 0; i < m; i++) {
-    p = (256 * p + pattern.charCodeAt(i)) % prime;
-    t = (256 * t + text.charCodeAt(i)) % prime;
-  }
-
-  for (let i = 0; i <= n - m; i++) {
-    if (p === t) {
-      let j;
-      for (j = 0; j < m; j++) {
-        if (text[i + j] !== pattern[j]) break;
+    function rabinKarp(text, pattern, updateStep) {
+      const m = pattern.length;
+      const n = text.length;
+      const prime = 101;
+      let p = 0;
+      let t = 0;
+      const h = Math.pow(256, m - 1) % prime;
+    
+      const arr = Array.from(text);
+      const foundIndices = [];
+    
+      for (let i = 0; i < m; i++) {
+        p = (256 * p + pattern.charCodeAt(i)) % prime;
+        t = (256 * t + text.charCodeAt(i)) % prime;
       }
-      if (j === m) updateStep({ index: i, found: true });
+    
+      for (let i = 0; i <= n - m; i++) {
+        if (p === t) {
+          let j;
+          for (j = 0; j < m; j++) {
+            if (text[i + j] !== pattern[j]) break;
+          }
+          if (j === m) {
+            foundIndices.push(i);
+            updateStep({ arr, index: i, action: 'Pattern found' });
+          }
+        }
+    
+        if (i < n - m) {
+          t = (256 * (t - text.charCodeAt(i) * h) + text.charCodeAt(i + m)) % prime;
+          if (t < 0) t += prime;
+          updateStep({ arr, index: i + 1, action: 'Hash updated', currentHash: t });
+        }
+      }
+    
+      updateStep({ arr, found: foundIndices.length > 0, action: 'Search complete' });
+      return foundIndices;
     }
-    if (i < n - m) {
-      t = (256 * (t - text.charCodeAt(i) * h) + text.charCodeAt(i + m)) % prime;
-      if (t < 0) t += prime;
-    }
-    updateStep({ index: i, action: 'Hash updated', currentHash: t });
-  }
-}
-      `,
+        `,
       },
       {
-        name: 'KMP Algorithm',
-        description: 'Searches for a pattern in a text using the Knuth-Morris-Pratt algorithm.',
+        name: 'Z Algorithm',
+        description: 'Searches for a pattern in a text using the Z algorithm.',
         outputType: 'integer',
         visualization: {
-          description: 'Visualization of the KMP algorithm.',
+          description: 'Visualization of the Z algorithm.',
           details: {
             type: 'searching',
-            additionalInfo: 'Each step shows the current state of the pattern and text indexes being compared.',
+            additionalInfo: 'Each step shows the Z array being constructed and matched.',
           },
           stepType: 'array',
         },
         parameters: [
           { name: 'text', type: 'string' },
-          { name: 'pattern', type: 'string' },
+          { name: 'pattern', type: 'pattern' },
         ],
         execute: (text, pattern, updateStep) => {
-          const lps = (pattern) => {
-            const lpsArray = Array(pattern.length).fill(0);
-            let len = 0;
-            let i = 1;
+          const combined = pattern + '$' + text; // Combine pattern and text
+          const Z = Array(combined.length).fill(0);
+          let L = 0, R = 0; // Initialize L and R for Z box
+          const arr = Array.from(combined); // Create an array from the combined string for visualization
+          let found = false; // Track if the pattern is found
+          let startIndex = -1; // Initialize startIndex to an invalid state
 
-            while (i < pattern.length) {
-              if (pattern[i] === pattern[len]) {
-                len++;
-                lpsArray[i] = len;
-                i++;
+          // Calculate the Z array
+          for (let i = 1; i < combined.length; i++) {
+            if (i > R) {
+              L = R = i;
+              while (R < combined.length && combined[R] === combined[R - L]) R++;
+              Z[i] = R - L;
+              R--;
+            } else {
+              const k = i - L;
+              if (Z[k] < R - i + 1) {
+                Z[i] = Z[k];
               } else {
-                if (len !== 0) {
-                  len = lpsArray[len - 1];
-                } else {
-                  lpsArray[i] = 0;
-                  i++;
-                }
+                L = i;
+                while (R < combined.length && combined[R] === combined[R - L]) R++;
+                Z[i] = R - L;
+                R--;
               }
             }
-            return lpsArray;
-          };
+            updateStep({ arr, index: i, ZValue: Z[i] });
+          }
 
-          const lpsArray = lps(pattern);
-          let i = 0;
-          let j = 0;
-
-          while (i < text.length) {
-            updateStep({ currentTextIndex: i, currentPatternIndex: j });
-            if (pattern[j] === text[i]) {
-              i++;
-              j++;
-            }
-
-            if (j === pattern.length) {
-              updateStep({ index: i - j, found: true, action: 'Pattern found' });
-              j = lpsArray[j - 1];
-            } else if (i < text.length && pattern[j] !== text[i]) {
-              if (j !== 0) {
-                j = lpsArray[j - 1];
-              } else {
-                i++;
-              }
+          // Check for matches
+          for (let i = 0; i < Z.length; i++) {
+            if (Z[i] === pattern.length) {
+              found = true;
+              // Calculate the starting index in the original text
+              startIndex = i - pattern.length - 1; // Adjust for '$' and pattern length
+              updateStep({ arr, index: startIndex, found, action: 'Pattern found' });
             }
           }
+
+          // Final result display
+          updateStep({ arr, found, action: 'Search complete' });
+          return found ? `Pattern found at index ${startIndex}` : -1; // Return index or -1 if not found
         },
         code: `
-function kmp(text, pattern, updateStep) {
-  const lps = (pattern) => {
-    const lpsArray = Array(pattern.length).fill(0);
-    let len = 0;
-    let i = 1;
-
-    while (i < pattern.length) {
-      if (pattern[i] === pattern[len]) {
-        len++;
-        lpsArray[i] = len;
-        i++;
-      } else {
-        if (len !== 0) {
-          len = lpsArray[len - 1];
+    function zAlgorithm(text, pattern, updateStep) {
+      const combined = pattern + '$' + text;
+      const Z = Array(combined.length).fill(0);
+      let L = 0, R = 0;
+    
+      const arr = Array.from(combined);
+      let found = false;
+    
+      for (let i = 1; i < combined.length; i++) {
+        if (i > R) {
+          L = R = i;
+          while (R < combined.length && combined[R] === combined[R - L]) R++;
+          Z[i] = R - L;
+          R--;
         } else {
-          lpsArray[i] = 0;
-          i++;
+          const k = i - L;
+          if (Z[k] < R - i + 1) {
+            Z[i] = Z[k];
+          } else {
+            L = i;
+            while (R < combined.length && combined[R] === combined[R - L]) R++;
+            Z[i] = R - L;
+            R--;
+          }
+        }
+        updateStep({ arr, index: i, ZValue: Z[i] });
+      }
+    
+      for (let i = 0; i < Z.length; i++) {
+        if (Z[i] === pattern.length) {
+          found = true;
+          updateStep({ arr, index: i - pattern.length - 1, found });
         }
       }
+    
+      updateStep({ arr, found, action: 'Search complete' });
+      return found ? \'Pattern found at index \${arr.indexOf(pattern)}\' : -1;
     }
-    return lpsArray;
-  };
+        `,
+      },
+      {
+        name: 'Aho-Corasick Algorithm',
+        description: 'Searches for multiple patterns in a text using a trie and failure links.',
+        outputType: 'array',
+        visualization: {
+            description: 'Visualization of the Aho-Corasick algorithm.',
+            details: {
+                type: 'searching',
+                additionalInfo: 'Each step shows the current state of the trie and matches found.',
+            },
+            stepType: 'array',
+        },
+        parameters: [
+            { name: 'text', type: 'string' },
+            { name: 'patterns', type: 'patterns' },
+        ],
+        execute: (text, patterns, updateStep) => {
+            // Step 1: Build the Trie
+            const trie = {};
+    
+            // Insert each pattern into the trie
+            patterns.forEach(pattern => {
+                let node = trie;
+                for (const char of pattern) {
+                    if (!node[char]) {
+                        node[char] = {}; // Create a new node if it doesn't exist
+                    }
+                    node = node[char]; // Move to the child node
+                }
+                node.isEndOfPattern = true; // Mark the end of a pattern
+                node.pattern = pattern; // Store the pattern for reference
+            });
+    
+            updateStep({ action: 'Trie constructed', trie });
+    
+            // Step 2: Build failure links
+            const buildFailureLinks = (trie) => {
+                const queue = [];
+                // Initialize failure links for the root's children
+                for (const char in trie) {
+                    if (trie[char]) {
+                        trie[char].failure = trie; // Root failure link points to itself
+                        queue.push(trie[char]);
+                    }
+                }
 
-  const lpsArray = lps(pattern);
-  let i = 0;
-  let j = 0;
+                while (queue.length > 0) {
+                    const currentNode = queue.shift();
+    
+                    for (const char in currentNode) {
+                        if (currentNode[char] && !currentNode.isEndOfPattern) {
+                            const childNode = currentNode;
+                            let fallback = currentNode.failure; // Start with the failure link
+    
+                            // Follow failure links until we find a match or reach the root
+                            while (fallback && !fallback[char]) {
+                                fallback = fallback.failure;
+                            }
+    
+                            // Set the failure link
+                            childNode.failure = fallback ? fallback[char] : trie;
+    
+                            // Add the child node to the queue
+                            queue.push(childNode);
+                        }
+                    }
+                }
+            };
+    
+            buildFailureLinks(trie);
+    
+            // Step 3: Search through the text
+            let node = trie;
+            const results = [];
+    
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+    
+                // Follow failure links until a match is found or we reach the root
+                while (node && !node[char]) {
+                    node = node.failure;
+                }
+    
+                if (!node) {
+                    node = trie; // Restart at the root of the trie
+                    continue;
+                }
+    
+                node = node[char];
+    
+                // Check if we have found a pattern
+                let tempNode = node;
+                while (tempNode) {
+                    if (tempNode.isEndOfPattern) {
+                        results.push(`Pattern "${tempNode.pattern}" found at index ${i - tempNode.pattern.length + 1}`);
+                        updateStep({ action: 'Pattern found', pattern: tempNode.pattern, index: i - tempNode.pattern.length + 1 });
+                    }
+                    tempNode = tempNode.failure; // Move up the failure links
+                }
+            }
+    
+            // Final result display
+            updateStep({ action: 'Search complete', results });
+            return results; // Return the found patterns
+        }
+      },    
+      {
+  name: 'KMP Algorithm',
+    description: 'Searches for a pattern in a text using the Knuth-Morris-Pratt algorithm.',
+      outputType: 'integer',
+        visualization: {
+    description: 'Visualization of the KMP algorithm.',
+      details: {
+      type: 'searching',
+        additionalInfo: 'Each step shows the current state of the pattern and text indexes being compared.',
+          },
+    stepType: 'array',
+        },
+  parameters: [
+    { name: 'text', type: 'string' },
+    { name: 'pattern', type: 'pattern' },
+  ],
+    execute: (text, pattern, updateStep) => {
+      const lps = (pattern) => {
+        const lpsArray = Array(pattern.length).fill(0);
+        let len = 0;
+        let i = 1;
 
-  while (i < text.length) {
-    updateStep({ currentTextIndex: i, currentPatternIndex: j });
-    if (pattern[j] === text[i]) {
-      i++;
-      j++;
+        while (i < pattern.length) {
+          if (pattern[i] === pattern[len]) {
+            len++;
+            lpsArray[i] = len;
+            i++;
+          } else {
+            if (len !== 0) {
+              len = lpsArray[len - 1];
+            } else {
+              lpsArray[i] = 0;
+              i++;
+            }
+          }
+        }
+        return lpsArray;
+      };
+
+      const lpsArray = lps(pattern);
+      let i = 0;
+      let j = 0;
+
+      const arr = Array.from(text); // Create an array from the text for visualization
+      let found = false; // To track if the pattern was found
+
+      while (i < text.length) {
+        updateStep({ arr, currentTextIndex: i, currentPatternIndex: j });
+        if (pattern[j] === text[i]) {
+          i++;
+          j++;
+        }
+
+        if (j === pattern.length) {
+          found = true;
+          updateStep({ arr, index: i - j, found, action: 'Pattern found' });
+          j = lpsArray[j - 1];
+        } else if (i < text.length && pattern[j] !== text[i]) {
+          if (j !== 0) {
+            j = lpsArray[j - 1];
+          } else {
+            i++;
+          }
+        }
+      }
+
+      // Final result display
+      updateStep({ arr, found, action: 'Search complete' });
+      return found ? 'Pattern found at index ${arr.indexOf(pattern)}' : -1;
+    },
+      code: `
+    function kmp(text, pattern, updateStep) {
+      const lps = (pattern) => {
+        const lpsArray = Array(pattern.length).fill(0);
+        let len = 0;
+        let i = 1;
+    
+        while (i < pattern.length) {
+          if (pattern[i] === pattern[len]) {
+            len++;
+            lpsArray[i] = len;
+            i++;
+          } else {
+            if (len !== 0) {
+              len = lpsArray[len - 1];
+            } else {
+              lpsArray[i] = 0;
+              i++;
+            }
+          }
+        }
+        return lpsArray;
+      };
+    
+      const lpsArray = lps(pattern);
+      let i = 0;
+      let j = 0;
+    
+      const arr = Array.from(text);
+      let found = false;
+    
+      while (i < text.length) {
+        updateStep({ arr, currentTextIndex: i, currentPatternIndex: j });
+        if (pattern[j] === text[i]) {
+          i++;
+          j++;
+        }
+    
+        if (j === pattern.length) {
+          found = true;
+          updateStep({ arr, index: i - j, found });
+          j = lpsArray[j - 1];
+        } else if (i < text.length && pattern[j] !== text[i]) {
+          if (j !== 0) {
+            j = lpsArray[j - 1];
+          } else {
+            i++;
+          }
+        }
+      }
+    
+      updateStep({ arr, found, action: 'Search complete' });
+      return found ? \'Pattern found at index \${arr.indexOf(pattern)}\' : -1; // Return index or -1 if not found
     }
+        `,
+      },
+      {
+  name: 'Suffix Tree Construction',
+    description: 'Constructs a suffix tree from a given string.',
+      outputType: 'object',
+        visualization: {
+    description: 'Visualization of the Suffix Tree construction.',
+      details: {
+      type: 'data structure',
+        additionalInfo: 'Each step shows the current state of the suffix tree being built.',
+          },
+    stepType: 'tree',
+        },
+  parameters: [
+    { name: 'text', type: 'string' },
+  ],
+    execute: (text, updateStep) => {
+      const tree = {}; // Construct the suffix tree
 
-    if (j === pattern.length) {
-      updateStep({ index: i - j, found: true });
-      j = lpsArray[j - 1];
-    } else if (i < text.length && pattern[j] !== text[i]) {
-      if (j !== 0) {
-        j = lpsArray[j - 1];
-      } else {
-        i++;
+      updateStep({ action: 'Suffix tree constructed', tree });
+
+      return tree; // Return the constructed suffix tree
+    },
+      code: `
+function suffixTreeConstruction(text, updateStep) {
+  const tree = {}; // Construct the suffix tree
+
+  updateStep({ action: 'Suffix tree constructed', tree });
+
+  return tree; // Return the constructed suffix tree
+}
+      `,
+      },
+      {
+  name: 'Longest Repeated Substring',
+    description: 'Finds the longest repeated substring in a given string.',
+      outputType: 'string',
+        visualization: {
+    description: 'Visualization of finding the Longest Repeated Substring.',
+      details: {
+      type: 'searching',
+        additionalInfo: 'Each step shows the current state of the string and the found substrings.',
+          },
+    stepType: 'array',
+        },
+  parameters: [
+    { name: 'text', type: 'string', minLength: 100, maxLength: 200 },
+  ],
+    execute: (text, updateStep) => {
+      let longestSubstring = ''; // Logic to find the longest repeated substring
+      const arr = Array.from(text); // Create an array from the text for visualization
+
+      updateStep({ action: 'Finding longest repeated substring', arr });
+
+      // Logic for finding the longest repeated substring goes here
+      for (let i = 0; i < text.length; i++) {
+        for (let j = i + 1; j < text.length; j++) {
+          const substring = text.slice(i, j);
+          if (text.indexOf(substring, j) !== -1 && substring.length > longestSubstring.length) {
+            longestSubstring = substring;
+          }
+        }
+        updateStep({ action: 'Current substring checked', arr, longestSubstring });
+      }
+
+      // Final result display
+      updateStep({ action: 'Longest repeated substring found', substring: longestSubstring });
+
+      return longestSubstring; // Return the longest repeated substring found
+    },
+      code: `
+function longestRepeatedSubstring(text, updateStep) {
+  let longestSubstring = '';
+  const arr = Array.from(text);
+
+  updateStep({ action: 'Finding longest repeated substring', arr });
+
+  // Logic for finding the longest repeated substring goes here
+  for (let i = 0; i < text.length; i++) {
+    for (let j = i + 1; j < text.length; j++) {
+      const substring = text.slice(i, j);
+      if (text.indexOf(substring, j) !== -1 && substring.length > longestSubstring.length) {
+        longestSubstring = substring;
       }
     }
+    updateStep({ action: 'Current substring checked', arr, longestSubstring });
   }
+
+  updateStep({ action: 'Longest repeated substring found', substring: longestSubstring });
+
+  return longestSubstring; // Return the longest repeated substring found
 }
       `,
       },
     ],
   },
-  'Miscellaneous Algorithms': {
-    algorithms: [
-      {
-        name: 'Backtracking (e.g., Hamiltonian Cycle)',
-        description: 'Finds Hamiltonian cycles in a graph using a backtracking approach.',
-        outputType: 'array',
-        visualization: {
-          description: 'Visualization of the Hamiltonian Cycle algorithm.',
-          details: {
-            type: 'backtracking',
-            additionalInfo: 'Each step shows the current state of the path and the current vertex being explored.',
-          },
-          stepType: 'array',
+'Miscellaneous Algorithms': {
+  algorithms: [
+    {
+      name: 'Backtracking (e.g., Hamiltonian Cycle)',
+      description: 'Finds Hamiltonian cycles in a graph using a backtracking approach.',
+      outputType: 'array',
+      visualization: {
+        description: 'Visualization of the Hamiltonian Cycle algorithm.',
+        details: {
+          type: 'backtracking',
+          additionalInfo: 'Each step shows the current state of the path and the current vertex being explored.',
         },
-        parameters: [
-          { name: 'graph', type: 'adjacencyList', numVertices: 5 }
-        ],
-        execute: (graph, updateStep) => {
-          const numVertices = graph.length;
-          const path = Array(numVertices).fill(-1);
-          path[0] = 0;
+        stepType: 'array',
+      },
+      parameters: [
+        { name: 'graph', type: 'adjacencyList', numVertices: 5 }
+      ],
+      execute: (graph, updateStep) => {
+        const numVertices = graph.length;
+        const path = Array(numVertices).fill(-1);
+        path[0] = 0;
 
-          const isSafe = (v, pos) => {
-            if (!graph[path[pos - 1]].some(edge => edge[0] === v)) return false;
-            return !path.includes(v);
-          };
+        const isSafe = (v, pos) => {
+          if (!graph[path[pos - 1]].some(edge => edge[0] === v)) return false;
+          return !path.includes(v);
+        };
 
-          const hamiltonianCycleUtil = (pos) => {
-            if (pos === numVertices) {
-              if (graph[path[pos - 1]].some(edge => edge[0] === path[0])) {
-                updateStep({ path: [...path], cycleComplete: true });
-                return true;
-              } else {
-                return false;
-              }
+        const hamiltonianCycleUtil = (pos) => {
+          if (pos === numVertices) {
+            if (graph[path[pos - 1]].some(edge => edge[0] === path[0])) {
+              updateStep({ path: [...path], cycleComplete: true });
+              return true;
+            } else {
+              return false;
             }
-
-            for (let v = 1; v < numVertices; v++) {
-              if (isSafe(v, pos)) {
-                path[pos] = v;
-                updateStep({ path: [...path], currentVertex: v, step: pos });
-
-                if (hamiltonianCycleUtil(pos + 1)) return true;
-
-                path[pos] = -1;
-                updateStep({ path: [...path], backtracking: true, step: pos });
-              }
-            }
-
-            return false;
-          };
-
-          if (!hamiltonianCycleUtil(1)) {
-            updateStep({ path: null, cycleComplete: false });
-            return false;
           }
 
-          return path;
-        },
-        code: `
+          for (let v = 1; v < numVertices; v++) {
+            if (isSafe(v, pos)) {
+              path[pos] = v;
+              updateStep({ path: [...path], currentVertex: v, step: pos });
+
+              if (hamiltonianCycleUtil(pos + 1)) return true;
+
+              path[pos] = -1;
+              updateStep({ path: [...path], backtracking: true, step: pos });
+            }
+          }
+
+          return false;
+        };
+
+        if (!hamiltonianCycleUtil(1)) {
+          updateStep({ path: null, cycleComplete: false });
+          return false;
+        }
+
+        return path;
+      },
+      code: `
     function hamiltonianCycle(graph, updateStep) {
       const numVertices = graph.length;
       const path = Array(numVertices).fill(-1);
@@ -4867,58 +5227,58 @@ function kmp(text, pattern, updateStep) {
       return path;
     }
         `,
+    },
+    {
+      name: 'Randomized Algorithms (e.g., Randomized QuickSort)',
+      description: 'Sorts an array using randomized quicksort, where the pivot is chosen randomly in each partition step.',
+      outputType: 'array',
+      visualization: {
+        description: 'Visualization of the Randomized QuickSort algorithm.',
+        details: {
+          type: 'sorting',
+          additionalInfo: 'Each step shows the array state and highlights the pivot index and the indices being compared.',
+        },
+        stepType: 'array',
       },
-      {
-        name: 'Randomized Algorithms (e.g., Randomized QuickSort)',
-        description: 'Sorts an array using randomized quicksort, where the pivot is chosen randomly in each partition step.',
-        outputType: 'array',
-        visualization: {
-          description: 'Visualization of the Randomized QuickSort algorithm.',
-          details: {
-            type: 'sorting',
-            additionalInfo: 'Each step shows the array state and highlights the pivot index and the indices being compared.',
-          },
-          stepType: 'array',
-        },
-        parameters: [
-          { name: 'array', type: 'array', length: 10, min: 1, max: 100 }
-        ],
-        execute: (array, updateStep) => {
-          const randomizedQuickSort = (arr, low, high) => {
-            if (low < high) {
-              const pivotIndex = partition(arr, low, high);
-              updateStep({ arr: [...arr], pivotIndex, low, high, action: 'Partition complete' });
+      parameters: [
+        { name: 'array', type: 'array', length: 10, min: 1, max: 100 }
+      ],
+      execute: (array, updateStep) => {
+        const randomizedQuickSort = (arr, low, high) => {
+          if (low < high) {
+            const pivotIndex = partition(arr, low, high);
+            updateStep({ arr: [...arr], pivotIndex, low, high, action: 'Partition complete' });
 
-              randomizedQuickSort(arr, low, pivotIndex - 1);
-              randomizedQuickSort(arr, pivotIndex + 1, high);
+            randomizedQuickSort(arr, low, pivotIndex - 1);
+            randomizedQuickSort(arr, pivotIndex + 1, high);
+          }
+        };
+
+        const partition = (arr, low, high) => {
+          const pivotIndex = Math.floor(Math.random() * (high - low + 1)) + low;
+          const pivotValue = arr[pivotIndex];
+          [arr[pivotIndex], arr[high]] = [arr[high], arr[pivotIndex]];
+          updateStep({ arr: [...arr], pivotValue, pivotIndex, action: 'Pivot chosen and moved to end' });
+
+          let storeIndex = low;
+          for (let i = low; i < high; i++) {
+            if (arr[i] < pivotValue) {
+              [arr[storeIndex], arr[i]] = [arr[i], arr[storeIndex]];
+              updateStep({ arr: [...arr], i, storeIndex, action: 'Swapping elements' });
+              storeIndex++;
             }
-          };
+          }
 
-          const partition = (arr, low, high) => {
-            const pivotIndex = Math.floor(Math.random() * (high - low + 1)) + low;
-            const pivotValue = arr[pivotIndex];
-            [arr[pivotIndex], arr[high]] = [arr[high], arr[pivotIndex]];
-            updateStep({ arr: [...arr], pivotValue, pivotIndex, action: 'Pivot chosen and moved to end' });
+          [arr[storeIndex], arr[high]] = [arr[high], arr[storeIndex]];
+          updateStep({ arr: [...arr], pivotFinalIndex: storeIndex, action: 'Placing pivot in final position' });
 
-            let storeIndex = low;
-            for (let i = low; i < high; i++) {
-              if (arr[i] < pivotValue) {
-                [arr[storeIndex], arr[i]] = [arr[i], arr[storeIndex]];
-                updateStep({ arr: [...arr], i, storeIndex, action: 'Swapping elements' });
-                storeIndex++;
-              }
-            }
+          return storeIndex;
+        };
 
-            [arr[storeIndex], arr[high]] = [arr[high], arr[storeIndex]];
-            updateStep({ arr: [...arr], pivotFinalIndex: storeIndex, action: 'Placing pivot in final position' });
-
-            return storeIndex;
-          };
-
-          randomizedQuickSort(array, 0, array.length - 1);
-          return array;
-        },
-        code: `
+        randomizedQuickSort(array, 0, array.length - 1);
+        return array;
+      },
+      code: `
     function randomizedQuickSort(array, updateStep) {
       const randomizedQuickSort = (arr, low, high) => {
         if (low < high) {
@@ -4955,53 +5315,53 @@ function kmp(text, pattern, updateStep) {
       return array;
     }
         `,
+    },
+    {
+      name: 'Monte Carlo Algorithms',
+      description: 'Uses random sampling to estimate the value of π by calculating points inside a unit circle.',
+      outputType: 'float',
+      visualization: {
+        description: 'Visualization of the Monte Carlo estimation of π.',
+        details: {
+          type: 'sampling',
+          additionalInfo: 'Each step shows the coordinates sampled and the estimated value of π.',
+        },
+        stepType: 'stepwise',
       },
-      {
-        name: 'Monte Carlo Algorithms',
-        description: 'Uses random sampling to estimate the value of π by calculating points inside a unit circle.',
-        outputType: 'float',
-        visualization: {
-          description: 'Visualization of the Monte Carlo estimation of π.',
-          details: {
-            type: 'sampling',
-            additionalInfo: 'Each step shows the coordinates sampled and the estimated value of π.',
-          },
-          stepType: 'stepwise',
-        },
-        parameters: [
-          { name: 'numPoints', type: 'integer', min: 100, max: 100000 }
-        ],
-        execute: (numPoints, updateStep) => {
-          let insideCircle = 0;
+      parameters: [
+        { name: 'numPoints', type: 'integer', min: 100, max: 100000 }
+      ],
+      execute: (numPoints, updateStep) => {
+        let insideCircle = 0;
 
-          for (let i = 0; i < numPoints; i++) {
-            const x = Math.random();
-            const y = Math.random();
-            const distance = Math.sqrt(x * x + y * y);
-            if (distance <= 1) insideCircle++;
+        for (let i = 0; i < numPoints; i++) {
+          const x = Math.random();
+          const y = Math.random();
+          const distance = Math.sqrt(x * x + y * y);
+          if (distance <= 1) insideCircle++;
 
-            // Only update every 100 iterations to reduce UI calls
-            if (i % 100 === 0) {
-              updateStep({
-                x,
-                y,
-                insideCircle,
-                totalPoints: i + 1,
-                estimatedPi: (4 * insideCircle) / (i + 1),
-                action: 'Sampling',
-              });
-            }
+          // Only update every 100 iterations to reduce UI calls
+          if (i % 100 === 0) {
+            updateStep({
+              x,
+              y,
+              insideCircle,
+              totalPoints: i + 1,
+              estimatedPi: (4 * insideCircle) / (i + 1),
+              action: 'Sampling',
+            });
           }
+        }
 
-          const piEstimate = (4 * insideCircle) / numPoints;
-          updateStep({
-            estimatedPi: piEstimate,
-            action: 'Final Estimate',
-          });
+        const piEstimate = (4 * insideCircle) / numPoints;
+        updateStep({
+          estimatedPi: piEstimate,
+          action: 'Final Estimate',
+        });
 
-          return piEstimate;
-        },
-        code: `
+        return piEstimate;
+      },
+      code: `
           function monteCarlo(numPoints, updateStep) {
             let insideCircle = 0;
       
@@ -5033,75 +5393,75 @@ function kmp(text, pattern, updateStep) {
             return piEstimate;
           }
         `,
+    },
+    {
+      name: 'Simulated Annealing',
+      description: 'An optimization technique inspired by the annealing process in metallurgy, used to find an approximate solution to optimization problems.',
+      outputType: 'float',
+      visualization: {
+        description: 'Visualization of the Simulated Annealing algorithm.',
+        details: {
+          type: 'optimization',
+          additionalInfo: 'Each step shows the current state of the solution and the temperature decay.',
+        },
+        stepType: 'stepwise',
       },
-      {
-        name: 'Simulated Annealing',
-        description: 'An optimization technique inspired by the annealing process in metallurgy, used to find an approximate solution to optimization problems.',
-        outputType: 'float',
-        visualization: {
-          description: 'Visualization of the Simulated Annealing algorithm.',
-          details: {
-            type: 'optimization',
-            additionalInfo: 'Each step shows the current state of the solution and the temperature decay.',
-          },
-          stepType: 'stepwise',
-        },
-        parameters: [
-          { name: 'initialState', type: 'object' },
-          { name: 'temperature', type: 'float', min: 0.01, max: 100 },
-          { name: 'coolingRate', type: 'float', min: 0.01, max: 1 },
-        ],
-        execute: (initialState, temperature, coolingRate, updateStep) => {
-          if (!initialState || !Array.isArray(initialState) || initialState.length === 0) {
-            console.error('Initial state must be a non-empty array.');
-            return null; // or handle as appropriate
+      parameters: [
+        { name: 'initialState', type: 'object' },
+        { name: 'temperature', type: 'float', min: 0.01, max: 100 },
+        { name: 'coolingRate', type: 'float', min: 0.01, max: 1 },
+      ],
+      execute: (initialState, temperature, coolingRate, updateStep) => {
+        if (!initialState || !Array.isArray(initialState) || initialState.length === 0) {
+          console.error('Initial state must be a non-empty array.');
+          return null; // or handle as appropriate
+        }
+
+        const calculateCost = (solution) => {
+          if (!solution) {
+            console.error('Received null or undefined solution');
+            return Infinity; // Return a high cost if the solution is invalid
+          }
+          return solution.reduce((acc, val) => acc + val, 0);
+        };
+
+        const generateNeighbor = (solution) => {
+          const neighbor = [...solution];
+          const index = Math.floor(Math.random() * solution.length);
+          neighbor[index] = Math.random(); // Random value
+          return neighbor;
+        };
+
+        let currentSolution = initialState;
+        let bestSolution = initialState;
+        let bestCost = calculateCost(initialState); // Calculate initial cost
+
+        while (temperature > 1) {
+          let newSolution = generateNeighbor(currentSolution); // Generate new solution
+          let newCost = calculateCost(newSolution);
+
+          if (newCost < bestCost) {
+            bestSolution = newSolution;
+            bestCost = newCost;
+          } else {
+            const acceptanceProbability = Math.exp((bestCost - newCost) / temperature);
+            if (Math.random() < acceptanceProbability) {
+              currentSolution = newSolution;
+            }
           }
 
-          const calculateCost = (solution) => {
-            if (!solution) {
-              console.error('Received null or undefined solution');
-              return Infinity; // Return a high cost if the solution is invalid
-            }
-            return solution.reduce((acc, val) => acc + val, 0);
-          };
+          updateStep({
+            currentSolution: currentSolution,
+            temperature: temperature,
+            bestCost: bestCost,
+          });
 
-          const generateNeighbor = (solution) => {
-            const neighbor = [...solution];
-            const index = Math.floor(Math.random() * solution.length);
-            neighbor[index] = Math.random(); // Random value
-            return neighbor;
-          };
+          temperature *= coolingRate; // Cool down
+        }
 
-          let currentSolution = initialState;
-          let bestSolution = initialState;
-          let bestCost = calculateCost(initialState); // Calculate initial cost
-
-          while (temperature > 1) {
-            let newSolution = generateNeighbor(currentSolution); // Generate new solution
-            let newCost = calculateCost(newSolution);
-
-            if (newCost < bestCost) {
-              bestSolution = newSolution;
-              bestCost = newCost;
-            } else {
-              const acceptanceProbability = Math.exp((bestCost - newCost) / temperature);
-              if (Math.random() < acceptanceProbability) {
-                currentSolution = newSolution;
-              }
-            }
-
-            updateStep({
-              currentSolution: currentSolution,
-              temperature: temperature,
-              bestCost: bestCost,
-            });
-
-            temperature *= coolingRate; // Cool down
-          }
-
-          return bestSolution; // Return the best solution found
-        },
-        code: `
+        return bestSolution; // Return the best solution found
+      },
+      code: `
       function simulatedAnnealing(initialState, temperature, coolingRate, updateStep) {
         if (!initialState || !Array.isArray(initialState) || initialState.length === 0) {
           console.error('Initial state must be a non-empty array.');
@@ -5153,103 +5513,103 @@ function kmp(text, pattern, updateStep) {
         return bestSolution; // Return the best solution found
       }
         `,
-      },
-      {
-        name: 'Genetic Algorithms',
-        description: 'An optimization algorithm inspired by the process of natural selection that is used to find approximate solutions to optimization and search problems.',
-        outputType: 'object',
-        visualization: {
-          description: 'Visualization of the Genetic Algorithm.',
-          details: {
-            type: 'optimization',
-            additionalInfo: 'Each step shows the current generation, fitness levels, and selected parents for crossover.',
-          },
-          stepType: 'stepwise',
+    },
+    {
+      name: 'Genetic Algorithms',
+      description: 'An optimization algorithm inspired by the process of natural selection that is used to find approximate solutions to optimization and search problems.',
+      outputType: 'object',
+      visualization: {
+        description: 'Visualization of the Genetic Algorithm.',
+        details: {
+          type: 'optimization',
+          additionalInfo: 'Each step shows the current generation, fitness levels, and selected parents for crossover.',
         },
-        parameters: [
-          { name: 'population', type: 'array', length: 10 }, // Array of individuals
-          { name: 'generations', type: 'integer', min: 1, max: 100 },
-          { name: 'mutationRate', type: 'float', min: 0, max: 1 },
-        ],
-        execute: (population, generations, mutationRate, updateStep) => {
-          const calculateFitness = (individual) => {
-            if (!Array.isArray(individual)) {
-              console.error('Invalid individual for fitness calculation');
-              return 0;
+        stepType: 'stepwise',
+      },
+      parameters: [
+        { name: 'population', type: 'array', length: 10 }, // Array of individuals
+        { name: 'generations', type: 'integer', min: 1, max: 100 },
+        { name: 'mutationRate', type: 'float', min: 0, max: 1 },
+      ],
+      execute: (population, generations, mutationRate, updateStep) => {
+        const calculateFitness = (individual) => {
+          if (!Array.isArray(individual)) {
+            console.error('Invalid individual for fitness calculation');
+            return 0;
+          }
+          return 1 / (calculateCost(individual) + 1); // Assuming a cost function exists
+        };
+
+        const selectParents = (population, fitness) => {
+          const parents = [];
+          for (let i = 0; i < population.length; i++) {
+            const tournament = [];
+            for (let j = 0; j < 3; j++) { // Size of tournament
+              const randomIndex = Math.floor(Math.random() * population.length);
+              tournament.push({ individual: population[randomIndex], fitness: fitness[randomIndex] });
             }
-            return 1 / (calculateCost(individual) + 1); // Assuming a cost function exists
-          };
+            const best = tournament.reduce((prev, curr) => (prev.fitness > curr.fitness ? prev : curr));
+            parents.push(best.individual);
+          }
+          return parents;
+        };
 
-          const selectParents = (population, fitness) => {
-            const parents = [];
-            for (let i = 0; i < population.length; i++) {
-              const tournament = [];
-              for (let j = 0; j < 3; j++) { // Size of tournament
-                const randomIndex = Math.floor(Math.random() * population.length);
-                tournament.push({ individual: population[randomIndex], fitness: fitness[randomIndex] });
-              }
-              const best = tournament.reduce((prev, curr) => (prev.fitness > curr.fitness ? prev : curr));
-              parents.push(best.individual);
-            }
-            return parents;
-          };
+        const crossover = (parents) => {
+          if (parents.length < 2) {
+            console.error('Not enough parents for crossover');
+            return []; // Return an empty array if not enough parents
+          }
+          const parent1 = parents[Math.floor(Math.random() * parents.length)];
+          const parent2 = parents[Math.floor(Math.random() * parents.length)];
 
-          const crossover = (parents) => {
-            if (parents.length < 2) {
-              console.error('Not enough parents for crossover');
-              return []; // Return an empty array if not enough parents
-            }
-            const parent1 = parents[Math.floor(Math.random() * parents.length)];
-            const parent2 = parents[Math.floor(Math.random() * parents.length)];
-
-            // Ensure parents are arrays
-            if (!Array.isArray(parent1) || !Array.isArray(parent2)) {
-              console.error('Parents must be arrays');
-              return []; // Return an empty array if parents are invalid
-            }
-
-            const crossoverPoint = Math.floor(Math.random() * parent1.length);
-            return [
-              ...parent1.slice(0, crossoverPoint),
-              ...parent2.slice(crossoverPoint)
-            ];
-          };
-
-          const mutate = (offspring, mutationRate) => {
-            offspring.forEach((gene, index) => {
-              if (Math.random() < mutationRate) {
-                offspring[index] = Math.random(); // Mutate the gene
-              }
-            });
-          };
-
-          for (let generation = 0; generation < generations; generation++) {
-            const fitness = population.map(individual => calculateFitness(individual)); // Calculate fitness
-            const parents = selectParents(population, fitness); // Select parents based on fitness
-
-            const newPopulation = [];
-            for (let i = 0; i < population.length; i++) {
-              const offspring = crossover(parents); // Perform crossover
-              if (offspring.length === 0) {
-                console.error('Crossover failed, skipping to next iteration');
-                continue; // Skip if crossover failed
-              }
-              mutate(offspring, mutationRate); // Mutate offspring
-              newPopulation.push(offspring);
-            }
-
-            population = newPopulation;
-
-            updateStep({
-              generation: generation,
-              population: population,
-              fitness: fitness,
-            });
+          // Ensure parents are arrays
+          if (!Array.isArray(parent1) || !Array.isArray(parent2)) {
+            console.error('Parents must be arrays');
+            return []; // Return an empty array if parents are invalid
           }
 
-          return population; // Return the final population
-        },
-        code: `
+          const crossoverPoint = Math.floor(Math.random() * parent1.length);
+          return [
+            ...parent1.slice(0, crossoverPoint),
+            ...parent2.slice(crossoverPoint)
+          ];
+        };
+
+        const mutate = (offspring, mutationRate) => {
+          offspring.forEach((gene, index) => {
+            if (Math.random() < mutationRate) {
+              offspring[index] = Math.random(); // Mutate the gene
+            }
+          });
+        };
+
+        for (let generation = 0; generation < generations; generation++) {
+          const fitness = population.map(individual => calculateFitness(individual)); // Calculate fitness
+          const parents = selectParents(population, fitness); // Select parents based on fitness
+
+          const newPopulation = [];
+          for (let i = 0; i < population.length; i++) {
+            const offspring = crossover(parents); // Perform crossover
+            if (offspring.length === 0) {
+              console.error('Crossover failed, skipping to next iteration');
+              continue; // Skip if crossover failed
+            }
+            mutate(offspring, mutationRate); // Mutate offspring
+            newPopulation.push(offspring);
+          }
+
+          population = newPopulation;
+
+          updateStep({
+            generation: generation,
+            population: population,
+            fitness: fitness,
+          });
+        }
+
+        return population; // Return the final population
+      },
+      code: `
         function geneticAlgorithm(population, generations, mutationRate, updateStep) {
           const calculateFitness = (individual) => {
             if (!Array.isArray(individual)) {
@@ -5328,44 +5688,44 @@ function kmp(text, pattern, updateStep) {
           return population;
         }
         `,
-      }
-    ],
+    }
+  ],
   },
-  'Uncategorised': {
-    algorithms: [
-      {
-        name: 'Affine Cipher',
-        description: 'An encryption algorithm that uses a simple mathematical function.',
-        parameters: [
-          { name: 'text', type: 'string' },
-          { name: 'a', type: 'integer' },
-          { name: 'b', type: 'integer' },
-        ],
-        outputType: 'string',
-        visualization: {
-          description: 'Visualization of the Affine Cipher algorithm.',
-          details: {
-            type: 'encryption',
-            additionalInfo: 'Each step shows the character being encrypted.',
-          },
-          stepType: 'stepwise',
+'Uncategorised': {
+  algorithms: [
+    {
+      name: 'Affine Cipher',
+      description: 'An encryption algorithm that uses a simple mathematical function.',
+      parameters: [
+        { name: 'text', type: 'string' },
+        { name: 'a', type: 'integer' },
+        { name: 'b', type: 'integer' },
+      ],
+      outputType: 'string',
+      visualization: {
+        description: 'Visualization of the Affine Cipher algorithm.',
+        details: {
+          type: 'encryption',
+          additionalInfo: 'Each step shows the character being encrypted.',
         },
-        execute: (text, a, b, updateStep) => {
-          let result = '';
-          for (let i = 0; i < text.length; i++) {
-            const char = text.charCodeAt(i);
-            if (char >= 65 && char <= 90) {
-              result += String.fromCharCode(((a * (char - 65) + b) % 26) + 65);
-            } else if (char >= 97 && char <= 122) {
-              result += String.fromCharCode(((a * (char - 97) + b) % 26) + 97);
-            } else {
-              result += text[i];
-            }
-            updateStep({ char: text[i], encrypted: result[i] });
+        stepType: 'stepwise',
+      },
+      execute: (text, a, b, updateStep) => {
+        let result = '';
+        for (let i = 0; i < text.length; i++) {
+          const char = text.charCodeAt(i);
+          if (char >= 65 && char <= 90) {
+            result += String.fromCharCode(((a * (char - 65) + b) % 26) + 65);
+          } else if (char >= 97 && char <= 122) {
+            result += String.fromCharCode(((a * (char - 97) + b) % 26) + 97);
+          } else {
+            result += text[i];
           }
-          return result;
-        },
-        code: `
+          updateStep({ char: text[i], encrypted: result[i] });
+        }
+        return result;
+      },
+      code: `
           function affineCipher(text, a, b, updateStep) {
             let result = '';
             for (let i = 0; i < text.length; i++) {
@@ -5382,39 +5742,39 @@ function kmp(text, pattern, updateStep) {
             return result;
           }
         `
+    },
+    {
+      name: 'Caesar Cipher',
+      description: 'A simple encryption technique that shifts characters by a fixed number.',
+      parameters: [
+        { name: 'text', type: 'string' },
+        { name: 'shift', type: 'integer' },
+      ],
+      outputType: 'string',
+      visualization: {
+        description: 'Visualization of the Caesar Cipher algorithm.',
+        details: {
+          type: 'encryption',
+          additionalInfo: 'Each step shows the character being shifted.',
+        },
+        stepType: 'stepwise',
       },
-      {
-        name: 'Caesar Cipher',
-        description: 'A simple encryption technique that shifts characters by a fixed number.',
-        parameters: [
-          { name: 'text', type: 'string' },
-          { name: 'shift', type: 'integer' },
-        ],
-        outputType: 'string',
-        visualization: {
-          description: 'Visualization of the Caesar Cipher algorithm.',
-          details: {
-            type: 'encryption',
-            additionalInfo: 'Each step shows the character being shifted.',
-          },
-          stepType: 'stepwise',
-        },
-        execute: (text, shift, updateStep) => {
-          let result = '';
-          for (let i = 0; i < text.length; i++) {
-            const char = text.charCodeAt(i);
-            if (char >= 65 && char <= 90) {
-              result += String.fromCharCode(((char - 65 + shift) % 26) + 65);
-            } else if (char >= 97 && char <= 122) {
-              result += String.fromCharCode(((char - 97 + shift) % 26) + 97);
-            } else {
-              result += text[i];
-            }
-            updateStep({ char: text[i], encrypted: result[i] });
+      execute: (text, shift, updateStep) => {
+        let result = '';
+        for (let i = 0; i < text.length; i++) {
+          const char = text.charCodeAt(i);
+          if (char >= 65 && char <= 90) {
+            result += String.fromCharCode(((char - 65 + shift) % 26) + 65);
+          } else if (char >= 97 && char <= 122) {
+            result += String.fromCharCode(((char - 97 + shift) % 26) + 97);
+          } else {
+            result += text[i];
           }
-          return result;
-        },
-        code: `
+          updateStep({ char: text[i], encrypted: result[i] });
+        }
+        return result;
+      },
+      code: `
           function caesarCipher(text, shift, updateStep) {
             let result = '';
             for (let i = 0; i < text.length; i++) {
@@ -5431,41 +5791,41 @@ function kmp(text, pattern, updateStep) {
             return result;
           }
         `
+    },
+    {
+      name: 'Freivalds\' Matrix-Multiplication Verification',
+      description: 'Verifies the product of two matrices using randomization.',
+      parameters: [
+        { name: 'matrixA', type: 'matrix', numRows: 3, numCols: 3 },
+        { name: 'matrixB', type: 'matrix', numRows: 3, numCols: 3 },
+        { name: 'resultMatrix', type: 'matrix', numRows: 3, numCols: 3 },
+      ],
+      outputType: 'boolean',
+      visualization: {
+        description: 'Visualization of Freivalds\' verification algorithm.',
+        details: {
+          type: 'verification',
+          additionalInfo: 'Each step shows the verification of the matrix multiplication.',
+        },
+        stepType: 'stepwise',
       },
-      {
-        name: 'Freivalds\' Matrix-Multiplication Verification',
-        description: 'Verifies the product of two matrices using randomization.',
-        parameters: [
-          { name: 'matrixA', type: 'matrix', numRows: 3, numCols: 3 },
-          { name: 'matrixB', type: 'matrix', numRows: 3, numCols: 3 },
-          { name: 'resultMatrix', type: 'matrix', numRows: 3, numCols: 3 },
-        ],
-        outputType: 'boolean',
-        visualization: {
-          description: 'Visualization of Freivalds\' verification algorithm.',
-          details: {
-            type: 'verification',
-            additionalInfo: 'Each step shows the verification of the matrix multiplication.',
-          },
-          stepType: 'stepwise',
-        },
-        execute: (matrixA, matrixB, resultMatrix, updateStep) => {
-          const rows = matrixA.length;
-          const cols = matrixB[0].length;
-      
-          const randomVector = Array.from({ length: cols }, () => Math.round(Math.random()));
-      
-          const matrixAxB = matrixA.map(row => row.reduce((sum, value, idx) => sum + value * randomVector[idx], 0));
-          const matrixResult = resultMatrix.map(row => row.reduce((sum, value, idx) => sum + value * randomVector[idx], 0));
-      
-          for (let i = 0; i < rows; i++) {
-            const verificationStep = matrixAxB[i] === matrixResult[i];
-            updateStep({ row: i, verificationStep });
-          }
-      
-          return matrixAxB.every((val, idx) => val === matrixResult[idx]);
-        },
-        code: `
+      execute: (matrixA, matrixB, resultMatrix, updateStep) => {
+        const rows = matrixA.length;
+        const cols = matrixB[0].length;
+
+        const randomVector = Array.from({ length: cols }, () => Math.round(Math.random()));
+
+        const matrixAxB = matrixA.map(row => row.reduce((sum, value, idx) => sum + value * randomVector[idx], 0));
+        const matrixResult = resultMatrix.map(row => row.reduce((sum, value, idx) => sum + value * randomVector[idx], 0));
+
+        for (let i = 0; i < rows; i++) {
+          const verificationStep = matrixAxB[i] === matrixResult[i];
+          updateStep({ row: i, verificationStep });
+        }
+
+        return matrixAxB.every((val, idx) => val === matrixResult[idx]);
+      },
+      code: `
           function freivaldsVerification(matrixA, matrixB, resultMatrix, updateStep) {
             const rows = matrixA.length;
             const cols = matrixB[0].length;
@@ -5483,62 +5843,62 @@ function kmp(text, pattern, updateStep) {
             return matrixAxB.every((val, idx) => val === matrixResult[idx]);
           }
         `
-      },      
-      {
-        name: 'K-Means Clustering',
-        description: 'Partitions n observations into k clusters in which each observation belongs to the cluster with the nearest mean.',
-        parameters: [
-          { name: 'data', type: 'array', length: 10, min: 1, max: 100 }, // Array of numbers for clustering
-          { name: 'k', type: 'integer', min: 1, max: 10 } // Number of clusters
-        ],
-        outputType: 'object',
-        visualization: {
-          description: 'Visualization of the K-Means Clustering algorithm.',
-          details: {
-            type: 'clustering',
-            additionalInfo: 'Each step shows the current centroids and clusters.',
-          },
-          stepType: 'stepwise',
+    },
+    {
+      name: 'K-Means Clustering',
+      description: 'Partitions n observations into k clusters in which each observation belongs to the cluster with the nearest mean.',
+      parameters: [
+        { name: 'data', type: 'array', length: 10, min: 1, max: 100 }, // Array of numbers for clustering
+        { name: 'k', type: 'integer', min: 1, max: 10 } // Number of clusters
+      ],
+      outputType: 'object',
+      visualization: {
+        description: 'Visualization of the K-Means Clustering algorithm.',
+        details: {
+          type: 'clustering',
+          additionalInfo: 'Each step shows the current centroids and clusters.',
         },
-        execute: (data, k, updateStep) => {
-          let centroids = data.slice(0, k);
-          let clusters = Array.from({ length: k }, () => []);
-          let changed = true; // Track if any points moved clusters
+        stepType: 'stepwise',
+      },
+      execute: (data, k, updateStep) => {
+        let centroids = data.slice(0, k);
+        let clusters = Array.from({ length: k }, () => []);
+        let changed = true; // Track if any points moved clusters
 
-          const maxIterations = 10;
-          let iteration = 0;
+        const maxIterations = 10;
+        let iteration = 0;
 
-          while (changed && iteration < maxIterations) {
-            clusters = Array.from({ length: k }, () => []);
-            data.forEach(point => {
-              const distances = centroids.map(centroid => Math.abs(point - centroid));
-              const nearestCentroidIdx = distances.indexOf(Math.min(...distances));
+        while (changed && iteration < maxIterations) {
+          clusters = Array.from({ length: k }, () => []);
+          data.forEach(point => {
+            const distances = centroids.map(centroid => Math.abs(point - centroid));
+            const nearestCentroidIdx = distances.indexOf(Math.min(...distances));
 
-              clusters[nearestCentroidIdx].push(point);
+            clusters[nearestCentroidIdx].push(point);
 
-              updateStep({
-                point,
-                nearestCentroid: centroids[nearestCentroidIdx],
-                clusterIndex: nearestCentroidIdx,
-                clusters: clusters.map(cluster => [...cluster]), // Snapshot of clusters
-                centroids: [...centroids] // Snapshot of centroids
-              });
+            updateStep({
+              point,
+              nearestCentroid: centroids[nearestCentroidIdx],
+              clusterIndex: nearestCentroidIdx,
+              clusters: clusters.map(cluster => [...cluster]), // Snapshot of clusters
+              centroids: [...centroids] // Snapshot of centroids
             });
+          });
 
-            const newCentroids = clusters.map(cluster => {
-              if (cluster.length === 0) return null;
-              return cluster.reduce((sum, point) => sum + point, 0) / cluster.length;
-            });
+          const newCentroids = clusters.map(cluster => {
+            if (cluster.length === 0) return null;
+            return cluster.reduce((sum, point) => sum + point, 0) / cluster.length;
+          });
 
-            changed = newCentroids.some((newCentroid, i) => newCentroid !== centroids[i]);
-            centroids = newCentroids.map((centroid, i) => (centroid !== null ? centroid : centroids[i]));
+          changed = newCentroids.some((newCentroid, i) => newCentroid !== centroids[i]);
+          centroids = newCentroids.map((centroid, i) => (centroid !== null ? centroid : centroids[i]));
 
-            iteration++;
-          }
+          iteration++;
+        }
 
-          return { clusters, centroids };
-        },
-        code: `
+        return { clusters, centroids };
+      },
+      code: `
       function kMeansClustering(data, k, updateStep) {
         let centroids = data.slice(0, k);
       
@@ -5580,54 +5940,54 @@ function kmp(text, pattern, updateStep) {
         return { clusters, centroids };
       }
       `
+    },
+    {
+      name: 'Magic Square',
+      description: 'Generates a magic square of a given size, where the sum of each row, column, and diagonal is the same.',
+      parameters: [
+        { name: 'n', type: 'integer', min: 3, max: 15 } // Typically, n is an odd integer for this method
+      ],
+      outputType: 'matrix',
+      visualization: {
+        description: 'Visualization of the Magic Square generation algorithm.',
+        details: {
+          type: 'generation',
+          additionalInfo: 'Each step shows the current number being placed in the magic square.',
+        },
+        stepType: 'stepwise',
       },
-      {
-        name: 'Magic Square',
-        description: 'Generates a magic square of a given size, where the sum of each row, column, and diagonal is the same.',
-        parameters: [
-          { name: 'n', type: 'integer', min: 3, max: 15 } // Typically, n is an odd integer for this method
-        ],
-        outputType: 'matrix',
-        visualization: {
-          description: 'Visualization of the Magic Square generation algorithm.',
-          details: {
-            type: 'generation',
-            additionalInfo: 'Each step shows the current number being placed in the magic square.',
-          },
-          stepType: 'stepwise',
-        },
-        execute: (n, updateStep) => {
-          if (n % 2 === 0 || n < 3) throw new Error("n must be an odd integer greater than or equal to 3");
-          const magicSquare = Array.from({ length: n }, () => Array(n).fill(0));
+      execute: (n, updateStep) => {
+        if (n % 2 === 0 || n < 3) throw new Error("n must be an odd integer greater than or equal to 3");
+        const magicSquare = Array.from({ length: n }, () => Array(n).fill(0));
 
-          let num = 1;
-          let i = 0;
-          let j = Math.floor(n / 2);
+        let num = 1;
+        let i = 0;
+        let j = Math.floor(n / 2);
 
-          while (num <= n * n) {
-            magicSquare[i][j] = num;
-            updateStep({
-              currentNumber: num,
-              position: { row: i, col: j },
-              magicSquare: magicSquare.map(row => [...row])
-            });
+        while (num <= n * n) {
+          magicSquare[i][j] = num;
+          updateStep({
+            currentNumber: num,
+            position: { row: i, col: j },
+            magicSquare: magicSquare.map(row => [...row])
+          });
 
-            num++;
-            i--;
-            j++;
+          num++;
+          i--;
+          j++;
 
-            if (num % n === 1) {
-              i += 2;
-              j--;
-            } else {
-              if (j === n) j -= n;
-              if (i < 0) i += n;
-            }
+          if (num % n === 1) {
+            i += 2;
+            j--;
+          } else {
+            if (j === n) j -= n;
+            if (i < 0) i += n;
           }
+        }
 
-          return magicSquare;
-        },
-        code: `
+        return magicSquare;
+      },
+      code: `
       function generateMagicSquare(n, updateStep) {
         if (n % 2 === 0 || n < 3) throw new Error("n must be an odd integer greater than or equal to 3");
         const magicSquare = Array.from({ length: n }, () => Array(n).fill(0));
@@ -5661,74 +6021,74 @@ function kmp(text, pattern, updateStep) {
         return magicSquare;
       }
       `
+    },
+    {
+      name: 'Maze Generation',
+      description: 'Generates a maze using Prim\'s Algorithm. The maze is carved out from an initially fully walled grid.',
+      parameters: [
+        { name: 'width', type: 'integer', min: 5, max: 50 },
+        { name: 'height', type: 'integer', min: 5, max: 50 }
+      ],
+      outputType: 'matrix',
+      visualization: {
+        description: 'Visualization of the Maze Generation algorithm.',
+        details: {
+          type: 'generation',
+          additionalInfo: 'Each step shows the current state of the maze.',
+        },
+        stepType: 'stepwise',
       },
-      {
-        name: 'Maze Generation',
-        description: 'Generates a maze using Prim\'s Algorithm. The maze is carved out from an initially fully walled grid.',
-        parameters: [
-          { name: 'width', type: 'integer', min: 5, max: 50 },
-          { name: 'height', type: 'integer', min: 5, max: 50 }
-        ],
-        outputType: 'matrix',
-        visualization: {
-          description: 'Visualization of the Maze Generation algorithm.',
-          details: {
-            type: 'generation',
-            additionalInfo: 'Each step shows the current state of the maze.',
-          },
-          stepType: 'stepwise',
-        },
-        execute: (width, height, updateStep) => {
-          if (width % 2 === 0) width += 1;
-          if (height % 2 === 0) height += 1;
+      execute: (width, height, updateStep) => {
+        if (width % 2 === 0) width += 1;
+        if (height % 2 === 0) height += 1;
 
-          const maze = Array.from({ length: height }, () => Array(width).fill(1));
-          const startRow = Math.floor(Math.random() * (height / 2)) * 2 + 1;
-          const startCol = Math.floor(Math.random() * (width / 2)) * 2 + 1;
-          maze[startRow][startCol] = 0;
+        const maze = Array.from({ length: height }, () => Array(width).fill(1));
+        const startRow = Math.floor(Math.random() * (height / 2)) * 2 + 1;
+        const startCol = Math.floor(Math.random() * (width / 2)) * 2 + 1;
+        maze[startRow][startCol] = 0;
 
-          const walls = [];
-          const directions = [
-            [-2, 0], [2, 0], [0, -2], [0, 2]
-          ];
+        const walls = [];
+        const directions = [
+          [-2, 0], [2, 0], [0, -2], [0, 2]
+        ];
 
-          directions.forEach(([dr, dc]) => {
-            const newRow = startRow + dr;
-            const newCol = startCol + dc;
-            if (newRow > 0 && newRow < height && newCol > 0 && newCol < width) {
-              walls.push([newRow, newCol, startRow + dr / 2, startCol + dc / 2]);
-            }
-          });
-
-          while (walls.length > 0) {
-            const randomIndex = Math.floor(Math.random() * walls.length);
-            const [wallRow, wallCol, passageRow, passageCol] = walls.splice(randomIndex, 1)[0];
-
-            if (maze[wallRow][wallCol] === 1) {
-              maze[wallRow][wallCol] = 0;
-              maze[passageRow][passageCol] = 0;
-
-              updateStep({
-                wallRemoved: { row: wallRow, col: wallCol },
-                passageCreated: { row: passageRow, col: passageCol },
-                maze: maze.map(row => [...row])
-              });
-
-              directions.forEach(([dr, dc]) => {
-                const newRow = wallRow + dr;
-                const newCol = wallCol + dc;
-                if (newRow > 0 && newRow < height && newCol > 0 && newCol < width) {
-                  if (maze[newRow][newCol] === 1) {
-                    walls.push([newRow, newCol, wallRow + dr / 2, wallCol + dc / 2]);
-                  }
-                }
-              });
-            }
+        directions.forEach(([dr, dc]) => {
+          const newRow = startRow + dr;
+          const newCol = startCol + dc;
+          if (newRow > 0 && newRow < height && newCol > 0 && newCol < width) {
+            walls.push([newRow, newCol, startRow + dr / 2, startCol + dc / 2]);
           }
+        });
 
-          return maze;
-        },
-        code: `
+        while (walls.length > 0) {
+          const randomIndex = Math.floor(Math.random() * walls.length);
+          const [wallRow, wallCol, passageRow, passageCol] = walls.splice(randomIndex, 1)[0];
+
+          if (maze[wallRow][wallCol] === 1) {
+            maze[wallRow][wallCol] = 0;
+            maze[passageRow][passageCol] = 0;
+
+            updateStep({
+              wallRemoved: { row: wallRow, col: wallCol },
+              passageCreated: { row: passageRow, col: passageCol },
+              maze: maze.map(row => [...row])
+            });
+
+            directions.forEach(([dr, dc]) => {
+              const newRow = wallRow + dr;
+              const newCol = wallCol + dc;
+              if (newRow > 0 && newRow < height && newCol > 0 && newCol < width) {
+                if (maze[newRow][newCol] === 1) {
+                  walls.push([newRow, newCol, wallRow + dr / 2, wallCol + dc / 2]);
+                }
+              }
+            });
+          }
+        }
+
+        return maze;
+      },
+      code: `
       function generateMaze(width, height, updateStep) {
         if (width % 2 === 0) width += 1;
         if (height % 2 === 0) height += 1;
@@ -5780,93 +6140,93 @@ function kmp(text, pattern, updateStep) {
         return maze;
       }
       `
-      },
-      {
-        name: 'Miller-Rabin\'s Primality Test',
-        description: 'Tests whether a number is a prime using probabilistic methods. It uses k rounds to minimize the probability of a false positive.',
-        parameters: [
-          { name: 'n', type: 'integer', min: 2 },
-          { name: 'k', type: 'integer', min: 1, max: 10 } // Number of rounds for accuracy
-        ],
-        outputType: 'boolean',
-        visualization: {
-          description: 'Visualization of Miller-Rabin\'s Primality Test.',
-          details: {
-            type: 'primality test',
-            additionalInfo: 'Each step shows the current base, exponent, and result.',
-          },
-          stepType: 'stepwise',
+    },
+    {
+      name: 'Miller-Rabin\'s Primality Test',
+      description: 'Tests whether a number is a prime using probabilistic methods. It uses k rounds to minimize the probability of a false positive.',
+      parameters: [
+        { name: 'n', type: 'integer', min: 2 },
+        { name: 'k', type: 'integer', min: 1, max: 10 } // Number of rounds for accuracy
+      ],
+      outputType: 'boolean',
+      visualization: {
+        description: 'Visualization of Miller-Rabin\'s Primality Test.',
+        details: {
+          type: 'primality test',
+          additionalInfo: 'Each step shows the current base, exponent, and result.',
         },
-        execute: (n, k, updateStep) => {
-          if (n <= 1 || n === 4) return false;
-          if (n <= 3) return true;
+        stepType: 'stepwise',
+      },
+      execute: (n, k, updateStep) => {
+        if (n <= 1 || n === 4) return false;
+        if (n <= 3) return true;
 
-          const powerMod = (base, exp, mod) => {
-            let result = 1;
-            base = base % mod;
-            while (exp > 0) {
-              if (exp % 2 === 1) {
-                result = (result * base) % mod;
-              }
-              exp = Math.floor(exp / 2);
-              base = (base * base) % mod;
+        const powerMod = (base, exp, mod) => {
+          let result = 1;
+          base = base % mod;
+          while (exp > 0) {
+            if (exp % 2 === 1) {
+              result = (result * base) % mod;
             }
-            return result;
-          };
-
-          let d = n - 1;
-          let r = 0;
-          while (d % 2 === 0) {
-            d /= 2;
-            r += 1;
+            exp = Math.floor(exp / 2);
+            base = (base * base) % mod;
           }
+          return result;
+        };
 
-          const millerTest = (d, n) => {
-            const a = 2 + Math.floor(Math.random() * (n - 4));
-            let x = powerMod(a, d, n);
+        let d = n - 1;
+        let r = 0;
+        while (d % 2 === 0) {
+          d /= 2;
+          r += 1;
+        }
+
+        const millerTest = (d, n) => {
+          const a = 2 + Math.floor(Math.random() * (n - 4));
+          let x = powerMod(a, d, n);
+
+          updateStep({
+            base: a,
+            exponent: d,
+            modulus: n,
+            result: x,
+            type: 'initial',
+            n,
+            r,
+            d
+          });
+
+          if (x === 1 || x === n - 1) return true;
+
+          for (let i = 1; i < r; i++) {
+            x = (x * x) % n;
 
             updateStep({
               base: a,
-              exponent: d,
+              exponent: d * Math.pow(2, i),
               modulus: n,
               result: x,
-              type: 'initial',
-              n,
-              r,
-              d
+              type: 'squaring',
+              step: i
             });
 
-            if (x === 1 || x === n - 1) return true;
-
-            for (let i = 1; i < r; i++) {
-              x = (x * x) % n;
-
-              updateStep({
-                base: a,
-                exponent: d * Math.pow(2, i),
-                modulus: n,
-                result: x,
-                type: 'squaring',
-                step: i
-              });
-
-              if (x === n - 1) return true;
-            }
-
-            return false;
-          };
-
-          for (let i = 0; i < k; i++) {
-            if (!millerTest(d, n)) {
-              updateStep({ round: i + 1, result: 'composite' });
-              return false;
-            }
-            updateStep({ round: i + 1, result: 'probably prime' });
+            if (x === n - 1) return true;
           }
 
-          return true;
-        },
-        code: `
+          return false;
+        };
+
+        for (let i = 0; i < k; i++) {
+          if (!millerTest(d, n)) {
+            updateStep({ round: i + 1, result: 'composite' });
+            return false;
+          }
+          updateStep({ round: i + 1, result: 'probably prime' });
+        }
+
+        return true;
+      },
+      code: `
       function millerRabin(n, k, updateStep) {
         if (n <= 1 || n === 4) return false;
         if (n <= 3) return true;
@@ -5935,71 +6295,71 @@ function kmp(text, pattern, updateStep) {
         return true;
       }
       `
-      },
-      {
-        name: 'Shortest Unsorted Continuous Subarray',
-        description: 'Finds the length of the shortest unsorted continuous subarray that, if sorted, results in the entire array being sorted.',
-        parameters: [
-          { name: 'array', type: 'array', length: 10, min: 1, max: 100 }
-        ],
-        outputType: 'integer',
-        visualization: {
-          description: 'Visualization of the Shortest Unsorted Continuous Subarray algorithm.',
-          details: {
-            type: 'sorting',
-            additionalInfo: 'Each step shows the current state of the array and the identified indices.',
-          },
-          stepType: 'stepwise',
+    },
+    {
+      name: 'Shortest Unsorted Continuous Subarray',
+      description: 'Finds the length of the shortest unsorted continuous subarray that, if sorted, results in the entire array being sorted.',
+      parameters: [
+        { name: 'array', type: 'array', length: 10, min: 1, max: 100 }
+      ],
+      outputType: 'integer',
+      visualization: {
+        description: 'Visualization of the Shortest Unsorted Continuous Subarray algorithm.',
+        details: {
+          type: 'sorting',
+          additionalInfo: 'Each step shows the current state of the array and the identified indices.',
         },
-        execute: (array, updateStep) => {
-          let start = -1, end = -1;
-          let maxSeen = -Infinity, minSeen = Infinity;
+        stepType: 'stepwise',
+      },
+      execute: (array, updateStep) => {
+        let start = -1, end = -1;
+        let maxSeen = -Infinity, minSeen = Infinity;
 
-          for (let i = 0; i < array.length; i++) {
-            maxSeen = Math.max(maxSeen, array[i]);
-            if (array[i] < maxSeen) {
-              end = i;
-            }
-
-            updateStep({
-              index: i,
-              maxSeen,
-              current: array[i],
-              endIndex: end,
-              type: 'find_end',
-              array: [...array]
-            });
+        for (let i = 0; i < array.length; i++) {
+          maxSeen = Math.max(maxSeen, array[i]);
+          if (array[i] < maxSeen) {
+            end = i;
           }
-
-          for (let i = array.length - 1; i >= 0; i--) {
-            minSeen = Math.min(minSeen, array[i]);
-            if (array[i] > minSeen) {
-              start = i;
-            }
-
-            updateStep({
-              index: i,
-              minSeen,
-              current: array[i],
-              startIndex: start,
-              type: 'find_start',
-              array: [...array]
-            });
-          }
-
-          const length = end - start + 1;
 
           updateStep({
-            startIndex: start,
+            index: i,
+            maxSeen,
+            current: array[i],
             endIndex: end,
-            length: length > 0 ? length : 0,
-            type: 'result',
+            type: 'find_end',
             array: [...array]
           });
+        }
 
-          return length > 0 ? length : 0;
-        },
-        code: `
+        for (let i = array.length - 1; i >= 0; i--) {
+          minSeen = Math.min(minSeen, array[i]);
+          if (array[i] > minSeen) {
+            start = i;
+          }
+
+          updateStep({
+            index: i,
+            minSeen,
+            current: array[i],
+            startIndex: start,
+            type: 'find_start',
+            array: [...array]
+          });
+        }
+
+        const length = end - start + 1;
+
+        updateStep({
+          startIndex: start,
+          endIndex: end,
+          length: length > 0 ? length : 0,
+          type: 'result',
+          array: [...array]
+        });
+
+        return length > 0 ? length : 0;
+      },
+      code: `
       function shortestUnsortedSubarray(array, updateStep) {
         let start = -1, end = -1;
         let maxSeen = -Infinity, minSeen = Infinity;
@@ -6049,75 +6409,75 @@ function kmp(text, pattern, updateStep) {
         return length > 0 ? length : 0;
       }
       `
-      },
-      {
-        name: 'Conway\'s Game of Life',
-        description: 'Simulates Conway\'s Game of Life, where each cell lives, dies, or is born based on its neighbors in a grid.',
-        parameters: [
-          { name: 'grid', type: 'matrix', numRows: 10, numCols: 10 }, // Default 10x10 grid size for simulation
-          { name: 'steps', type: 'integer', min: 1, max: 100 } // Number of steps to simulate
-        ],
-        outputType: 'matrix',
-        visualization: {
-          description: 'Visualization of Conway\'s Game of Life simulation.',
-          details: {
-            type: 'simulation',
-            additionalInfo: 'Each step shows the current state of the grid.',
-          },
-          stepType: 'stepwise',
+    },
+    {
+      name: 'Conway\'s Game of Life',
+      description: 'Simulates Conway\'s Game of Life, where each cell lives, dies, or is born based on its neighbors in a grid.',
+      parameters: [
+        { name: 'grid', type: 'matrix', numRows: 10, numCols: 10 }, // Default 10x10 grid size for simulation
+        { name: 'steps', type: 'integer', min: 1, max: 100 } // Number of steps to simulate
+      ],
+      outputType: 'matrix',
+      visualization: {
+        description: 'Visualization of Conway\'s Game of Life simulation.',
+        details: {
+          type: 'simulation',
+          additionalInfo: 'Each step shows the current state of the grid.',
         },
-        execute: (grid, steps, updateStep) => {
-          const numRows = grid.length;
-          const numCols = grid[0].length;
+        stepType: 'stepwise',
+      },
+      execute: (grid, steps, updateStep) => {
+        const numRows = grid.length;
+        const numCols = grid[0].length;
 
-          const countLiveNeighbors = (row, col) => {
-            let liveNeighbors = 0;
-            const directions = [
-              [-1, -1], [-1, 0], [-1, 1],
-              [0, -1], [0, 1],
-              [1, -1], [1, 0], [1, 1]
-            ];
+        const countLiveNeighbors = (row, col) => {
+          let liveNeighbors = 0;
+          const directions = [
+            [-1, -1], [-1, 0], [-1, 1],
+            [0, -1], [0, 1],
+            [1, -1], [1, 0], [1, 1]
+          ];
 
-            directions.forEach(([dr, dc]) => {
-              const newRow = row + dr;
-              const newCol = col + dc;
-              if (newRow >= 0 && newRow < numRows && newCol >= 0 && newCol < numCols) {
-                liveNeighbors += grid[newRow][newCol];
-              }
-            });
+          directions.forEach(([dr, dc]) => {
+            const newRow = row + dr;
+            const newCol = col + dc;
+            if (newRow >= 0 && newRow < numRows && newCol >= 0 && newCol < numCols) {
+              liveNeighbors += grid[newRow][newCol];
+            }
+          });
 
-            return liveNeighbors;
-          };
+          return liveNeighbors;
+        };
 
-          for (let step = 0; step < steps; step++) {
-            const nextGrid = grid.map(row => [...row]);
+        for (let step = 0; step < steps; step++) {
+          const nextGrid = grid.map(row => [...row]);
 
-            for (let row = 0; row < numRows; row++) {
-              for (let col = 0; col < numCols; col++) {
-                const liveNeighbors = countLiveNeighbors(row, col);
-                const cellState = grid[row][col];
+          for (let row = 0; row < numRows; row++) {
+            for (let col = 0; col < numCols; col++) {
+              const liveNeighbors = countLiveNeighbors(row, col);
+              const cellState = grid[row][col];
 
-                if (cellState === 1 && (liveNeighbors < 2 || liveNeighbors > 3)) {
-                  nextGrid[row][col] = 0;
-                } else if (cellState === 0 && liveNeighbors === 3) {
-                  nextGrid[row][col] = 1;
-                } else {
-                  nextGrid[row][col] = cellState;
-                }
+              if (cellState === 1 && (liveNeighbors < 2 || liveNeighbors > 3)) {
+                nextGrid[row][col] = 0;
+              } else if (cellState === 0 && liveNeighbors === 3) {
+                nextGrid[row][col] = 1;
+              } else {
+                nextGrid[row][col] = cellState;
               }
             }
-
-            updateStep({
-              step,
-              grid: nextGrid.map(row => [...row])
-            });
-
-            grid = nextGrid;
           }
 
-          return grid;
-        },
-        code: `
+          updateStep({
+            step,
+            grid: nextGrid.map(row => [...row])
+          });
+
+          grid = nextGrid;
+        }
+
+        return grid;
+      },
+      code: `
       function gameOfLife(grid, steps, updateStep) {
         const numRows = grid.length;
         const numCols = grid[0].length;
@@ -6170,8 +6530,8 @@ function kmp(text, pattern, updateStep) {
         return grid;
       }
       `
-      }
-    ],
+    }
+  ],
   },
 };
 

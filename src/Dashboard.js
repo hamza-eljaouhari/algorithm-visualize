@@ -195,46 +195,52 @@ export default function Dashboard() {
         numVertices = 5
       } = param;
 
-      // Special condition for Simulated Annealing algorithm
-      if (algorithmName === 'Simulated Annealing') {
+      // Special condition for Rabin-Karp Algorithm
+      if (algorithmName === 'Rabin-Karp Algorithm') {
         switch (type) {
-          case 'object':
-            // Generate an initial state (e.g., an array of random floats)
-            return Array.from({ length: 5 }, () => Math.random() * 100); // Example for a state with 5 variables
-          case 'float':
-            if (param.name === 'temperature') {
-              return Math.random() * 99 + 1; // Random float between 1 and 100
-            } else if (param.name === 'coolingRate') {
-              return Math.random() * 0.99 + 0.01; // Random float between 0.01 and 1
-            }
-            break;
-          // Add any other necessary types for Simulated Annealing here
+          case 'string':
+            // Generate a string of 5 random lowercase characters
+            return Array.from({ length: 100 },
+              () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('');
+          case 'pattern':
+            // Generate a string of 200 random lowercase characters
+            return Array.from({ length: 1 },
+              () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('');
+        }
+      } if (algorithmName === 'Z Algorithm') {
+        switch (type) {
+          case 'string':
+            // Generate a string of 5 random lowercase characters
+            return Array.from({ length: 100 },
+              () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('');
+          case 'pattern':
+            // Generate a string of 200 random lowercase characters
+            return Array.from({ length: 1 },
+              () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('');
+        }
+      } else if (algorithmName === 'KMP Algorithm') {
+        switch (type) {
+          case 'string':
+            // Generate a string of 5 random lowercase characters
+            return Array.from({ length: 100 },
+              () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('');
+          case 'pattern':
+            // Generate a string of 200 random lowercase characters
+            return Array.from({ length: 1 },
+              () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('');
+        }
+      } else if (algorithmName === 'Aho-Corasick Algorithm') {
+        switch (type) {
+          case 'string':
+            // Generate a string of 5 random lowercase characters
+            return Array.from({ length: 100 },
+              () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('');
+          case 'patterns':
+            // Generate a string of 200 random lowercase characters
+            return [...Array.from({ length: 100 }, () => Array.from({ length: 1 }, () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('')), 'isEndOfPattern'];
         }
       }
 
-      // Special condition for Genetic Algorithms
-      if (algorithmName === 'Genetic Algorithms') {
-        switch (type) {
-          case 'array':
-            // Generate an array of random individuals
-            return Array.from({ length }, () =>
-              Array.from({ length: 5 }, () => Math.random()) // Example for an individual with 5 genes
-            );
-          case 'integer':
-            return Math.floor(Math.random() * (max - min + 1)) + min; // Random integer
-          case 'float':
-            return Math.random(); // Random float between 0 and 1
-          case 'population':
-            return Array.from({ length: 10 }, () =>
-              Array.from({ length: 5 }, () => Math.random()) // Example population of individuals
-            );
-          case 'mutationRate':
-            return Math.random(); // Random mutation rate between 0 and 1
-          case 'generations':
-            return Math.floor(Math.random() * (max - min + 1)) + min; // Random number of generations
-        }
-      }
-      // Existing logic for other parameter types
       if (type === 'array') {
         return Array.from({ length }, () => Math.floor(Math.random() * (max - min + 1)) + min);
       } else if (type === 'sortedArray') {
