@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Dialog, DialogTitle, DialogContent, IconButton, TextField } from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import { Box, Typography, Dialog, DialogTitle, DialogContent, TextField } from '@mui/material';
 
 export default function Visualizer({ steps, currentStep, stepType }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -19,15 +18,13 @@ export default function Visualizer({ steps, currentStep, stepType }) {
     final: '#FFD700',
   };
 
-  // Automatically display the first 20 steps when the component mounts or when steps are updated
   useEffect(() => {
     if (steps.length > 0) {
-        setDisplayedSteps(steps.slice(0, 20)); // Display the first 20 steps
+      setDisplayedSteps(steps.slice(0, 20));
     } else {
-        setDisplayedSteps([]); // Clear displayed steps when steps are empty
+      setDisplayedSteps([]);
     }
-  }, [steps]); // Only depend on steps
-
+  }, [steps]);
 
   const handleOpenModal = (content) => {
     setModalContent(JSON.stringify(content, null, 2));
@@ -43,20 +40,44 @@ export default function Visualizer({ steps, currentStep, stepType }) {
     setSearchStep(value);
 
     if (value === '') {
-        setError(false);
-        setDisplayedSteps(steps.slice(0, 20)); // Reset to first 20 steps
+      setError(false);
+      setDisplayedSteps(steps.slice(0, 20));
     } else {
-        const stepNum = parseInt(value, 10);
-        if (!isNaN(stepNum) && stepNum >= 1 && stepNum <= steps.length) {
-            setError(false);
-            const start = Math.max(0, stepNum - 6); // 5 before
-            const end = Math.min(steps.length, stepNum + 4); // 5 after
-            setDisplayedSteps(steps.slice(start, end));
-        } else {
-            setError(true);
-            setDisplayedSteps([]); // Clear displayed steps if invalid
-        }
+      const stepNum = parseInt(value, 10);
+      if (!isNaN(stepNum) && stepNum >= 1 && stepNum <= steps.length) {
+        setError(false);
+        const start = Math.max(0, stepNum - 6);
+        const end = Math.min(steps.length, stepNum + 4);
+        setDisplayedSteps(steps.slice(start, end));
+      } else {
+        setError(true);
+        setDisplayedSteps([]);
+      }
     }
+  };
+
+  const renderArray = (stepData) => {
+    const { arr = [], index, action } = stepData;
+    return (
+      <Box display="flex" whiteSpace="nowrap">
+        {arr.map((value, idx) => (
+          <Box
+            key={idx}
+            sx={{
+              width: '50px',
+              height: '50px',
+              lineHeight: '50px',
+              textAlign: 'center',
+              backgroundColor: index === idx ? operationColors[action] || '#4682B4' : '#2C2C54',
+              color: 'white',
+              border: '1px solid #1e1e1e',
+            }}
+          >
+            {value !== undefined && value !== null ? value : ''}
+          </Box>
+        ))}
+      </Box>
+    );
   };
 
   const handleSearchKeyPress = (event) => {
@@ -71,38 +92,6 @@ export default function Visualizer({ steps, currentStep, stepType }) {
         setError(true);
       }
     }
-  };
-
-  const renderArray = (stepData) => {
-    const { arr = [], index, action } = stepData;
-
-    let indexes = [];
-    
-    if(stepData.hasOwnProperty('indexes')){
-      indexes = stepData.indexes;
-    }
-
-    return (
-      <Box display="flex" whiteSpace="nowrap">
-        {arr.map((value, idx) => (
-          <Box
-            key={idx}
-            sx={{
-              width: '50px',
-              height: '50px',
-              lineHeight: '50px',
-              textAlign: 'center',
-              backgroundColor: (index === idx) || (indexes.start <= idx && indexes.end > idx) ? operationColors[action] || '#4682B4' : '#2C2C54',
-              color: 'white',
-              border: '1px solid #1e1e1e',
-              position: 'relative'
-            }}
-          >
-            {value !== undefined && value !== null ? value : ''}
-          </Box>
-        ))}
-      </Box>
-    );
   };
 
   const renderMatrix = (stepData) => {
@@ -362,15 +351,13 @@ export default function Visualizer({ steps, currentStep, stepType }) {
     <Box>
       <Box
         sx={{
+          position: 'sticky',
           width: '100%',
           display: 'flex',
           alignItems: 'center',
-          backgroundColor: '#333',
-          position: 'relative',
-          height: '60px', // Smaller height
+          height: '60px',
           padding: '0 5px',
           borderBottom: '1px solid black',
-          pl: 2
         }}
       >
         <Typography variant="subtitle1" sx={{ textAlign: 'left', color: 'white' }}>
@@ -382,61 +369,41 @@ export default function Visualizer({ steps, currentStep, stepType }) {
           value={searchStep}
           size="small"
           onChange={handleSearchChange}
-          onKeyPress={handleSearchKeyPress}
-          onBlur={handleSearchKeyPress}
           sx={{
             ml: 'auto',
-            '.MuiFormLabel-root': {
-              color: 'white'
-            },
-            '.MuiOutlinedInput-root fieldset': {
-              color: 'white !important'
-            },
+            '.MuiFormLabel-root': { color: 'white' },
+            '.MuiOutlinedInput-root fieldset': { color: 'white !important' },
             '& .MuiOutlinedInput-root': {
-              '& fieldset': {
-                borderColor: 'white',
-              },
-              '&.Mui-focused fieldset': {
-                borderColor: 'white',
-              },
-              '& input': {
-                color: 'white', // Input text color
-              },
-              
-              '& span': {
-                color: 'white', // Change the color of the span text
-              },
+              '& fieldset': { borderColor: 'white' },
+              '&.Mui-focused fieldset': { borderColor: 'white' },
+              '& input': { color: 'white' },
             },
           }}
         />
       </Box>
-      {
-        steps.length > 0 && ( 
-          <Box sx={{ m: 2 }}> {/* Adjust top margin to avoid overlap with fixed header */}
-            {displayedSteps.length > 0 && (
-              <Typography variant="h6" sx={{ textAlign: 'left', mb: 2 }}>
-                {`Step #${steps.indexOf(displayedSteps[0]) + 1} to Step #${steps.indexOf(displayedSteps[displayedSteps.length - 1]) + 1}`}
-              </Typography>
-            )}
 
-            {displayedSteps && displayedSteps.map((stepData, index) => (
-              <Box key={index}>{renderVisualization(stepData)}</Box>
-            ))}
+      <Box sx={{ mt: '60px' }}> {/* Push content down to avoid overlap with header */}
+        {displayedSteps.length > 0 && (
+          <Typography variant="h6" sx={{ textAlign: 'left', mb: 2 }}>
+            {`Step #${steps.indexOf(displayedSteps[0]) + 1} to Step #${steps.indexOf(displayedSteps[displayedSteps.length - 1]) + 1}`}
+          </Typography>
+        )}
 
-            {displayedSteps.length === 0 && (
-              <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>No steps to display</Typography>
-            )}
+        {displayedSteps.map((stepData, index) => (
+          <Box key={index}>{renderArray(stepData)}</Box>
+        ))}
 
-            <Dialog open={modalOpen} onClose={handleCloseModal}>
-              <DialogTitle>Array Content</DialogTitle>
-              <DialogContent>
-                <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{modalContent}</pre>
-              </DialogContent>
-            </Dialog>
-          </Box>
-        )
-      }
+        {displayedSteps.length === 0 && (
+          <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>No steps to display</Typography>
+        )}
 
+        <Dialog open={modalOpen} onClose={handleCloseModal}>
+          <DialogTitle>Array Content</DialogTitle>
+          <DialogContent>
+            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{modalContent}</pre>
+          </DialogContent>
+        </Dialog>
+      </Box>
     </Box>
   );
 }
