@@ -437,26 +437,26 @@ export default function Dashboard() {
               },
             }}
           >
-           <AccordionSummary 
-            expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />} 
-            aria-controls={`${category.title}-content`} 
-            id={`${category.title}-header`}
-            sx={{
-              color: 'white', // White text
-            }}
-          >
-            <Typography sx={{
-              textShadow: '1px 1px 1px black', // Black shadow
-            }}
-            >{category.title}</Typography>
-          </AccordionSummary>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}
+              aria-controls={`${category.title}-content`}
+              id={`${category.title}-header`}
+              sx={{
+                color: 'white', // White text
+              }}
+            >
+              <Typography sx={{
+                textShadow: '1px 1px 1px black', // Black shadow
+              }}
+              >{category.title}</Typography>
+            </AccordionSummary>
             <AccordionDetails>
               <Box>
                 {category.algorithms.map((algorithmName, idx) => (
                   <ListItem sx={{
                     color: 'white', // White text
-                  }} 
-                  button="true" key={idx} onClick={() => handleAlgorithmSelection(category.title, algorithmName)}>
+                  }}
+                    button="true" key={idx} onClick={() => handleAlgorithmSelection(category.title, algorithmName)}>
                     <ListItemText primary={algorithmName} />
                   </ListItem>
                 ))}
@@ -470,30 +470,30 @@ export default function Dashboard() {
         <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', pl: 2 }}>
           <IconButton color="primary" onClick={handlePreviousStep} sx={{ color: '#d32f2f' }}>
             <SkipPreviousIcon />
-            <Typography variant="caption">Previous</Typography>
+            <Typography variant="caption" sx={{ fontSize: '0.875rem' }}>Previous</Typography> {/* Adjusted font size */}
           </IconButton>
           {isPlaying ? (
             <IconButton color="primary" onClick={handlePause} sx={{ color: '#0288d1' }}>
               <PauseIcon />
-              <Typography variant="caption">Pause</Typography>
+              <Typography variant="caption" sx={{ fontSize: '0.875rem' }}>Pause</Typography> {/* Adjusted font size */}
             </IconButton>
           ) : (
             <IconButton color="primary" onClick={handlePlay} sx={{ color: '#388e3c' }}>
               <PlayArrowIcon />
-              <Typography variant="parap">Play</Typography>
+              <Typography variant="caption" sx={{ fontSize: '0.875rem' }}>Play</Typography> {/* Adjusted font size */}
             </IconButton>
           )}
           <IconButton color="primary" onClick={handleNextStep} sx={{ color: '#d32f2f' }}>
             <SkipNextIcon />
-            <Typography variant="caption">Next</Typography>
+            <Typography variant="caption" sx={{ fontSize: '0.875rem' }}>Next</Typography> {/* Adjusted font size */}
           </IconButton>
           <IconButton color="primary" onClick={handleRunAllSteps} sx={{ color: '#ffa000' }}>
             <FastForwardIcon />
-            <Typography variant="caption">Run All</Typography>
+            <Typography variant="caption" sx={{ fontSize: '0.875rem' }}>Run All</Typography> {/* Adjusted font size */}
           </IconButton>
           <IconButton color="primary" onClick={handleRunVisualized} sx={{ color: '#7b1fa2' }}>
             <PlayCircleFilledIcon />
-            <Typography variant="caption">Visualize</Typography>
+            <Typography variant="caption" sx={{ fontSize: '0.875rem' }}>Visualize</Typography> {/* Adjusted font size */}
           </IconButton>
         </Toolbar>
         <Box sx={{ display: 'flex', height: 'calc(100vh - 64px - 56px)', flexDirection: 'column' }}>
