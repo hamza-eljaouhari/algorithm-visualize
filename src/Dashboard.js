@@ -52,6 +52,9 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({
     }),
     marginLeft: 0,
   }),
+  '.MuiToolbar-root' : {
+    minHeight: '48px'
+  }
 }));
 
 const AppBarStyled = styled(AppBar, {
@@ -69,6 +72,9 @@ const AppBarStyled = styled(AppBar, {
       duration: theme.transitions.duration.enteringScreen,
     }),
   }),
+  '.MuiToolbar-root' : {
+    minHeight: '48px'
+  }
 }));
 
 const DrawerHeader = styled('div')(({ theme }) => ({
@@ -394,11 +400,11 @@ export default function Dashboard() {
             aria-label="open drawer"
             onClick={handleDrawerOpen}
             edge="start"
-            sx={{ mr: 1.6, ...(open && { display: 'none' }), mb: 2 }} // Reduced margin
+            sx={{ mr: 1.6, ...(open && { display: 'none' }) }} // Reduced margin
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold', mb: 2 }}>
+          <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold' }}>
             Algorithm Visualizer
           </Typography>
         </Toolbar>
@@ -467,7 +473,7 @@ export default function Dashboard() {
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-        <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', pl: 1.6 }}> {/* Reduced padding */}
+        <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', position: 'fixed', width: '100%', height: '48px', zIndex: 1000 }}> {/* Reduced padding */}
           <IconButton color="primary" onClick={handlePreviousStep} sx={{ color: '#d32f2f' }}>
             <SkipPreviousIcon />
             <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Previous</Typography>
@@ -496,7 +502,7 @@ export default function Dashboard() {
             <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Visualize</Typography>
           </IconButton>
         </Toolbar>
-        <Box sx={{ display: 'flex', height: 'calc(100vh - 64px - 48px)', flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', height: 'calc(100vh - 200px)', flexDirection: 'column', marginTop: '65px'}}>
           <Box sx={{ display: 'flex', width: '100%' }}>
             <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', height: "100" }}> {/* Reduced width */}
               <Card sx={{ height: 'calc(33vh - (64px + 48px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
