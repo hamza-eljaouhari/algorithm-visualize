@@ -331,9 +331,17 @@ export default function Visualizer({ steps, currentStep, stepType }) {
     }
   };
 
+
   return (
-    <Box sx={{ position: 'relative' }}>
-      <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', position: 'absolute', top: 0, width: '100%', height: '48px', zIndex: 1000 }}>
+    <Box sx={{ position: 'relative', height: '100%', overflow: 'auto', backgroundColor: '#1e1e1e' }}>
+      {/* Fixed Toolbar */}
+      <Toolbar sx={{
+        backgroundColor: '#fff',
+        position: 'sticky', // Position sticky to make it fixed within the scrollable box
+        top: 0,
+        zIndex: 1000,
+        boxShadow: 1
+      }}>
         <Typography variant="subtitle1" sx={{ textAlign: 'left', color: 'black', ml: 2 }}>
           Visualization
         </Typography>
@@ -356,17 +364,19 @@ export default function Visualizer({ steps, currentStep, stepType }) {
           }}
         />
       </Toolbar>
-      <Box sx={{ padding: '20px' }}> {/* Push content down to avoid overlap with header */}
+      
+      {/* Content Section */}
+      <Box sx={{ paddingTop: '60px' }}>
         {displayedSteps.length > 0 && (
           <Typography variant="h6" sx={{ textAlign: 'left', mb: 2 }}>
             {`Step #${steps.indexOf(displayedSteps[0]) + 1} to Step #${steps.indexOf(displayedSteps[displayedSteps.length - 1]) + 1}`}
           </Typography>
         )}
-
+        
         {displayedSteps.map((stepData, index) => (
           <Box key={index}>{renderVisualization(stepData)}</Box>
         ))}
-
+        
         {displayedSteps.length === 0 && (
           <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>No steps to display</Typography>
         )}
