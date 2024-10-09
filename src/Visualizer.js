@@ -75,7 +75,13 @@ export default function Visualizer({ steps, currentStep, stepType }) {
 
   const renderArray = (stepData) => {
     const { arr = [], index, action } = stepData;
-  
+
+    let indexes = [];
+    
+    if(stepData.hasOwnProperty('indexes')){
+      indexes = stepData.indexes;
+    }
+
     return (
       <Box display="flex" whiteSpace="nowrap">
         {arr.map((value, idx) => (
@@ -86,7 +92,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
               height: '50px',
               lineHeight: '50px',
               textAlign: 'center',
-              backgroundColor: index === idx ? operationColors[action] || '#4682B4' : '#2C2C54',
+              backgroundColor: (index === idx) || (indexes.start <= idx && indexes.end > idx) ? operationColors[action] || '#4682B4' : '#2C2C54',
               color: 'white',
               border: '1px solid #1e1e1e',
               position: 'relative'
