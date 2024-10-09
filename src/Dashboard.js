@@ -237,7 +237,7 @@ export default function Dashboard() {
               () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('');
           case 'patterns':
             // Generate a string of 200 random lowercase characters
-            return [...Array.from({ length: 100 }, () => Array.from({ length: 1 }, () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join('')), 'isEndOfPattern'];
+            return Array.from({ length: 10 }, () => Array.from({ length: 1 }, () => String.fromCharCode(Math.floor(Math.random() * 26) + 97)).join(''))
         }
       }
 

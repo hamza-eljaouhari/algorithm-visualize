@@ -4814,95 +4814,99 @@ function heapSort(array, updateStep) {
             { name: 'patterns', type: 'patterns' },
         ],
         execute: (text, patterns, updateStep) => {
-            // Step 1: Build the Trie
-            const trie = {};
-    
-            // Insert each pattern into the trie
-            patterns.forEach(pattern => {
-                let node = trie;
-                for (const char of pattern) {
-                    if (!node[char]) {
-                        node[char] = {}; // Create a new node if it doesn't exist
-                    }
-                    node = node[char]; // Move to the child node
-                }
-                node.isEndOfPattern = true; // Mark the end of a pattern
-                node.pattern = pattern; // Store the pattern for reference
-            });
-    
-            updateStep({ action: 'Trie constructed', trie });
-    
-            // Step 2: Build failure links
-            const buildFailureLinks = (trie) => {
-                const queue = [];
-                // Initialize failure links for the root's children
-                for (const char in trie) {
-                    if (trie[char]) {
-                        trie[char].failure = trie; // Root failure link points to itself
-                        queue.push(trie[char]);
-                    }
-                }
-
-                while (queue.length > 0) {
-                    const currentNode = queue.shift();
-    
-                    for (const char in currentNode) {
-                        if (currentNode[char] && !currentNode.isEndOfPattern) {
-                            const childNode = currentNode;
-                            let fallback = currentNode.failure; // Start with the failure link
-    
-                            // Follow failure links until we find a match or reach the root
-                            while (fallback && !fallback[char]) {
-                                fallback = fallback.failure;
-                            }
-    
-                            // Set the failure link
-                            childNode.failure = fallback ? fallback[char] : trie;
-    
-                            // Add the child node to the queue
-                            queue.push(childNode);
-                        }
-                    }
-                }
-            };
-    
-            buildFailureLinks(trie);
-    
-            // Step 3: Search through the text
-            let node = trie;
-            const results = [];
-    
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-    
-                // Follow failure links until a match is found or we reach the root
-                while (node && !node[char]) {
-                    node = node.failure;
-                }
-    
-                if (!node) {
-                    node = trie; // Restart at the root of the trie
-                    continue;
-                }
-    
-                node = node[char];
-    
-                // Check if we have found a pattern
-                let tempNode = node;
-                while (tempNode) {
-                    if (tempNode.isEndOfPattern) {
-                        results.push(`Pattern "${tempNode.pattern}" found at index ${i - tempNode.pattern.length + 1}`);
-                        updateStep({ action: 'Pattern found', pattern: tempNode.pattern, index: i - tempNode.pattern.length + 1 });
-                    }
-                    tempNode = tempNode.failure; // Move up the failure links
-                }
-            }
-    
-            // Final result display
-            updateStep({ action: 'Search complete', results });
-            return results; // Return the found patterns
+          // Step 1: Build the Trie
+          const trie = {};
+      
+          // Insert each pattern into the trie
+          patterns.forEach(pattern => {
+              let node = trie;
+              for (const char of pattern) {
+                  if (!node[char]) {
+                      node[char] = {}; // Create a new node if it doesn't exist
+                  }
+                  node = node[char]; // Move to the child node
+              }
+              node.isEndOfPattern = true; // Mark the end of a pattern
+              node.pattern = pattern; // Store the pattern for reference
+          });
+      
+          updateStep({ action: 'Trie constructed', trie });
+      
+          // Step 2: Build failure links
+          const buildFailureLinks = (trie) => {
+              const queue = [];
+              // Initialize failure links for the root's children
+              for (const char in trie) {
+                  if (trie[char]) {
+                      trie[char].failure = trie; // Root failure link points to itself
+                      queue.push(trie[char]);
+                  }
+              }
+      
+              while (queue.length > 0) {
+                  const currentNode = queue.shift();
+      
+                  for (const char in currentNode) {
+                      if (currentNode[char] && !currentNode.isEndOfPattern) {
+                          const childNode = currentNode[char];
+                          let fallback = currentNode.failure; // Start with the failure link
+      
+                          // Follow failure links until we find a match or reach the root
+                          while (fallback && !fallback[char]) {
+                              fallback = fallback.failure;
+                          }
+      
+                          // Set the failure link
+                          childNode.failure = fallback ? fallback[char] : trie;
+      
+                          // Add the child node to the queue
+                          queue.push(childNode);
+                      }
+                  }
+              }
+          };
+      
+          buildFailureLinks(trie);
+      
+          // Step 3: Search through the text
+          let node = trie;
+          const results = [];
+          const arr = Array.from(text); // Create an array from the text for visualization
+      
+          for (let i = 0; i < text.length; i++) {
+              const char = text[i];
+      
+              // Follow failure links until a match is found or we reach the root
+              while (node && !node[char]) {
+                  node = node.failure;
+              }
+      
+              if (!node) {
+                  node = trie; // Restart at the root of the trie
+                  continue;
+              }
+      
+              node = node[char];
+      
+              // Check if we have found a pattern
+              let tempNode = node;
+              while (tempNode) {
+                  if (tempNode.isEndOfPattern) {
+                      results.push(`Pattern "${tempNode.pattern}" found at index ${i - tempNode.pattern.length + 1}`);
+                      updateStep({ action: 'Pattern found', pattern: tempNode.pattern, index: i - tempNode.pattern.length + 1 });
+                  }
+                  tempNode = tempNode.failure; // Move up the failure links
+              }
+      
+              // Update visualization for each step
+              updateStep({ arr, index: i, action: 'Searching' }); // Update for each character processed
+          }
+      
+          // Final result display
+          updateStep({ action: 'Search complete', results });
+          return results; // Return the found patterns
         }
-      },    
+      },      
       {
   name: 'KMP Algorithm',
     description: 'Searches for a pattern in a text using the Knuth-Morris-Pratt algorithm.',
