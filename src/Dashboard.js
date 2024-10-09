@@ -410,12 +410,15 @@ export default function Dashboard() {
             width: drawerWidth,
             boxSizing: 'border-box',
             backgroundColor: '#2b293b',
+            overflowY: 'auto',  // Ensures the drawer scrolls
+            ...scrollbarStyle,  // Apply the custom scrollbar style here
           },
         }}
         variant="persistent"
         anchor="left"
         open={open}
       >
+
         <DrawerHeader sx={{ backgroundColor: 'white', mb: 2, height: '48px', minHeight: '48px' }}>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}

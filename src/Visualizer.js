@@ -26,11 +26,6 @@ export default function Visualizer({ steps, currentStep, stepType }) {
     }
   }, [steps]);
 
-  const handleOpenModal = (content) => {
-    setModalContent(JSON.stringify(content, null, 2));
-    setModalOpen(true);
-  };
-
   const handleCloseModal = () => {
     setModalOpen(false);
   };
@@ -78,20 +73,6 @@ export default function Visualizer({ steps, currentStep, stepType }) {
         ))}
       </Box>
     );
-  };
-
-  const handleSearchKeyPress = (event) => {
-    if (event.key === 'Enter' || event.type === 'blur') {
-      const stepNum = parseInt(searchStep, 10);
-      if (!isNaN(stepNum) && stepNum >= 1 && stepNum <= steps.length) {
-        const start = Math.max(0, stepNum - 6);
-        const end = Math.min(steps.length, stepNum + 4);
-        setDisplayedSteps(steps.slice(start, end));
-      } else {
-        setDisplayedSteps([]);
-        setError(true);
-      }
-    }
   };
 
   const renderMatrix = (stepData) => {
