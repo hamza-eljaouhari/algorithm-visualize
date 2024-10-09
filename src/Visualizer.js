@@ -348,7 +348,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
   };
 
   return (
-    <Box>
+    <Box >
       <Box
         sx={{
           position: 'sticky',
@@ -382,7 +382,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
         />
       </Box>
 
-      <Box sx={{ mt: '60px' }}> {/* Push content down to avoid overlap with header */}
+      <Box sx={{ margin: '60px 20px' }}> {/* Push content down to avoid overlap with header */}
         {displayedSteps.length > 0 && (
           <Typography variant="h6" sx={{ textAlign: 'left', mb: 2 }}>
             {`Step #${steps.indexOf(displayedSteps[0]) + 1} to Step #${steps.indexOf(displayedSteps[displayedSteps.length - 1]) + 1}`}
