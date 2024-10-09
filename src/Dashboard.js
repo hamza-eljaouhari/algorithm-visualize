@@ -55,7 +55,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({
   marginBottom: 0,
   '.MuiToolbar-root' : {
     minHeight: '48px'
-  }
+  },
 }));
 
 const AppBarStyled = styled(AppBar, {
@@ -503,9 +503,9 @@ export default function Dashboard() {
             <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Visualize</Typography>
           </IconButton>
         </Toolbar>
-        <Box sx={{ display: 'flex', height: 'calc(100vh)', flexDirection: 'column', marginTop: '50px'}}>
-          <Box sx={{ display: 'flex', width: '100%' }}>
-            <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column' }}> {/* Reduced width */}
+        <Box sx={{ display: 'flex', height: 'calc(100vh - 4px)', flexDirection: 'column', marginTop: '50px'}}>
+          <Box sx={{ display: 'flex', width: '100%', height: 'calc(100vh + 4px)'}}>
+            <Box sx={{ width: '50%', display: 'flex', height: '50vh + 4px', flexDirection: 'column' }}>
               <Card sx={{ height: 'calc(33vh - 96px / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
                 <CardContent>
                   <Typography variant="subtitle2">Initial Parameters</Typography>
@@ -515,7 +515,7 @@ export default function Dashboard() {
               <Card sx={{ height: 'calc(33vh - 96px / 3)', overflowY: 'auto', overflowX: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle, border: '1px solid black' }}>
                 <Visualizer steps={algorithmSteps} currentStep={currentStep} stepType={currentImplementation?.visualization.stepType} />
               </Card>
-              <Card sx={{ height: 'calc(33vh - 96px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
+              <Card sx={{ height: 'calc(33vh - 29px)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
                 <CardContent>
                   <Typography variant="subtitle2">Final Result:</Typography>
                   <pre style={{ fontSize: '0.8rem' }}>{JSON.stringify(finalResult, null, 2)}</pre>
@@ -526,7 +526,7 @@ export default function Dashboard() {
               width: '50%', // Reduced width
               position: 'sticky',
               top: 0,
-              height: '50vh',
+              height: 'calc(50vh + 4px)',
               overflowY: 'auto',
               ...scrollbarStyle
             }}>
