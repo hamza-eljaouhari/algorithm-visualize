@@ -346,7 +346,6 @@ export default function Visualizer({ steps, currentStep, stepType }) {
     }
   };
 
-
   return (
     <Box sx={{ position: 'relative', height: '100%', overflow: 'auto', backgroundColor: '#1e1e1e', ...scrollbarStyle }}>
       {/* Fixed Toolbar */}
@@ -368,13 +367,12 @@ export default function Visualizer({ steps, currentStep, stepType }) {
           onChange={handleSearchChange}
           sx={{
             ml: 'auto',
-            mr: 2,
             '.MuiFormLabel-root': { color: 'black', fontSize: '14px', paddingBottom: '5px' },
             '.MuiOutlinedInput-root fieldset': { color: 'black !important', height: '36px' },
             '& .MuiOutlinedInput-root': {
               '& fieldset': { borderColor: 'black', marginTop: '5px' },
               '&.Mui-focused fieldset': { borderColor: 'black' },
-              '& input': { color: 'black', width: '120px' },
+              '& input': { color: 'black', width: '120px' }
             },
           }}
         />
