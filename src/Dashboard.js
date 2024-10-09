@@ -572,7 +572,7 @@ export default function Dashboard() {
                     options={monacoEditorOptions}
                   />
                 </Card>
-                <Card sx={{ height: 'calc(33vh - 30px)', backgroundColor: '#333', color: '#ddd', border: '1px solid black' }}>
+                <Card sx={{ height: 'calc(33vh - 30px)', backgroundColor: '#333', color: '#ddd', border: '1px solid black'}}>
                   <Visualizer steps={algorithmSteps} currentStep={currentStep} stepType={currentImplementation?.visualization.stepType} />
                 </Card>
                 <Card sx={{  height: 'calc(33vh + 19px)', overflowY: 'auto', backgroundColor: '#333', position: 'relative', color: '#ddd', padding: '48px 0', borderRadius: 0 }}>
