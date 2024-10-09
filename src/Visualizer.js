@@ -1,8 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Dialog, DialogTitle, DialogContent, TextField, Toolbar } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import IconButton from '@mui/material/IconButton';
 
+const scrollbarStyle = {
+  '&::-webkit-scrollbar': {
+    width: '6px', // Reduced size
+    height: '6px'
+  },
+  '&::-webkit-scrollbar-track': {
+    backgroundColor: '#333',
+    borderLeft: '1px solid black'
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: '#888',
+    borderRadius: '4px',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    backgroundColor: '#555',
+  },
+};
 
 export default function Visualizer({ steps, currentStep, stepType }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -68,7 +83,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
               textAlign: 'center',
               backgroundColor: index === idx ? operationColors[action] || '#4682B4' : '#2C2C54',
               color: 'white',
-              border: '1px solid #1e1e1e',
+              border: '1px solid #1e1e1e'
             }}
           >
             {value !== undefined && value !== null ? value : ''}
@@ -333,7 +348,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
 
 
   return (
-    <Box sx={{ position: 'relative', height: '100%', overflow: 'auto', backgroundColor: '#1e1e1e' }}>
+    <Box sx={{ position: 'relative', height: '100%', overflow: 'auto', backgroundColor: '#1e1e1e', ...scrollbarStyle }}>
       {/* Fixed Toolbar */}
       <Toolbar sx={{
         backgroundColor: '#fff',
@@ -366,15 +381,15 @@ export default function Visualizer({ steps, currentStep, stepType }) {
       </Toolbar>
       
       {/* Content Section */}
-      <Box sx={{ paddingTop: '60px' }}>
+      <Box sx={{ paddingTop: '20px', ml: 2 }}>
         {displayedSteps.length > 0 && (
-          <Typography variant="h6" sx={{ textAlign: 'left', mb: 2 }}>
+          <Typography variant="h6" sx={{ textAlign: 'left', mb: 2,  ml: 2 }}>
             {`Step #${steps.indexOf(displayedSteps[0]) + 1} to Step #${steps.indexOf(displayedSteps[displayedSteps.length - 1]) + 1}`}
           </Typography>
         )}
         
         {displayedSteps.map((stepData, index) => (
-          <Box key={index}>{renderVisualization(stepData)}</Box>
+          <Box key={index} sx={{ ml: 2 }}>{renderVisualization(stepData)}</Box>
         ))}
         
         {displayedSteps.length === 0 && (
