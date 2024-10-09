@@ -45,6 +45,24 @@ const monacoEditorOptions = {
   },
 };
 
+const scrollbarStyle = {
+  '&::-webkit-scrollbar': {
+    width: '12px', // Reduced size
+    height: '6px'
+  },
+  '&::-webkit-scrollbar-track': {
+    borderLeft: '1px solid black'
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: '#555',
+    borderRadius: '0px',
+  },
+  '&::-webkit-scrollbar-thumb:hover': {
+    backgroundColor: '#555',
+  },
+};
+
+
 const drawerWidth = 250; // Reduced by 20%
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
@@ -99,24 +117,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   padding: theme.spacing(0, 0.8), // Reduced padding
   justifyContent: 'flex-end',
 }));
-
-const scrollbarStyle = {
-  '&::-webkit-scrollbar': {
-    width: '6px', // Reduced size
-    height: '6px'
-  },
-  '&::-webkit-scrollbar-track': {
-    backgroundColor: '#333',
-    borderLeft: '1px solid black'
-  },
-  '&::-webkit-scrollbar-thumb': {
-    backgroundColor: '#888',
-    borderRadius: '4px',
-  },
-  '&::-webkit-scrollbar-thumb:hover': {
-    backgroundColor: '#555',
-  },
-};
 
 const predefinedGraphs = [
   [
@@ -521,7 +521,7 @@ export default function Dashboard() {
           <Box sx={{ display: 'flex', width: '100vw', height: '100vh', flexDirection: 'row' }}>
             <Box sx={{ flex: 1, display: 'flex', width: '50vw', height: '100vh' }}>
               <Box sx={{ width: '50vw', display: 'flex', height: '100vh', flexDirection: 'column' }}>
-                <Card sx={{ flex: 1, overflowY: 'auto', backgroundColor: '#333', position: 'relative', color: '#ddd', padding: '48px 0 0 0', borderRadius: 0, ...scrollbarStyle }}>
+                <Card sx={{ flex: 1, overflowY: 'auto', backgroundColor: '#333', position: 'relative', color: '#ddd', padding: '48px 0 0 0', borderRadius: 0 }}>
                   <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', position: 'absolute', top: 0, width: '100%', height: '48px', zIndex: 1000 }}>
                     {/* Generate Parameters */}
                     <IconButton color="primary" onClick={() => setGeneratedParams(generateParameters(currentImplementation.parameters, selectedAlgorithm))} sx={{ color: '#388e3c' }}>
@@ -573,10 +573,10 @@ export default function Dashboard() {
                     options={monacoEditorOptions}
                   />
                 </Card>
-                <Card sx={{ flex: 1, overflowY: 'auto', overflowX: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle, border: '1px solid black' }}>
+                <Card sx={{ flex: 1, overflowY: 'auto', overflowX: 'auto', backgroundColor: '#333', color: '#ddd', border: '1px solid black' }}>
                   <Visualizer steps={algorithmSteps} currentStep={currentStep} stepType={currentImplementation?.visualization.stepType} />
                 </Card>
-                <Card sx={{ flex: 1, overflowY: 'auto', backgroundColor: '#333', position: 'relative', color: '#ddd', padding: '48px 0', borderRadius: 0, ...scrollbarStyle }}>
+                <Card sx={{ flex: 1, overflowY: 'auto', backgroundColor: '#333', position: 'relative', color: '#ddd', padding: '48px 0', borderRadius: 0 }}>
                     <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', position: 'absolute', top: 0, width: '100%', height: '48px', zIndex: 1000 }}>
                       {/* Generate Parameters */}
                       <IconButton color="primary" onClick={() => setGeneratedParams(generateParameters(currentImplementation.parameters, selectedAlgorithm))} sx={{ color: '#388e3c' }}>

@@ -3,16 +3,16 @@ import { Box, Typography, Dialog, DialogTitle, DialogContent, TextField, Toolbar
 
 const scrollbarStyle = {
   '&::-webkit-scrollbar': {
-    width: '6px', // Reduced size
+    width: '12px', // Reduced size
     height: '6px'
   },
   '&::-webkit-scrollbar-track': {
-    backgroundColor: '#333',
     borderLeft: '1px solid black'
   },
   '&::-webkit-scrollbar-thumb': {
-    backgroundColor: '#888',
-    borderRadius: '4px',
+    backgroundColor: '#444',
+    borderRadius: '0px',
+    opacity: 0.5
   },
   '&::-webkit-scrollbar-thumb:hover': {
     backgroundColor: '#555',
