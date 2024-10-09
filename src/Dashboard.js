@@ -34,7 +34,7 @@ const drawerWidth = 250; // Reduced by 20%
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
   flexGrow: 1,
-  height: '100vh', // Adjusted height
+  height: 'calc(100vh - 48px)', // Adjusted height
   display: 'flex',
   marginTop: '48px',
   flexDirection: 'column',
@@ -52,6 +52,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({
     }),
     marginLeft: 0,
   }),
+  marginBottom: 0,
   '.MuiToolbar-root' : {
     minHeight: '48px'
   }
@@ -391,7 +392,7 @@ export default function Dashboard() {
   }, [isPlaying, currentStep, algorithmSteps, autoPlay]);
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', height: 'calc(100vh - 200px)'}}>
       <CssBaseline />
       <AppBarStyled position="fixed" open={open} >
         <Toolbar sx={{ justifyContent: 'left' }}>
@@ -425,7 +426,7 @@ export default function Dashboard() {
         open={open}
       >
 
-        <DrawerHeader sx={{ backgroundColor: 'white', mb: 2, height: '48px', minHeight: '48px' }}>
+        <DrawerHeader sx={{ backgroundColor: 'white', height: '48px', minHeight: '48px' }}>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
@@ -502,19 +503,19 @@ export default function Dashboard() {
             <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Visualize</Typography>
           </IconButton>
         </Toolbar>
-        <Box sx={{ display: 'flex', height: 'calc(100vh - 200px)', flexDirection: 'column', marginTop: '65px'}}>
+        <Box sx={{ display: 'flex', height: 'calc(100vh)', flexDirection: 'column', marginTop: '50px'}}>
           <Box sx={{ display: 'flex', width: '100%' }}>
-            <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', height: "100" }}> {/* Reduced width */}
-              <Card sx={{ height: 'calc(33vh - (64px + 48px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
+            <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column' }}> {/* Reduced width */}
+              <Card sx={{ height: 'calc(33vh - 96px / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
                 <CardContent>
                   <Typography variant="subtitle2">Initial Parameters</Typography>
                   <pre style={{ fontSize: '0.8rem' }}>{JSON.stringify(generatedParams, null, 2)}</pre>
                 </CardContent>
               </Card>
-              <Card sx={{ height: 'calc(33vh - (64px + 48px) / 3)', overflowY: 'auto', overflowX: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle, border: '1px solid black' }}>
+              <Card sx={{ height: 'calc(33vh - 96px / 3)', overflowY: 'auto', overflowX: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle, border: '1px solid black' }}>
                 <Visualizer steps={algorithmSteps} currentStep={currentStep} stepType={currentImplementation?.visualization.stepType} />
               </Card>
-              <Card sx={{ height: 'calc(33vh - (64px + 48px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
+              <Card sx={{ height: 'calc(33vh - 96px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
                 <CardContent>
                   <Typography variant="subtitle2">Final Result:</Typography>
                   <pre style={{ fontSize: '0.8rem' }}>{JSON.stringify(finalResult, null, 2)}</pre>
