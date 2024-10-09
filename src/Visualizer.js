@@ -3,16 +3,16 @@ import { Box, Typography, Dialog, DialogTitle, DialogContent, TextField, Toolbar
 
 const scrollbarStyle = {
   '&::-webkit-scrollbar': {
-    width: '12px', // Reduced size
-    height: '6px'
+    width: '14px', // Reduced size
+    height: '6px',
   },
   '&::-webkit-scrollbar-track': {
-    borderLeft: '1px solid black'
+    borderLeft: '1px solid black',
+    borderRight: 'none'
   },
   '&::-webkit-scrollbar-thumb': {
     backgroundColor: '#444',
     borderRadius: '0px',
-    opacity: 0.5
   },
   '&::-webkit-scrollbar-thumb:hover': {
     backgroundColor: '#555',
@@ -347,11 +347,11 @@ export default function Visualizer({ steps, currentStep, stepType }) {
   };
 
   return (
-    <Box sx={{ position: 'relative', height: '100%', overflow: 'auto', backgroundColor: '#1e1e1e', ...scrollbarStyle }}>
+    <Box sx={{ height: '100%' }}>
       {/* Fixed Toolbar */}
       <Toolbar sx={{
         backgroundColor: '#fff',
-        position: 'sticky', // Position sticky to make it fixed within the scrollable box
+        position: 'relative', // Position sticky to make it fixed within the scrollable box
         top: 0,
         zIndex: 1000,
         boxShadow: 1
@@ -379,7 +379,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
       </Toolbar>
       
       {/* Content Section */}
-      <Box sx={{ p: '20px 0', ml: 2 }}>
+      <Box sx={{ position: 'relative', height: '100%', overflowY: 'auto', backgroundColor: '#1e1e1e', maring: 0, padding: '20px 0 60px 0', ...scrollbarStyle }}>
         {displayedSteps.length > 0 && (
           <Typography variant="h6" sx={{ textAlign: 'left', mb: 2,  ml: 2 }}>
             {`Step #${steps.indexOf(displayedSteps[0]) + 1} to Step #${steps.indexOf(displayedSteps[displayedSteps.length - 1]) + 1}`}

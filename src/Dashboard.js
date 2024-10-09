@@ -331,7 +331,6 @@ export default function Dashboard() {
     setExpanded(isExpanded ? panel : false);
   };
 
-
   const handleAlgorithmSelection = async (categoryName, algorithmName) => {
     setAlgorithmSteps([]);
     setCurrentStep(0);
@@ -521,7 +520,7 @@ export default function Dashboard() {
           <Box sx={{ display: 'flex', width: '100vw', height: '100vh', flexDirection: 'row' }}>
             <Box sx={{ flex: 1, display: 'flex', width: '50vw', height: '100vh' }}>
               <Box sx={{ width: '50vw', display: 'flex', height: '100vh', flexDirection: 'column' }}>
-                <Card sx={{ flex: 1, overflowY: 'auto', backgroundColor: '#333', position: 'relative', color: '#ddd', padding: '48px 0 0 0', borderRadius: 0 }}>
+                <Card sx={{ height: 'calc(33vh - 30px)', overflowY: 'auto', backgroundColor: '#333', position: 'relative', color: '#ddd', padding: '48px 0 0 0', borderRadius: 0 }}>
                   <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', position: 'absolute', top: 0, width: '100%', height: '48px', zIndex: 1000 }}>
                     {/* Generate Parameters */}
                     <IconButton color="primary" onClick={() => setGeneratedParams(generateParameters(currentImplementation.parameters, selectedAlgorithm))} sx={{ color: '#388e3c' }}>
@@ -573,49 +572,11 @@ export default function Dashboard() {
                     options={monacoEditorOptions}
                   />
                 </Card>
-                <Card sx={{ flex: 1, overflowY: 'auto', overflowX: 'auto', backgroundColor: '#333', color: '#ddd', border: '1px solid black' }}>
+                <Card sx={{ height: 'calc(33vh - 30px)', backgroundColor: '#333', color: '#ddd', border: '1px solid black' }}>
                   <Visualizer steps={algorithmSteps} currentStep={currentStep} stepType={currentImplementation?.visualization.stepType} />
                 </Card>
-                <Card sx={{ flex: 1, overflowY: 'auto', backgroundColor: '#333', position: 'relative', color: '#ddd', padding: '48px 0', borderRadius: 0 }}>
+                <Card sx={{  height: 'calc(33vh + 19px)', overflowY: 'auto', backgroundColor: '#333', position: 'relative', color: '#ddd', padding: '48px 0', borderRadius: 0 }}>
                     <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', position: 'absolute', top: 0, width: '100%', height: '48px', zIndex: 1000 }}>
-                      {/* Generate Parameters */}
-                      <IconButton color="primary" onClick={() => setGeneratedParams(generateParameters(currentImplementation.parameters, selectedAlgorithm))} sx={{ color: '#388e3c' }}>
-                        <PlayCircleFilledIcon />
-                        <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Generate Params</Typography>
-                      </IconButton>
-
-                      {/* Reset Editor */}
-                      <IconButton color="primary" onClick={() => setCode('')} sx={{ color: '#d32f2f' }}>
-                        <PauseIcon />
-                        <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Reset</Typography>
-                      </IconButton>
-
-                      {/* Load Code */}
-                      <IconButton color="primary" onClick={() => setCode(localStorage.getItem('editorCode') || '')} sx={{ color: '#0288d1' }}>
-                        <SkipPreviousIcon />
-                        <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Load</Typography>
-                      </IconButton>
-
-                      {/* Save Code */}
-                      <IconButton color="primary" onClick={() => localStorage.setItem('editorCode', code)} sx={{ color: '#ffa000' }}>
-                        <SkipNextIcon />
-                        <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Save</Typography>
-                      </IconButton>
-
-                      {/* Copy Code */}
-                      <IconButton color="primary" onClick={() => navigator.clipboard.writeText(code)} sx={{ color: '#7b1fa2' }}>
-                        <FastForwardIcon />
-                        <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Copy</Typography>
-                      </IconButton>
-
-                      {/* Paste Code */}
-                      <IconButton color="primary" onClick={async () => {
-                        const text = await navigator.clipboard.readText();
-                        setCode(text);
-                      }} sx={{ color: '#ff5722' }}>
-                        <MenuIcon />
-                        <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Paste</Typography>
-                      </IconButton>
                     </Toolbar>
                     <Editor
                       height="100%" // Ensures height is from below the toolbar to the bottom of the screen
