@@ -342,10 +342,10 @@ export default function Visualizer({ steps, currentStep, stepType }) {
           height: '48px',  // Smaller height
           padding: '0 5px',
           borderBottom: '1px solid black',
-          zIndex: 1000 // Make sure it stays on top of other content
+          zIndex: 1000, // Make sure it stays on top of other content
         }}
       >
-        <Typography variant="subtitle1" sx={{ textAlign: 'left', color: 'white' }}>
+        <Typography variant="subtitle1" sx={{ textAlign: 'left', color: 'white', ml: 2 }}>
           Visualization
         </Typography>
         <TextField
@@ -356,12 +356,12 @@ export default function Visualizer({ steps, currentStep, stepType }) {
           onChange={handleSearchChange}
           sx={{
             ml: 'auto',
-            '.MuiFormLabel-root': { color: 'white' },
-            '.MuiOutlinedInput-root fieldset': { color: 'white !important' },
+            '.MuiFormLabel-root': { color: 'white', fontSize: '14px', paddingBottom: '5px'},
+            '.MuiOutlinedInput-root fieldset': { color: 'white !important', height: '36px' },
             '& .MuiOutlinedInput-root': {
-              '& fieldset': { borderColor: 'white' },
+              '& fieldset': { borderColor: 'white', marginTop: '5px'},
               '&.Mui-focused fieldset': { borderColor: 'white' },
-              '& input': { color: 'white' },
+              '& input': { color: 'white', width: '120px' },
             },
           }}
         />
