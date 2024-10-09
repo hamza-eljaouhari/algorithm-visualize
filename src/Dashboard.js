@@ -31,11 +31,12 @@ import Visualizer from './Visualizer';
 import { Editor } from '@monaco-editor/react';
 
 // Configuration for the Monaco Editor
+// Monaco Editor Options with dark theme
 const monacoEditorOptions = {
   selectOnLineNumbers: true,
   automaticLayout: true,
   scrollBeyondLastLine: false,
-  theme: 'vs-dark', // Set to dark theme to match VS Code's dark theme
+  theme: 'vs-dark', // Ensures a dark theme
   tabSize: 2,
   fontSize: 14,
   wordWrap: 'on',
@@ -487,7 +488,7 @@ export default function Dashboard() {
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-        <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', position: 'fixed', width: '100%', height: '48px', zIndex: 1000 }}> {/* Reduced padding */}
+        <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', position: 'fixed', width: '100%', height: '48px', zIndex: 1000 }}>
           <IconButton color="primary" onClick={handlePreviousStep} sx={{ color: '#d32f2f' }}>
             <SkipPreviousIcon />
             <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Previous</Typography>
@@ -516,35 +517,41 @@ export default function Dashboard() {
             <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Visualize</Typography>
           </IconButton>
         </Toolbar>
-        <Box sx={{ display: 'flex', height: 'calc(100vh - 4px)', flexDirection: 'column', marginTop: '50px' }}>
-          <Box sx={{ display: 'flex', width: '100%', height: 'calc(100vh + 4px)' }}>
-            <Box sx={{ width: '50%', display: 'flex', height: '50vh + 4px', flexDirection: 'column' }}>
-              <Card sx={{ height: 'calc(33vh - 96px / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
-                <CardContent>
-                  <Typography variant="subtitle2">Initial Parameters</Typography>
-                  <pre style={{ fontSize: '0.8rem' }}>{JSON.stringify(generatedParams, null, 2)}</pre>
-                </CardContent>
-              </Card>
-              <Card sx={{ height: 'calc(33vh - 96px / 3)', overflowY: 'auto', overflowX: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle, border: '1px solid black' }}>
-                <Visualizer steps={algorithmSteps} currentStep={currentStep} stepType={currentImplementation?.visualization.stepType} />
-              </Card>
-              <Card sx={{ height: 'calc(33vh - 29px)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
-                <CardContent>
-                  <Typography variant="subtitle2">Final Result:</Typography>
-                  <pre style={{ fontSize: '0.8rem' }}>{JSON.stringify(finalResult, null, 2)}</pre>
-                </CardContent>
-              </Card>
+        <Box sx={{ display: 'flex', height: '100vh', width: '100vw', flexDirection: 'column', marginTop: '50px' }}>
+          <Box sx={{ display: 'flex', width: '100vw', height: '100vh' }}>
+            <Box sx={{ display: 'flex', width: '100vw', height: '100vh' }}>
+              <Box sx={{ width: '50vw', display: 'flex', height: '100vh', flexDirection: 'column' }}>
+                <Card sx={{ flex: 1, overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
+                  <CardContent>
+                    <Typography variant="subtitle2">Initial Parameters</Typography>
+                    <pre style={{ fontSize: '0.8rem' }}>{JSON.stringify(generatedParams, null, 2)}</pre>
+                  </CardContent>
+                </Card>
+                <Card sx={{ flex: 1, overflowY: 'auto', overflowX: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle, border: '1px solid black' }}>
+                  <Visualizer steps={algorithmSteps} currentStep={currentStep} stepType={currentImplementation?.visualization.stepType} />
+                </Card>
+                <Card sx={{ flex: 1, overflowY: 'auto', backgroundColor: '#333', color: '#ddd', paddingBottom: '100px', ...scrollbarStyle }}>
+                  <CardContent>
+                    <Typography variant="subtitle2">Final Result:</Typography>
+                    <pre style={{ fontSize: '0.8rem' }}>{JSON.stringify(finalResult, null, 2)}</pre>
+                  </CardContent>
+                </Card>
+              </Box>
             </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'column', width: '50vh' }}>
-              <Box sx={{ display: 'flex', width: '50vw', height: '100vh' }}>
-                <Box sx={{ width: '100%' }}>
-                  <Editor
-                    height="100%"
-                    value={code}
-                    language="javascript"
-                    onChange={(newValue) => setCode(newValue)}
-                    options={monacoEditorOptions}
-                  />
+            <Box sx={{ display: 'flex', flexDirection: 'column', width: '50vw' }}>
+              <Box sx={{ display: 'flex', width: '50vw', flexDirection: 'column', height: 'calc(100vh - 54px)' }}>
+                <Box sx={{ display: 'flex', width: '50vw', flexDirection: 'column', height: 'calc(100vh - 54px)' }}>
+                  <Box sx={{ width: '50vw', height: '100%', overflow: 'hidden', backgroundColor: '#000' }}>
+                    <Editor
+                      height="calc(100vh - 104px)" // Ensures height is from below the toolbar to the bottom of the screen
+                      maxHeight="calc(100vh - 104px)" // Constrains the editor's max height
+                      width="50vw"
+                      value={code}
+                      language="javascript"
+                      onChange={(newValue) => setCode(newValue)}
+                      options={monacoEditorOptions}
+                    />
+                  </Box>
                 </Box>
               </Box>
             </Box>
