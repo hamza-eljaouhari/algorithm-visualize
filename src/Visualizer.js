@@ -359,7 +359,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
   };
 
   return (
-    <Box sx={{ mt: 0 }}>
+    <Box>
       <Box
         sx={{
           width: '100%',
@@ -370,6 +370,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
           height: '60px', // Smaller height
           padding: '0 5px',
           borderBottom: '1px solid black',
+          pl: 2
         }}
       >
         <Typography variant="subtitle1" sx={{ textAlign: 'left', color: 'white' }}>
