@@ -356,6 +356,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
           onChange={handleSearchChange}
           sx={{
             ml: 'auto',
+            mr: 2,
             '.MuiFormLabel-root': { color: 'white', fontSize: '14px', paddingBottom: '5px'},
             '.MuiOutlinedInput-root fieldset': { color: 'white !important', height: '36px' },
             '& .MuiOutlinedInput-root': {
