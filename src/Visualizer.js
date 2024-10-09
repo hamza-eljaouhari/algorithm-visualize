@@ -348,16 +348,20 @@ export default function Visualizer({ steps, currentStep, stepType }) {
   };
 
   return (
-    <Box >
+    <Box sx={{ position: 'relative' }}>
       <Box
         sx={{
           position: 'sticky',
-          width: '100%',
+          top: 0,
+          left: 0,
+          width: 'inherit', // Match the width of the parent container
+          backgroundColor: '#333',
           display: 'flex',
           alignItems: 'center',
           height: '60px',
           padding: '0 5px',
           borderBottom: '1px solid black',
+          zIndex: 1000 // Make sure it stays on top of other content
         }}
       >
         <Typography variant="subtitle1" sx={{ textAlign: 'left', color: 'white' }}>
@@ -382,7 +386,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
         />
       </Box>
 
-      <Box sx={{ margin: '60px 20px' }}> {/* Push content down to avoid overlap with header */}
+      <Box sx={{ padding: '20px' }}> {/* Push content down to avoid overlap with header */}
         {displayedSteps.length > 0 && (
           <Typography variant="h6" sx={{ textAlign: 'left', mb: 2 }}>
             {`Step #${steps.indexOf(displayedSteps[0]) + 1} to Step #${steps.indexOf(displayedSteps[displayedSteps.length - 1]) + 1}`}
@@ -390,7 +394,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
         )}
 
         {displayedSteps.map((stepData, index) => (
-          <Box key={index}>{renderArray(stepData)}</Box>
+          <Box key={index}>{renderVisualization(stepData)}</Box>
         ))}
 
         {displayedSteps.length === 0 && (
