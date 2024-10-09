@@ -518,8 +518,8 @@ export default function Dashboard() {
           </IconButton>
         </Toolbar>
         <Box sx={{ display: 'flex', height: '100vh', width: '100vw', flexDirection: 'column', marginTop: '50px' }}>
-          <Box sx={{ display: 'flex', width: '100vw', height: '100vh' }}>
-            <Box sx={{ display: 'flex', width: '100vw', height: '100vh' }}>
+          <Box sx={{ display: 'flex', width: '100vw', height: '100vh', flexDirection: 'row' }}>
+            <Box sx={{ flex: 1, display: 'flex', width: '50vw', height: '100vh' }}>
               <Box sx={{ width: '50vw', display: 'flex', height: '100vh', flexDirection: 'column' }}>
                 <Card sx={{ flex: 1, overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
                   <CardContent>
@@ -538,7 +538,7 @@ export default function Dashboard() {
                 </Card>
               </Box>
             </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'column', width: '50vw' }}>
+            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', width: '50vw' }}>
               <Box sx={{ display: 'flex', width: '50vw', flexDirection: 'column', height: 'calc(100vh - 54px)' }}>
                 <Box sx={{ display: 'flex', width: '50vw', flexDirection: 'column', height: 'calc(100vh - 54px)' }}>
                   <Box sx={{ width: '50vw', height: '100%', overflow: 'hidden', backgroundColor: '#000' }}>
