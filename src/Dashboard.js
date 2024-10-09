@@ -411,7 +411,7 @@ export default function Dashboard() {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            backgroundColor: '#faf0e6',
+            backgroundColor: '#2b293b',
           },
         }}
         variant="persistent"
@@ -430,20 +430,33 @@ export default function Dashboard() {
             expanded={expanded === category.title}
             onChange={handleAccordionChange(category.title)}
             sx={{
-              backgroundColor: '#faf0e6',
+              backgroundColor: '#2b293b',
               boxShadow: 'none',
               '&:not(:last-child)': {
                 marginBottom: '0px',
               },
             }}
           >
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`${category.title}-content`} id={`${category.title}-header`}>
-              <Typography>{category.title}</Typography>
-            </AccordionSummary>
+           <AccordionSummary 
+            expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />} 
+            aria-controls={`${category.title}-content`} 
+            id={`${category.title}-header`}
+            sx={{
+              color: 'white', // White text
+            }}
+          >
+            <Typography sx={{
+              textShadow: '1px 1px 1px black', // Black shadow
+            }}
+            >{category.title}</Typography>
+          </AccordionSummary>
             <AccordionDetails>
               <Box>
                 {category.algorithms.map((algorithmName, idx) => (
-                  <ListItem button="true" key={idx} onClick={() => handleAlgorithmSelection(category.title, algorithmName)}>
+                  <ListItem sx={{
+                    color: 'white', // White text
+                  }} 
+                  button="true" key={idx} onClick={() => handleAlgorithmSelection(category.title, algorithmName)}>
                     <ListItemText primary={algorithmName} />
                   </ListItem>
                 ))}
@@ -467,7 +480,7 @@ export default function Dashboard() {
           ) : (
             <IconButton color="primary" onClick={handlePlay} sx={{ color: '#388e3c' }}>
               <PlayArrowIcon />
-              <Typography variant="caption">Play</Typography>
+              <Typography variant="parap">Play</Typography>
             </IconButton>
           )}
           <IconButton color="primary" onClick={handleNextStep} sx={{ color: '#d32f2f' }}>
