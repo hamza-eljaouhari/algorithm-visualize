@@ -331,6 +331,7 @@ export default function Dashboard() {
       const params = generateParameters(algorithmImplementation.parameters, algorithmName);
       setGeneratedParams(params);
       setCode(algorithmImplementation.code || '');
+      console.log(algorithmImplementation.code)
     }
   };
 

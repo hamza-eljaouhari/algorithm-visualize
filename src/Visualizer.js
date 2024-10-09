@@ -339,7 +339,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
           backgroundColor: '#333',
           display: 'flex',
           alignItems: 'center',
-          height: '48px',  // Smaller height
+          height: '64px',  // Smaller height
           padding: '0 5px',
           borderBottom: '1px solid black',
           zIndex: 1000, // Make sure it stays on top of other content
