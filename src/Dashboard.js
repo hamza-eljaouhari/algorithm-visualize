@@ -30,45 +30,13 @@ import CardContent from '@mui/material/CardContent';
 import TextField from '@mui/material/TextField';
 import Visualizer from './Visualizer';
 
-const drawerWidth = 240;
-
-const predefinedGraphs = [
-  [
-    [1, 2],     // Graph 1 - Node 0 connects to Node 1 and Node 2
-    [0, 3, 4],  // Node 1 connects to Node 0, Node 3, and Node 4
-    [0, 5],     // Node 2 connects to Node 0 and Node 5
-    [1, 6],     // Node 3 connects to Node 1 and Node 6
-    [1, 5, 7],  // Node 4 connects to Node 1, Node 5, and Node 7
-    [2, 4, 7],  // Node 5 connects to Node 2, Node 4, and Node 7
-    [3, 7],     // Node 6 connects to Node 3 and Node 7
-    [4, 5, 6]   // Node 7 connects to Node 4, Node 5, and Node 6
-  ],
-  [
-    [1],        // Graph 2 - Node 0 connects to Node 1
-    [0, 2, 3],  // Node 1 connects to Node 0, Node 2, and Node 3
-    [1, 4],     // Node 2 connects to Node 1 and Node 4
-    [1, 4, 5],  // Node 3 connects to Node 1, Node 4, and Node 5
-    [2, 3, 6],  // Node 4 connects to Node 2, Node 3, and Node 6
-    [3, 6],     // Node 5 connects to Node 3 and Node 6
-    [4, 5, 7],  // Node 6 connects to Node 4, Node 5, and Node 7
-    [6]         // Node 7 connects to Node 6
-  ],
-  [
-    [1, 2, 3],  // Graph 3 - Node 0 connects to Node 1, Node 2, and Node 3
-    [0, 4],     // Node 1 connects to Node 0 and Node 4
-    [0, 5],     // Node 2 connects to Node 0 and Node 5
-    [0, 6],     // Node 3 connects to Node 0 and Node 6
-    [1, 7],     // Node 4 connects to Node 1 and Node 7
-    [2, 7],     // Node 5 connects to Node 2 and Node 7
-    [3, 7],     // Node 6 connects to Node 3 and Node 7
-    [4, 5, 6]   // Node 7 connects to Node 4, Node 5, and Node 6
-  ]
-];
+const drawerWidth = 250; // Reduced by 20%
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
   flexGrow: 1,
-  height: '100vh',
+  height: '100vh', // Adjusted height
   display: 'flex',
+  marginTop: '48px',
   flexDirection: 'column',
   overflow: 'hidden',
   backgroundColor: '#1e1e1e',
@@ -106,20 +74,18 @@ const AppBarStyled = styled(AppBar, {
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
+  padding: theme.spacing(0, 0.8), // Reduced padding
   justifyContent: 'flex-end',
 }));
 
 const scrollbarStyle = {
   '&::-webkit-scrollbar': {
-    width: '8px',
-    height: '8px'
+    width: '6px', // Reduced size
+    height: '6px'
   },
   '&::-webkit-scrollbar-track': {
     backgroundColor: '#333',
     borderLeft: '1px solid black'
-
   },
   '&::-webkit-scrollbar-thumb': {
     backgroundColor: '#888',
@@ -129,6 +95,39 @@ const scrollbarStyle = {
     backgroundColor: '#555',
   },
 };
+
+const predefinedGraphs = [
+  [
+    [1, 2],     // Graph 1 - Node 0 connects to Node 1 and Node 2
+    [0, 3, 4],  // Node 1 connects to Node 0, Node 3, and Node 4
+    [0, 5],     // Node 2 connects to Node 0 and Node 5
+    [1, 6],     // Node 3 connects to Node 1 and Node 6
+    [1, 5, 7],  // Node 4 connects to Node 1, Node 5, and Node 7
+    [2, 4, 7],  // Node 5 connects to Node 2, Node 4, and Node 7
+    [3, 7],     // Node 6 connects to Node 3 and Node 7
+    [4, 5, 6]   // Node 7 connects to Node 4, Node 5, and Node 6
+  ],
+  [
+    [1],        // Graph 2 - Node 0 connects to Node 1
+    [0, 2, 3],  // Node 1 connects to Node 0, Node 2, and Node 3
+    [1, 4],     // Node 2 connects to Node 1 and Node 4
+    [1, 4, 5],  // Node 3 connects to Node 1, Node 4, and Node 5
+    [2, 3, 6],  // Node 4 connects to Node 2, Node 3, and Node 6
+    [3, 6],     // Node 5 connects to Node 3 and Node 6
+    [4, 5, 7],  // Node 6 connects to Node 4, Node 5, and Node 7
+    [6]         // Node 7 connects to Node 6
+  ],
+  [
+    [1, 2, 3],  // Graph 3 - Node 0 connects to Node 1, Node 2, and Node 3
+    [0, 4],     // Node 1 connects to Node 0 and Node 4
+    [0, 5],     // Node 2 connects to Node 0 and Node 5
+    [0, 6],     // Node 3 connects to Node 0 and Node 6
+    [1, 7],     // Node 4 connects to Node 1 and Node 7
+    [2, 7],     // Node 5 connects to Node 2 and Node 7
+    [3, 7],     // Node 6 connects to Node 3 and Node 7
+    [4, 5, 6]   // Node 7 connects to Node 4, Node 5, and Node 6
+  ]
+];
 
 export default function Dashboard() {
   const theme = useTheme();
@@ -144,8 +143,6 @@ export default function Dashboard() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [autoPlay, setAutoPlay] = useState(false);
   const [currentImplementation, setAlgorithmImplementation] = useState(null);
-
-  console.log("Algorithm Steps : ", algorithmSteps);
 
   const handleDrawerOpen = () => setOpen(true);
   const handleDrawerClose = () => setOpen(false);
@@ -175,6 +172,8 @@ export default function Dashboard() {
     setIsPlaying(true);
     setCurrentStep(0);
   };
+
+
 
   const generateParameters = (parameters, algorithmName) => {
     return parameters.map(param => {
@@ -377,29 +376,29 @@ export default function Dashboard() {
     if (isPlaying && currentStep < algorithmSteps.length - 1) {
       const timer = setTimeout(() => {
         setCurrentStep((prevStep) => prevStep + 1);
-      }, 500);
+      }, 400); // Reduced delay
       return () => clearTimeout(timer);
     } else if (isPlaying && autoPlay && currentStep >= algorithmSteps.length - 1) {
-      setIsPlaying(false); // Stop when reaching the end
-      setAutoPlay(false); // Reset autoplay mode
+      setIsPlaying(false);
+      setAutoPlay(false);
     }
   }, [isPlaying, currentStep, algorithmSteps, autoPlay]);
 
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBarStyled position="fixed" open={open}>
-        <Toolbar>
+      <AppBarStyled position="fixed" open={open} >
+        <Toolbar sx={{ justifyContent: 'left' }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
             onClick={handleDrawerOpen}
             edge="start"
-            sx={{ mr: 2, ...(open && { display: 'none' }) }}
+            sx={{ mr: 1.6, ...(open && { display: 'none' }), mb: 2 }} // Reduced margin
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 'bold', mb: 2 }}>
             Algorithm Visualizer
           </Typography>
         </Toolbar>
@@ -407,7 +406,6 @@ export default function Dashboard() {
       <Drawer
         sx={{
           width: drawerWidth,
-          flexShrink: 0,
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
@@ -418,7 +416,7 @@ export default function Dashboard() {
         anchor="left"
         open={open}
       >
-        <DrawerHeader sx={{ backgroundColor: 'white' }}>
+        <DrawerHeader sx={{ backgroundColor: 'white', mb: 2, height: '48px', minHeight: '48px' }}>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
@@ -441,22 +439,21 @@ export default function Dashboard() {
               expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}
               aria-controls={`${category.title}-content`}
               id={`${category.title}-header`}
-              sx={{
-                color: 'white', // White text
-              }}
+              sx={{ color: 'white' }}
             >
-              <Typography sx={{
-                textShadow: '1px 1px 1px black', // Black shadow
-              }}
-              >{category.title}</Typography>
+              <Typography sx={{ textShadow: '1px 1px 1px black' }}>
+                {category.title}
+              </Typography>
             </AccordionSummary>
             <AccordionDetails>
               <Box>
                 {category.algorithms.map((algorithmName, idx) => (
-                  <ListItem sx={{
-                    color: 'white', // White text
-                  }}
-                    button="true" key={idx} onClick={() => handleAlgorithmSelection(category.title, algorithmName)}>
+                  <ListItem
+                    button="true"
+                    sx={{ color: 'white' }}
+                    key={idx}
+                    onClick={() => handleAlgorithmSelection(category.title, algorithmName)}
+                  >
                     <ListItemText primary={algorithmName} />
                   </ListItem>
                 ))}
@@ -467,56 +464,56 @@ export default function Dashboard() {
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-        <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', pl: 2 }}>
+        <Toolbar sx={{ backgroundColor: '#fff', justifyContent: 'flex-start', pl: 1.6 }}> {/* Reduced padding */}
           <IconButton color="primary" onClick={handlePreviousStep} sx={{ color: '#d32f2f' }}>
             <SkipPreviousIcon />
-            <Typography variant="caption" sx={{ fontSize: '0.875rem' }}>Previous</Typography> {/* Adjusted font size */}
+            <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Previous</Typography>
           </IconButton>
           {isPlaying ? (
             <IconButton color="primary" onClick={handlePause} sx={{ color: '#0288d1' }}>
               <PauseIcon />
-              <Typography variant="caption" sx={{ fontSize: '0.875rem' }}>Pause</Typography> {/* Adjusted font size */}
+              <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Pause</Typography>
             </IconButton>
           ) : (
             <IconButton color="primary" onClick={handlePlay} sx={{ color: '#388e3c' }}>
               <PlayArrowIcon />
-              <Typography variant="caption" sx={{ fontSize: '0.875rem' }}>Play</Typography> {/* Adjusted font size */}
+              <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Play</Typography>
             </IconButton>
           )}
           <IconButton color="primary" onClick={handleNextStep} sx={{ color: '#d32f2f' }}>
             <SkipNextIcon />
-            <Typography variant="caption" sx={{ fontSize: '0.875rem' }}>Next</Typography> {/* Adjusted font size */}
+            <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Next</Typography>
           </IconButton>
           <IconButton color="primary" onClick={handleRunAllSteps} sx={{ color: '#ffa000' }}>
             <FastForwardIcon />
-            <Typography variant="caption" sx={{ fontSize: '0.875rem' }}>Run All</Typography> {/* Adjusted font size */}
+            <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Run All</Typography>
           </IconButton>
           <IconButton color="primary" onClick={handleRunVisualized} sx={{ color: '#7b1fa2' }}>
             <PlayCircleFilledIcon />
-            <Typography variant="caption" sx={{ fontSize: '0.875rem' }}>Visualize</Typography> {/* Adjusted font size */}
+            <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>Visualize</Typography>
           </IconButton>
         </Toolbar>
-        <Box sx={{ display: 'flex', height: 'calc(100vh - 64px - 56px)', flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', height: 'calc(100vh - 64px - 48px)', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', width: '100%' }}>
-            <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', height: "100" }}>
-              <Card sx={{ height: 'calc(33vh - (64px + 56px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
+            <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', height: "100" }}> {/* Reduced width */}
+              <Card sx={{ height: 'calc(33vh - (64px + 48px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
                 <CardContent>
-                  <Typography variant="h6">Initial Parameters</Typography>
-                  <pre>{JSON.stringify(generatedParams, null, 2)}</pre>
+                  <Typography variant="subtitle2">Initial Parameters</Typography>
+                  <pre style={{ fontSize: '0.8rem' }}>{JSON.stringify(generatedParams, null, 2)}</pre>
                 </CardContent>
               </Card>
-              <Card sx={{ height: 'calc(33vh - (64px + 56px) / 3)', overflowY: 'auto', overflowX: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle, border: '1px solid black' }}>
+              <Card sx={{ height: 'calc(33vh - (64px + 48px) / 3)', overflowY: 'auto', overflowX: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle, border: '1px solid black' }}>
                 <Visualizer steps={algorithmSteps} currentStep={currentStep} stepType={currentImplementation?.visualization.stepType} />
               </Card>
-              <Card sx={{ height: 'calc(33vh - (64px + 56px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
+              <Card sx={{ height: 'calc(33vh - (64px + 48px) / 3)', overflowY: 'auto', backgroundColor: '#333', color: '#ddd', ...scrollbarStyle }}>
                 <CardContent>
-                  <Typography variant="subtitle1">Final Result:</Typography>
-                  <pre>{JSON.stringify(finalResult, null, 2)}</pre>
+                  <Typography variant="subtitle2">Final Result:</Typography>
+                  <pre style={{ fontSize: '0.8rem' }}>{JSON.stringify(finalResult, null, 2)}</pre>
                 </CardContent>
               </Card>
             </Box>
             <Box sx={{
-              width: '50%',
+              width: '50%', // Reduced width
               position: 'sticky',
               top: 0,
               height: '50vh',
@@ -531,7 +528,7 @@ export default function Dashboard() {
                 onChange={(e) => setCode(e.target.value)}
                 sx={{ height: '100%', color: '#ddd', fontFamily: 'monospace', ...scrollbarStyle }}
                 inputProps={{
-                  style: { color: '#ddd', backgroundColor: '#333', padding: '16px', border: 'none' }
+                  style: { color: '#ddd', backgroundColor: '#333', padding: '12px', fontSize: '0.8rem', border: 'none' }
                 }}
               />
             </Box>

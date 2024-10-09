@@ -1656,38 +1656,38 @@ export const implementations = {
           finalType: 'number',
         },
         code: `
-        function levenshteinDistance(str1, str2) {
-            const dp = Array.from({ length: str1.length + 1 }, () => Array(str2.length + 1).fill(0));
-            
-            for (let i = 0; i <= str1.length; i++) dp[i][0] = i;
-            for (let j = 0; j <= str2.length; j++) dp[0][j] = j;
-    
-            for (let i = 1; i <= str1.length; i++) {
-                for (let j = 1; j <= str2.length; j++) {
-                    if (str1[i - 1] === str2[j - 1]) {
-                        dp[i][j] = dp[i - 1][j - 1];
-                    } else {
-                        dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
-                    }
-                }
-            }
-            return dp[str1.length][str2.length];
-        }
+          function levenshteinDistance(str1, str2) {
+              const dp = Array.from({ length: str1.length + 1 }, () => Array(str2.length + 1).fill(0));
+              
+              for (let i = 0; i <= str1.length; i++) dp[i][0] = i;
+              for (let j = 0; j <= str2.length; j++) dp[0][j] = j;
+      
+              for (let i = 1; i <= str1.length; i++) {
+                  for (let j = 1; j <= str2.length; j++) {
+                      if (str1[i - 1] === str2[j - 1]) {
+                          dp[i][j] = dp[i - 1][j - 1];
+                      } else {
+                          dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+                      }
+                  }
+              }
+              return dp[str1.length][str2.length];
+          }
         `,
         execute: async function (str1, str2, updateStep) {
           if (!str1 || !str2) {
             throw new Error('Both strings must be provided.');
           }
-
+      
           const dp = Array.from({ length: str1.length + 1 }, () => Array(str2.length + 1).fill(0));
-
+      
           // Initialize the base cases
           for (let i = 0; i <= str1.length; i++) dp[i][0] = i;
           for (let j = 0; j <= str2.length; j++) dp[0][j] = j;
-
+      
           // Update step for initialization
           await updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
-
+      
           for (let i = 1; i <= str1.length; i++) {
             for (let j = 1; j <= str2.length; j++) {
               if (str1[i - 1] === str2[j - 1]) {
@@ -1695,18 +1695,18 @@ export const implementations = {
               } else {
                 dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
               }
-
+      
               // Update the visualization for each step
-              await updateStep({ arr: dp, current: [i, j], operation: 'update', final: false });
+              await updateStep({ arr: dp.map(row => [...row]), current: [i, j], operation: 'update', final: false });
             }
           }
-
+      
           // Final step to mark completion
-          await updateStep({ arr: dp, current: [], operation: 'final', final: true });
-
+          await updateStep({ arr: dp.map(row => [...row]), current: [], operation: 'final', final: true });
+      
           return dp[str1.length][str2.length];
         },
-      },
+      },      
       {
         name: 'Shortest Common Supersequence',
         parameters: [
@@ -1841,6 +1841,7 @@ export const implementations = {
             }
             updateStep({ arr: triangle.flat(), current: [], operation: 'update', final: false });
           }
+          
           updateStep({ arr: triangle.flat(), current: [], operation: 'final', final: true });
           return triangle;
         },
@@ -2038,11 +2039,11 @@ export const implementations = {
         execute: async function (set, target, updateStep) {
           const n = set.length;
           const dp = Array.from({ length: n + 1 }, () => Array(target + 1).fill(false));
-
+        
           // Initialize the dp table for the base case
           for (let i = 0; i <= n; i++) dp[i][0] = true;
-          updateStep({ arr: dp, current: [], operation: 'initialize', final: false });
-
+          updateStep({ arr: dp.map(row => [...row]), current: [], operation: 'initialize', final: false });
+        
           for (let i = 1; i <= n; i++) {
             for (let j = 1; j <= target; j++) {
               if (set[i - 1] <= j) {
@@ -2050,13 +2051,15 @@ export const implementations = {
               } else {
                 dp[i][j] = dp[i - 1][j];
               }
-              // Update step with the current state of dp without flattening
-              updateStep({ arr: dp, current: [i, j], operation: 'update', final: false });
+              // Update step with the current state of dp
+              updateStep({ arr: dp.map(row => [...row]), current: [i, j], operation: 'update', final: false });
             }
           }
-          updateStep({ arr: dp, current: [], operation: 'final', final: true });
+        
+          // Final step to mark completion
+          updateStep({ arr: dp.map(row => [...row]), current: [], operation: 'final', final: true });
           return dp[n][target];
-        }
+        }        
       },
       {
         name: 'Z String Search',

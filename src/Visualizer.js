@@ -96,12 +96,12 @@ export default function Visualizer({ steps, currentStep, stepType }) {
 
   const renderMatrix = (stepData) => {
     const { arr = [[]], action, current } = stepData;
-
+  
     if (!Array.isArray(arr)) {
       console.error("arr is not a 2D array:", arr);
-      return null;
+      return <Typography color="error">Error: arr is not a 2D array.</Typography>;
     }
-
+  
     return (
       <Box mt={2}>
         {arr.map((row, rowIndex) => (
@@ -116,8 +116,8 @@ export default function Visualizer({ steps, currentStep, stepType }) {
                   textAlign: 'center',
                   backgroundColor:
                     current &&
-                      current[0] === rowIndex &&
-                      current[1] === colIndex
+                    current[0] === rowIndex &&
+                    current[1] === colIndex
                       ? operationColors[action] || '#4682B4'
                       : '#2C2C54',
                   color: 'white',
@@ -358,7 +358,7 @@ export default function Visualizer({ steps, currentStep, stepType }) {
           backgroundColor: '#333',
           display: 'flex',
           alignItems: 'center',
-          height: '60px',
+          height: '48px',  // Smaller height
           padding: '0 5px',
           borderBottom: '1px solid black',
           zIndex: 1000 // Make sure it stays on top of other content
